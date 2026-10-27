@@ -872,4 +872,27 @@ body,
   background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%) !important;
 }
 
+/* ==========================================================================
+   Hide topbar header module title & breadcrumb across all modules
+   ========================================================================== */
+.lpx-breadcrumb-container,
+.lpx-breadcrumb-wrapper,
+lpx-breadcrumb,
+.lpx-breadcrumb,
+.lpx-breadcrumb-item,
+nav[aria-label="breadcrumb"] {
+  display: none !important;
+}
+
+/* Keep topbar content (admin profile & avatar) aligned to far right */
+.lpx-topbar {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+.lpx-topbar-content {
+  margin-left: auto !important;
+}
+
 

@@ -1,93 +1,320 @@
 @if (hasLoggedIn) {
-  <div class="warehouse-dashboard-container">
-    <!-- Quick Action & Modules Grid -->
-    <div class="row g-4 mb-4">
-      <!-- Warehouses & Zones -->
-      <div class="col-xl-4 col-md-6">
-        <div class="module-card h-100">
-          <div class="module-icon bg-primary text-white">
-            <i class="fas fa-warehouse"></i>
+  <div class="dashboard-page">
+    <!-- Top Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div>
+        <h2 class="h4 font-weight-bold text-dark mb-0">Dashboard</h2>
+       <span class="text-light">Overview of your warehouse and inventory operations</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <!-- @if (isRealDataConnected) {
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1 font-size-12">
+            <i class="fas fa-database text-success fs-xs"></i>
+            <span>Live DB Connected ({{ totalDonutUnits | number }} Units)</span>
+          </span>
+        } -->
+        <button class="btn btn-sm btn-white border shadow-xs d-flex align-items-center gap-1 text-muted" (click)="fetchRealDashboardData()" [disabled]="isLoadingRealData" title="Refresh Live Data">
+          <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingRealData"></i>
+          <span class="d-none d-sm-inline">{{ isLoadingRealData ? 'Syncing...' : 'Sync' }}</span>
+        </button>
+        <!-- <div class="date-badge">
+          <i class="far fa-calendar-alt me-2 text-muted"></i>
+          <span>{{ currentDateFormatted || 'Today' }}</span>
+        </div> -->
+      </div>
+    </div>
+
+    <!-- 1. Top KPI Metric Cards (4 cards) -->
+    <div class="row g-3 mb-4">
+      @for (kpi of kpis; track kpi.title) {
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi-card h-100">
+            <div class="d-flex align-items-center gap-3">
+              <div class="kpi-icon-box" [style.background-color]="kpi.bgColor" [style.color]="kpi.color">
+                <i [class]="kpi.icon"></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="kpi-label text-truncate" [title]="kpi.title">{{ kpi.title }}</div>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">{{ kpi.value }}</span>
+                  <span class="kpi-unit">{{ kpi.unit }}</span>
+                </div>
+                <div class="kpi-trend text-truncate" [class.trend-up]="kpi.isPositive" [class.trend-down]="!kpi.isPositive">
+                  <span class="trend-pill">
+                    <i [class]="kpi.isPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                    <span>{{ kpi.trend }}</span>
+                  </span>
+                  <span class="trend-sub text-truncate">{{ kpi.trendLabel }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <h4 class="module-title">Warehouses & Zones</h4>
-          <p class="module-desc">
-            Configure distribution centers, regional fulfillment hubs, temperature zones, aisles, and storage bin locations.
-          </p>
-          <div class="module-action">
-            <a routerLink="/warehouses" class="btn btn-sm btn-outline-primary stretched-link">
-              Manage Facilities <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+        </div>
+      }
+    </div>
+
+    <!-- 2. Middle Row: Stock Movement (Chart) + Stock by Warehouse (Donut) + Recent Activities -->
+    <div class="row g-3 mb-4">
+      <!-- Stock Movement Line Chart -->
+      <div class="col-12 col-lg-5">
+        <div class="dash-card h-100">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fas fa-chart-line text-primary fs-5"></i>
+              <h5 class="dash-card-title mb-0">Stock Movement</h5>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <div class="chart-legend d-flex align-items-center gap-3">
+                <span class="legend-item"><span class="legend-dot bg-primary"></span>On Hand</span>
+                <span class="legend-item"><span class="legend-dot bg-success"></span>Available</span>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-light text-dark border py-1 px-2 d-flex align-items-center gap-1 font-size-12" type="button">
+                  <span>{{ selectedMovementFilter }}</span>
+                  <i class="fas fa-chevron-down fs-xs text-muted"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SVG Multi-line Area Chart -->
+          <div class="chart-container">
+            <svg viewBox="0 0 480 220" class="w-100 h-auto" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+                </linearGradient>
+                <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.22" />
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+
+              <!-- Dynamic Grid Lines -->
+              @for (grid of yAxisGrid; track grid.label) {
+                <line x1="50" [attr.y1]="grid.y" x2="470" [attr.y2]="grid.y" [attr.stroke]="grid.y === 180 ? '#e2e8f0' : '#f1f5f9'" stroke-width="1" />
+                <text x="42" [attr.y]="grid.y + 4" fill="#94a3b8" font-size="10" text-anchor="end">{{ grid.label }}</text>
+              }
+
+              <!-- Dynamic Area Fills -->
+              @if (blueAreaPath) {
+                <path [attr.d]="blueAreaPath" fill="url(#blueGrad)" />
+              }
+
+              @if (greenAreaPath) {
+                <path [attr.d]="greenAreaPath" fill="url(#greenGrad)" />
+              }
+
+              <!-- Dynamic Lines -->
+              @if (blueLinePath) {
+                <path [attr.d]="blueLinePath" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" />
+              }
+
+              @if (greenLinePath) {
+                <path [attr.d]="greenLinePath" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+              }
+
+              <!-- Dynamic Data Dots Blue -->
+              @for (pt of blueLinePoints; track pt.date) {
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5">
+                  <title>{{ pt.date }}: {{ pt.value | number }} On Hand</title>
+                </circle>
+              }
+
+              <!-- Dynamic Data Dots Green -->
+              @for (pt of greenLinePoints; track pt.date) {
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5">
+                  <title>{{ pt.date }}: {{ pt.value | number }} Available</title>
+                </circle>
+              }
+
+              <!-- X-Axis Labels -->
+              @for (date of movementDates; track date; let i = $index) {
+                <text [attr.x]="60 + (i * 66.666)" y="202" fill="#64748b" font-size="11" text-anchor="middle">{{ date }}</text>
+              }
+            </svg>
           </div>
         </div>
       </div>
 
-      <!-- Products & SKUs -->
-      <div class="col-xl-4 col-md-6">
-        <div class="module-card h-100">
-          <div class="module-icon bg-success text-white">
-            <i class="fas fa-tags"></i>
+      <!-- Stock by Warehouse Donut Chart -->
+      <div class="col-12 col-lg-4">
+        <div class="dash-card h-100">
+          <div class="dash-card-header mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fas fa-warehouse text-primary fs-5"></i>
+              <h5 class="dash-card-title mb-0">Stock by Warehouse</h5>
+            </div>
           </div>
-          <h4 class="module-title">Products & SKUs</h4>
-          <p class="module-desc">
-            Complete master product catalog tracking SKUs, barcodes, categories, weight metrics, dimensions, and reorder limits.
-          </p>
-          <div class="module-action">
-            <a routerLink="/products" class="btn btn-sm btn-outline-success stretched-link">
-              Product Catalog <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+
+          <div class="d-flex align-items-center justify-content-center gap-4 py-2 flex-wrap">
+            <!-- Donut SVG -->
+            <div class="position-relative donut-wrapper">
+              <svg viewBox="0 0 160 160" width="150" height="150" class="donut-svg">
+                @for (item of warehouseStock; track item.name; let i = $index) {
+                  <circle cx="80" cy="80" r="56" fill="transparent" [attr.stroke]="item.color" stroke-width="24"
+                    [attr.stroke-dasharray]="getDonutDashArray(item.percent)"
+                    [attr.stroke-dashoffset]="getDonutDashOffset(i)">
+                    <title>{{ item.name }}: {{ item.units | number }} units ({{ item.percent }}%)</title>
+                  </circle>
+                }
+              </svg>
+              <!-- Center Text inside Donut hole -->
+              <div class="donut-center-text text-center">
+                <div class="donut-center-val">{{ totalDonutUnits | number }}</div>
+                <div class="donut-center-lbl">Total Units</div>
+              </div>
+            </div>
+
+            <!-- Legend List on Right -->
+            <div class="warehouse-legend-list flex-grow-1 min-w-0" style="min-width: 0;">
+              @for (item of warehouseStock; track item.name) {
+                <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+                  <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
+                    <span class="legend-color-dot flex-shrink-0" [style.background-color]="item.color"></span>
+                    <span class="legend-wh-name text-truncate" [title]="item.name">{{ item.name }}</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                    <span class="fw-bold text-dark">{{ item.units | number }}</span>
+                    <span class="text-muted font-size-12">{{ item.percent }}%</span>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Stock Inventory -->
-      <div class="col-xl-4 col-md-6">
-        <div class="module-card h-100">
-          <div class="module-icon bg-info text-white">
-            <i class="fas fa-boxes"></i>
+      <!-- Recent Activities Timeline -->
+      <div class="col-12 col-lg-3">
+        <div class="dash-card h-100">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
+              <i class="far fa-clock text-primary fs-5 flex-shrink-0"></i>
+              <h5 class="dash-card-title mb-0 text-truncate">Recent Activities</h5>
+            </div>
+            <a routerLink="/inventory" class="card-link flex-shrink-0 text-nowrap ms-2">View All <i class="fas fa-arrow-right ms-1"></i></a>
           </div>
-          <h4 class="module-title">Stock Inventory</h4>
-          <p class="module-desc">
-            Live visibility of on-hand quantities, reserved allocations, batch numbers, lot tracking, and stock movement logs.
-          </p>
-          <div class="module-action">
-            <a routerLink="/inventory" class="btn btn-sm btn-outline-info stretched-link">
-              Inspect Stock <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+
+          <div class="activities-timeline">
+            @for (act of activities; track act.title + act.time) {
+              <div class="timeline-row d-flex align-items-start gap-2 mb-3">
+                <div class="timeline-dot-wrapper flex-shrink-0">
+                  <span class="timeline-dot" [style.background-color]="act.dotColor"></span>
+                </div>
+                <div class="flex-grow-1 min-w-0" style="min-width: 0; overflow: hidden;">
+                  <div class="timeline-title text-truncate" [title]="act.title">{{ act.title }}</div>
+                  <div class="timeline-desc text-muted text-truncate" [title]="act.description">{{ act.description }}</div>
+                </div>
+                <div class="timeline-timestamp text-end flex-shrink-0 ms-auto ps-2">
+                  <div class="timeline-time">{{ act.time }}</div>
+                  <div class="timeline-date text-muted">{{ act.date }}</div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Bottom Row: Top Products Table + Orders Overview + Quick Actions -->
+    <div class="row g-3">
+      <!-- Top Products Table -->
+      <div class="col-12 col-lg-5">
+        <div class="dash-card h-100">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fas fa-cubes text-primary fs-5"></i>
+              <h5 class="dash-card-title mb-0">Top Products by Stock</h5>
+            </div>
+            <a routerLink="/products" class="card-link">View All <i class="fas fa-arrow-right ms-1"></i></a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table top-products-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 35px;">#</th>
+                  <th scope="col">Product</th>
+                  <th scope="col">SKU</th>
+                  <th scope="col" class="text-end">On Hand</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (prod of topProducts; track prod.id) {
+                  <tr>
+                    <td class="text-muted">{{ prod.id }}</td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="product-icon-avatar">
+                          <i [class]="prod.icon"></i>
+                        </div>
+                        <span class="fw-semibold text-dark text-truncate" style="max-width: 180px;" [title]="prod.name">{{ prod.name }}</span>
+                      </div>
+                    </td>
+                    <td><span class="sku-pill">{{ prod.sku }}</span></td>
+                    <td class="text-end fw-bold text-dark">{{ prod.onHand | number }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- Inbound Receiving -->
-      <div class="col-xl-6 col-md-6">
-        <div class="module-card h-100">
-          <div class="module-icon bg-warning text-dark">
-            <i class="fas fa-truck-loading"></i>
+      <!-- Orders Overview List -->
+      <div class="col-12 col-lg-3">
+        <div class="dash-card h-100">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="far fa-list-alt text-primary fs-5"></i>
+              <h5 class="dash-card-title mb-0">Orders Overview</h5>
+            </div>
+            <a routerLink="/inbound" class="card-link">View All <i class="fas fa-arrow-right ms-1"></i></a>
           </div>
-          <h4 class="module-title">Inbound Receiving (ASN & PO)</h4>
-          <p class="module-desc">
-            Process incoming supplier consignments, dock receipt verification, quality inspection checklists, and automated bin put-away.
-          </p>
-          <div class="module-action">
-            <a routerLink="/inbound" class="btn btn-sm btn-outline-warning stretched-link">
-              Inbound Orders <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+
+          <div class="orders-overview-list d-flex flex-column gap-3">
+            @for (item of orderMetrics; track item.title) {
+              <div class="order-metric-item d-flex align-items-center gap-3">
+                <div class="order-metric-icon" [style.background-color]="item.iconBg">
+                  <i [class]="item.icon"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="order-metric-name">{{ item.title }}</div>
+                  <div class="d-flex align-items-baseline gap-2">
+                    <span class="order-metric-count">{{ item.count }}</span>
+                    <span class="order-trend-pill" [class.trend-up]="item.trendType === 'up'" [class.trend-down]="item.trendType === 'down'">
+                      <i [class]="item.trendType === 'up' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                      {{ item.trend }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
       </div>
 
-      <!-- Outbound Fulfillment -->
-      <div class="col-xl-6 col-md-12">
-        <div class="module-card h-100">
-          <div class="module-icon bg-danger text-white">
-            <i class="fas fa-shipping-fast"></i>
+      <!-- Quick Actions Grid -->
+      <div class="col-12 col-lg-4">
+        <div class="dash-card h-100">
+          <div class="dash-card-header mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fas fa-bolt text-primary fs-5"></i>
+              <h5 class="dash-card-title mb-0">Quick Actions</h5>
+            </div>
           </div>
-          <h4 class="module-title">Outbound Pick, Pack & Dispatch</h4>
-          <p class="module-desc">
-            Rapid order staging, wave/batch picking optimization, packing slip generation, and carrier shipping dispatch tracking.
-          </p>
-          <div class="module-action">
-            <a routerLink="/outbound" class="btn btn-sm btn-outline-danger stretched-link">
-              Dispatch Queue <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+
+          <div class="quick-actions-grid">
+            @for (act of quickActions; track act.label) {
+              <button type="button" class="quick-action-tile" (click)="navigateTo(act.route)">
+                <div class="quick-action-icon">
+                  <i [class]="act.icon"></i>
+                </div>
+                <span class="quick-action-text">{{ act.label }}</span>
+              </button>
+            }
           </div>
         </div>
       </div>
@@ -98,10 +325,7 @@
     <div class="card border-0 shadow-sm p-5 rounded-4" style="max-width: 420px; width: 100%;">
       <div class="spinner-border text-primary mb-3 mx-auto" role="status" style="width: 3rem; height: 3rem;"></div>
       <h4 class="font-weight-bold mb-2">Redirecting to Login...</h4>
-      <p class="text-muted small mb-3">Please sign in with your credentials to access the Warehouse Management System.</p>
-      <button (click)="login()" class="btn btn-primary btn-sm py-2 px-3 shadow-sm" type="button">
-        <i class="fas fa-sign-in-alt me-1"></i> Click to Login
-      </button>
+      <p class="text-muted">Please wait while we establish your secure session.</p>
     </div>
   </div>
 }

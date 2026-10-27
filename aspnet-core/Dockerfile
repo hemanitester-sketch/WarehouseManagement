@@ -1,24 +1,24 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution and project definitions
-COPY ["aspnet-core/WarehouseManagement.sln", "aspnet-core/"]
-COPY ["aspnet-core/common.props", "aspnet-core/"]
-COPY ["aspnet-core/src/WarehouseManagement.Domain.Shared/WarehouseManagement.Domain.Shared.csproj", "aspnet-core/src/WarehouseManagement.Domain.Shared/"]
-COPY ["aspnet-core/src/WarehouseManagement.Domain/WarehouseManagement.Domain.csproj", "aspnet-core/src/WarehouseManagement.Domain/"]
-COPY ["aspnet-core/src/WarehouseManagement.Application.Contracts/WarehouseManagement.Application.Contracts.csproj", "aspnet-core/src/WarehouseManagement.Application.Contracts/"]
-COPY ["aspnet-core/src/WarehouseManagement.Application/WarehouseManagement.Application.csproj", "aspnet-core/src/WarehouseManagement.Application/"]
-COPY ["aspnet-core/src/WarehouseManagement.EntityFrameworkCore/WarehouseManagement.EntityFrameworkCore.csproj", "aspnet-core/src/WarehouseManagement.EntityFrameworkCore/"]
-COPY ["aspnet-core/src/WarehouseManagement.HttpApi/WarehouseManagement.HttpApi.csproj", "aspnet-core/src/WarehouseManagement.HttpApi/"]
-COPY ["aspnet-core/src/WarehouseManagement.HttpApi.Client/WarehouseManagement.HttpApi.Client.csproj", "aspnet-core/src/WarehouseManagement.HttpApi.Client/"]
-COPY ["aspnet-core/src/WarehouseManagement.HttpApi.Host/WarehouseManagement.HttpApi.Host.csproj", "aspnet-core/src/WarehouseManagement.HttpApi.Host/"]
-COPY ["aspnet-core/src/WarehouseManagement.DbMigrator/WarehouseManagement.DbMigrator.csproj", "aspnet-core/src/WarehouseManagement.DbMigrator/"]
+# Copy common.props and project files
+COPY ["common.props", "./"]
+COPY ["src/WarehouseManagement.Domain.Shared/WarehouseManagement.Domain.Shared.csproj", "src/WarehouseManagement.Domain.Shared/"]
+COPY ["src/WarehouseManagement.Domain/WarehouseManagement.Domain.csproj", "src/WarehouseManagement.Domain/"]
+COPY ["src/WarehouseManagement.Application.Contracts/WarehouseManagement.Application.Contracts.csproj", "src/WarehouseManagement.Application.Contracts/"]
+COPY ["src/WarehouseManagement.Application/WarehouseManagement.Application.csproj", "src/WarehouseManagement.Application/"]
+COPY ["src/WarehouseManagement.EntityFrameworkCore/WarehouseManagement.EntityFrameworkCore.csproj", "src/WarehouseManagement.EntityFrameworkCore/"]
+COPY ["src/WarehouseManagement.HttpApi/WarehouseManagement.HttpApi.csproj", "src/WarehouseManagement.HttpApi/"]
+COPY ["src/WarehouseManagement.HttpApi.Client/WarehouseManagement.HttpApi.Client.csproj", "src/WarehouseManagement.HttpApi.Client/"]
+COPY ["src/WarehouseManagement.HttpApi.Host/WarehouseManagement.HttpApi.Host.csproj", "src/WarehouseManagement.HttpApi.Host/"]
+COPY ["src/WarehouseManagement.DbMigrator/WarehouseManagement.DbMigrator.csproj", "src/WarehouseManagement.DbMigrator/"]
 
-RUN dotnet restore "aspnet-core/src/WarehouseManagement.HttpApi.Host/WarehouseManagement.HttpApi.Host.csproj"
+# Restore packages directly for Host project
+RUN dotnet restore "src/WarehouseManagement.HttpApi.Host/WarehouseManagement.HttpApi.Host.csproj"
 
 # Copy full source and publish
-COPY aspnet-core/ aspnet-core/
-WORKDIR "/src/aspnet-core/src/WarehouseManagement.HttpApi.Host"
+COPY . .
+WORKDIR "/src/src/WarehouseManagement.HttpApi.Host"
 RUN dotnet publish "WarehouseManagement.HttpApi.Host.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime Image

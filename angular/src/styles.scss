@@ -9,6 +9,8 @@
   }
 }
 :root {
+  --lpx-brand: #2563eb !important;
+  --lpx-brand-hover: #3b82f6 !important;
   --lpx-logo: url('/assets/images/logo/logo-light.png');
   --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png');
   --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -810,4 +812,64 @@ abp-language-selection,
 .lpx-topbar-container lpx-language-selection {
   display: none !important;
 }
+
+/* ==========================================================================
+   LeptonX Sidebar Menu - Override Pink with Blue on Hover & Active
+   ========================================================================== */
+:root,
+body,
+.lpx-sidebar,
+.lpx-nav-menu,
+.lpx-menu-item {
+  --lpx-brand: #2563eb !important;
+  --lpx-brand-rgb: 37, 99, 235 !important;
+}
+
+/* Menu icons & text on hover, active, selected, and expanded */
+.lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link:hover .dd-icon,
+.lpx-nav-menu .lpx-menu-item-link.selected .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link.selected .dd-icon,
+.lpx-nav-menu .lpx-menu-item-link.expanded .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link.expanded .dd-icon,
+.lpx-menu-item:hover .lpx-menu-item-icon,
+.lpx-menu-item:hover .dd-icon,
+.lpx-menu-item.selected .lpx-menu-item-icon,
+.lpx-menu-item.selected .dd-icon,
+.lpx-menu-item.expanded .lpx-menu-item-icon,
+.lpx-menu-item.expanded .dd-icon,
+.lpx-inner-menu-item .lpx-menu-item-link.selected .lpx-menu-item-icon,
+.lpx-inner-menu-item .lpx-menu-item-link:hover .lpx-menu-item-icon,
+.lpx-menu-item-link:hover > i,
+.lpx-menu-item-link.selected > i,
+.lpx-menu-item-link.active > i,
+.lpx-menu-item-link.active .lpx-menu-item-icon,
+.lpx-menu-item.active .lpx-menu-item-icon {
+  color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+/* Any SVG or icon fills in sidebar */
+.lpx-menu-item:hover svg,
+.lpx-menu-item.selected svg,
+.lpx-menu-item-link:hover svg,
+.lpx-menu-item-link.selected svg,
+.lpx-nav-menu .lpx-menu-item-link.selected svg path,
+.lpx-nav-menu .lpx-menu-item-link:hover svg path {
+  fill: #2563eb !important;
+  stroke: #2563eb !important;
+}
+
+/* Active / Hover borders or indicators */
+.lpx-breadcrumb-dropdown-item:hover::before,
+.lpx-breadcrumb-dropdown-item.active::before {
+  background-color: #2563eb !important;
+}
+.bg-brand {
+  background: #2563eb !important;
+}
+.bg-brand-gradient {
+  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%) !important;
+}
+
 

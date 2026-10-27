@@ -6,7 +6,7 @@ export const environment = {
   production: true,
   application: {
     baseUrl,
-    name: 'WarehouseManagement',
+    name: 'Warehouse Management',
     logoUrl: '',
   },
   oAuthConfig: {

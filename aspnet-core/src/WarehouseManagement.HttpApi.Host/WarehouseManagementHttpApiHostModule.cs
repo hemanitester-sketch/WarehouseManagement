@@ -61,6 +61,7 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
             builder.AddServer(options =>
             {
                 options.UseAspNetCore().DisableTransportSecurityRequirement();
+                options.SetIssuer(new Uri("https://warehousemanagement-tewt.onrender.com/"));
             });
         });
     }

@@ -1,4 +1,4 @@
-﻿namespace WarehouseManagement.MultiTenancy;
+namespace WarehouseManagement.MultiTenancy;
 
 public static class MultiTenancyConsts
 {
@@ -6,5 +6,6 @@ public static class MultiTenancyConsts
      * If you will never need to multi-tenancy, you can remove
      * related modules and code parts, including this file.
      */
-    public const bool IsEnabled = true;
+    // Temporarily disabled; change back to true whenever multi-tenancy is required
+    public const bool IsEnabled = false;
 }

@@ -799,3 +799,15 @@ body {
     }
   }
 }
+
+/* Hide Language Switcher in Main App Header / Topbar (Next to Admin) */
+lpx-language-selection,
+.lpx-language-selection,
+lpx-mn-language-selection,
+.lpx-mn-language-selection,
+abp-language-selection,
+.lpx-topbar-content lpx-language-selection,
+.lpx-topbar-container lpx-language-selection {
+  display: none !important;
+}
+

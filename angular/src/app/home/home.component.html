@@ -1,94 +1,107 @@
-<div class="warehouse-dashboard-container">
-  <!-- Quick Action & Modules Grid -->
-  <div class="row g-4 mb-4">
-    <!-- Warehouses & Zones -->
-    <div class="col-xl-4 col-md-6">
-      <div class="module-card h-100">
-        <div class="module-icon bg-primary text-white">
-          <i class="fas fa-warehouse"></i>
-        </div>
-        <h4 class="module-title">Warehouses & Zones</h4>
-        <p class="module-desc">
-          Configure distribution centers, regional fulfillment hubs, temperature zones, aisles, and storage bin locations.
-        </p>
-        <div class="module-action">
-          <a routerLink="/warehouses" class="btn btn-sm btn-outline-primary stretched-link">
-            Manage Facilities <i class="fas fa-arrow-right ms-1"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Products & SKUs -->
-    <div class="col-xl-4 col-md-6">
-      <div class="module-card h-100">
-        <div class="module-icon bg-success text-white">
-          <i class="fas fa-tags"></i>
-        </div>
-        <h4 class="module-title">Products & SKUs</h4>
-        <p class="module-desc">
-          Complete master product catalog tracking SKUs, barcodes, categories, weight metrics, dimensions, and reorder limits.
-        </p>
-        <div class="module-action">
-          <a routerLink="/products" class="btn btn-sm btn-outline-success stretched-link">
-            Product Catalog <i class="fas fa-arrow-right ms-1"></i>
-          </a>
+@if (hasLoggedIn) {
+  <div class="warehouse-dashboard-container">
+    <!-- Quick Action & Modules Grid -->
+    <div class="row g-4 mb-4">
+      <!-- Warehouses & Zones -->
+      <div class="col-xl-4 col-md-6">
+        <div class="module-card h-100">
+          <div class="module-icon bg-primary text-white">
+            <i class="fas fa-warehouse"></i>
+          </div>
+          <h4 class="module-title">Warehouses & Zones</h4>
+          <p class="module-desc">
+            Configure distribution centers, regional fulfillment hubs, temperature zones, aisles, and storage bin locations.
+          </p>
+          <div class="module-action">
+            <a routerLink="/warehouses" class="btn btn-sm btn-outline-primary stretched-link">
+              Manage Facilities <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stock Inventory -->
-    <div class="col-xl-4 col-md-6">
-      <div class="module-card h-100">
-        <div class="module-icon bg-info text-white">
-          <i class="fas fa-boxes"></i>
-        </div>
-        <h4 class="module-title">Stock Inventory</h4>
-        <p class="module-desc">
-          Live visibility of on-hand quantities, reserved allocations, batch numbers, lot tracking, and stock movement logs.
-        </p>
-        <div class="module-action">
-          <a routerLink="/inventory" class="btn btn-sm btn-outline-info stretched-link">
-            Inspect Stock <i class="fas fa-arrow-right ms-1"></i>
-          </a>
+      <!-- Products & SKUs -->
+      <div class="col-xl-4 col-md-6">
+        <div class="module-card h-100">
+          <div class="module-icon bg-success text-white">
+            <i class="fas fa-tags"></i>
+          </div>
+          <h4 class="module-title">Products & SKUs</h4>
+          <p class="module-desc">
+            Complete master product catalog tracking SKUs, barcodes, categories, weight metrics, dimensions, and reorder limits.
+          </p>
+          <div class="module-action">
+            <a routerLink="/products" class="btn btn-sm btn-outline-success stretched-link">
+              Product Catalog <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Inbound Receiving -->
-    <div class="col-xl-6 col-md-6">
-      <div class="module-card h-100">
-        <div class="module-icon bg-warning text-dark">
-          <i class="fas fa-truck-loading"></i>
-        </div>
-        <h4 class="module-title">Inbound Receiving (ASN & PO)</h4>
-        <p class="module-desc">
-          Process incoming supplier consignments, dock receipt verification, quality inspection checklists, and automated bin put-away.
-        </p>
-        <div class="module-action">
-          <a routerLink="/inbound" class="btn btn-sm btn-outline-warning stretched-link">
-            Inbound Orders <i class="fas fa-arrow-right ms-1"></i>
-          </a>
+      <!-- Stock Inventory -->
+      <div class="col-xl-4 col-md-6">
+        <div class="module-card h-100">
+          <div class="module-icon bg-info text-white">
+            <i class="fas fa-boxes"></i>
+          </div>
+          <h4 class="module-title">Stock Inventory</h4>
+          <p class="module-desc">
+            Live visibility of on-hand quantities, reserved allocations, batch numbers, lot tracking, and stock movement logs.
+          </p>
+          <div class="module-action">
+            <a routerLink="/inventory" class="btn btn-sm btn-outline-info stretched-link">
+              Inspect Stock <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Outbound Fulfillment -->
-    <div class="col-xl-6 col-md-12">
-      <div class="module-card h-100">
-        <div class="module-icon bg-danger text-white">
-          <i class="fas fa-shipping-fast"></i>
+      <!-- Inbound Receiving -->
+      <div class="col-xl-6 col-md-6">
+        <div class="module-card h-100">
+          <div class="module-icon bg-warning text-dark">
+            <i class="fas fa-truck-loading"></i>
+          </div>
+          <h4 class="module-title">Inbound Receiving (ASN & PO)</h4>
+          <p class="module-desc">
+            Process incoming supplier consignments, dock receipt verification, quality inspection checklists, and automated bin put-away.
+          </p>
+          <div class="module-action">
+            <a routerLink="/inbound" class="btn btn-sm btn-outline-warning stretched-link">
+              Inbound Orders <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
-        <h4 class="module-title">Outbound Pick, Pack & Dispatch</h4>
-        <p class="module-desc">
-          Rapid order staging, wave/batch picking optimization, packing slip generation, and carrier shipping dispatch tracking.
-        </p>
-        <div class="module-action">
-          <a routerLink="/outbound" class="btn btn-sm btn-outline-danger stretched-link">
-            Dispatch Queue <i class="fas fa-arrow-right ms-1"></i>
-          </a>
+      </div>
+
+      <!-- Outbound Fulfillment -->
+      <div class="col-xl-6 col-md-12">
+        <div class="module-card h-100">
+          <div class="module-icon bg-danger text-white">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          <h4 class="module-title">Outbound Pick, Pack & Dispatch</h4>
+          <p class="module-desc">
+            Rapid order staging, wave/batch picking optimization, packing slip generation, and carrier shipping dispatch tracking.
+          </p>
+          <div class="module-action">
+            <a routerLink="/outbound" class="btn btn-sm btn-outline-danger stretched-link">
+              Dispatch Queue <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+} @else {
+  <div class="d-flex justify-content-center align-items-center p-5 text-center" style="min-height: 450px;">
+    <div class="card border-0 shadow-sm p-5 rounded-4" style="max-width: 420px; width: 100%;">
+      <div class="spinner-border text-primary mb-3 mx-auto" role="status" style="width: 3rem; height: 3rem;"></div>
+      <h4 class="font-weight-bold mb-2">Redirecting to Login...</h4>
+      <p class="text-muted small mb-3">Please sign in with your credentials to access the Warehouse Management System.</p>
+      <button (click)="login()" class="btn btn-primary btn-sm py-2 px-3 shadow-sm" type="button">
+        <i class="fas fa-sign-in-alt me-1"></i> Click to Login
+      </button>
+    </div>
+  </div>
+}

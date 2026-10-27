@@ -50,6 +50,9 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+        var authority = configuration["AuthServer:Authority"]?.TrimEnd('/');
+
         PreConfigure<OpenIddictBuilder>(builder =>
         {
             builder.AddValidation(options =>
@@ -61,7 +64,10 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
             builder.AddServer(options =>
             {
                 options.UseAspNetCore().DisableTransportSecurityRequirement();
-                options.SetIssuer(new Uri("https://warehousemanagement-tewt.onrender.com/"));
+                if (!string.IsNullOrEmpty(authority))
+                {
+                    options.SetIssuer(new Uri(authority + "/"));
+                }
             });
         });
     }

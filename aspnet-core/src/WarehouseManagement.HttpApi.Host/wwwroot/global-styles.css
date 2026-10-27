@@ -27,12 +27,38 @@ body {
 }
 
 /* Brand Title & Logo */
-.account-brand, .lpx-brand-logo, h1, .brand-title {
+.lpx-logo-container {
+  text-align: center;
+  margin-top: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.lpx-brand-logo {
+  width: 54px !important;
+  height: 54px !important;
+  margin: 0 auto 0.75rem auto !important;
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative;
+}
+
+.lpx-brand-logo::after {
+  content: '📦';
+  font-size: 28px;
+  line-height: 1;
+}
+
+.lpx-brand-name {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.5rem !important;
   font-weight: 800 !important;
-  letter-spacing: -0.5px;
-  color: #ffffff !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px !important;
+  color: #0f172a !important;
+  margin-top: 0.25rem !important;
 }
 
 /* Top App Name in Auth Page */
@@ -43,15 +69,22 @@ body > .container,
   margin: 0 auto;
 }
 
-/* Card Styling (Tenant box & Main Login box) */
-.card, .account-card, .lpx-login-card {
+/* Main Login Card */
+.col-md-8.col-lg-5 > .card.mt-3, .account-card, .lpx-login-card {
   background: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 1.25rem !important;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
   overflow: hidden;
   margin-bottom: 1.25rem !important;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Top Language & Tenant Card - Hidden for a clean single-tenant login */
+.col-md-8.col-lg-5 > .card.mb-3,
+.dropdown[aria-labelledby="languageDropdown"],
+.dropdown:has(> button i.bi-translate) {
+  display: none !important;
 }
 
 .card-body {
@@ -168,12 +201,14 @@ a:hover {
   text-decoration: underline !important;
 }
 
-/* Tenant Switch Button */
-.card .btn-outline-primary, .card .btn-sm {
-  border-radius: 0.5rem !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
-  padding: 0.3rem 0.75rem !important;
+/* Tenant Switch Button (Hidden for now) */
+#AbpTenantSwitchLink,
+.tenant-switch-wrapper,
+div:has(> #AbpTenantSwitchLink),
+div:has(> div > #AbpTenantSwitchLink),
+.row:has(#AbpTenantSwitchLink),
+.card-body > hr {
+  display: none !important;
 }
 
 /* Logo styling */

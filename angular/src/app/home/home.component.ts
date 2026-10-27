@@ -1,5 +1,5 @@
 import { AuthService } from '@abp/ng.core';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -9,11 +9,17 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./home.component.scss'],
   imports: [CommonModule, RouterLink],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
 
   get hasLoggedIn(): boolean {
     return this.authService.isAuthenticated;
+  }
+
+  ngOnInit() {
+    if (!this.hasLoggedIn) {
+      this.login();
+    }
   }
 
   login() {

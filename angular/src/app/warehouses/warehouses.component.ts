@@ -78,7 +78,7 @@ export class WarehousesComponent implements OnInit {
     country: 'India',
     contactPerson: 'Hub Operations Manager',
     contactPhone: '+91 98765 43210',
-    contactEmail: 'operations@apexlogistics.com',
+    contactEmail: 'operations@warehousemanagement.com',
     totalAreaSqFt: 50000,
     isActive: true
   };
@@ -389,7 +389,7 @@ export class WarehousesComponent implements OnInit {
       country: 'India',
       contactPerson: 'Facility Operations Head',
       contactPhone: '+91 98765 43210',
-      contactEmail: 'operations@apexlogistics.com',
+      contactEmail: 'operations@warehousemanagement.com',
       totalAreaSqFt: 50000,
       isActive: true
     };

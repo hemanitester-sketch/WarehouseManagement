@@ -1,0 +1,474 @@
+<div class="container-fluid inventory-container">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Live Inventory & Stock Balances</h2>
+        <span class="wms-badge wms-badge-success inventory-badge">Real-Time Balances</span>
+      </div>
+      <p class="text-muted small mb-0 mt-0.5 inventory-subtitle">
+        Track stock balances across warehouse bins with On-Hand, Allocated, and Available quantities, FEFO lot tracking, and audit trails.
+      </p>
+    </div>
+    <div class="btn-group shadow-sm">
+      <button 
+        type="button"
+        class="btn btn-sm" 
+        [ngClass]="activeTab === 'stock' ? 'btn-wms-primary' : 'btn-wms-outline'" 
+        (click)="switchTab('stock')"
+      >
+        <i class="fas fa-boxes me-1"></i> Stock Ledger
+      </button>
+      <button 
+        type="button"
+        class="btn btn-sm" 
+        [ngClass]="activeTab === 'transactions' ? 'btn-wms-primary' : 'btn-wms-outline'" 
+        (click)="switchTab('transactions')"
+      >
+        <i class="fas fa-history me-1"></i> Audit Transactions
+      </button>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-blue">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ uniqueSkusCount }}</div>
+          <div class="metric-label kpi-label-compact">Active SKUs In Stock</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-green">
+          <i class="fas fa-cubes"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ totalOnHand | number }}</div>
+          <div class="metric-label kpi-label-compact">Total On-Hand Quantity</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-amber">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ totalAllocated | number }}</div>
+          <div class="metric-label kpi-label-compact">Allocated for Orders</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-purple">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact text-success">{{ totalAvailable | number }}</div>
+          <div class="metric-label kpi-label-compact">Available Free to Sell</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar (Stock Tab) -->
+  <div *ngIf="activeTab === 'stock'" class="wms-card p-2 px-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="wms-search-input">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="form-control form-control-sm" 
+            placeholder="Search by SKU, Product Name, Bin Barcode, Lot Number..." 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="applyFilter()"
+          />
+        </div>
+      </div>
+      <div class="col-12 col-md-4 col-lg-3">
+        <select 
+          class="form-select form-select-sm" 
+          [(ngModel)]="selectedWarehouseFilter" 
+          (ngModelChange)="loadInventory()"
+        >
+          <option value="">All Warehouses</option>
+          <option *ngFor="let w of warehouses" [value]="w.id">{{ w.code }} - {{ w.name }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 text-md-end">
+        <span class="text-muted showing-count">
+          Showing <strong>{{ filteredItems.length }}</strong> inventory records
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-4">
+    <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+    <p class="text-muted small mt-2 mb-0">Fetching live stock levels...</p>
+  </div>
+
+  <!-- Stock Ledger Table (Compact Grid) -->
+  <div *ngIf="!isLoading && activeTab === 'stock' && filteredItems.length > 0" class="wms-card wms-grid-card">
+    <div class="table-responsive">
+      <table class="wms-table wms-table-compact align-middle mb-0">
+        <thead>
+          <tr>
+            <th class="col-sku">Product / SKU</th>
+            <th class="col-bin">Location / Bin</th>
+            <th class="col-lot">Lot / Batch</th>
+            <th class="col-exp">Expiry Date</th>
+            <th class="col-onhand">On Hand</th>
+            <th class="col-allocated">Allocated</th>
+            <th class="col-available">Available</th>
+            <th class="col-status">Status</th>
+            <th class="col-actions text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredItems">
+            <td>
+              <div class="font-monospace font-weight-bold text-primary lh-1 mb-0.5">{{ item.productSku }}</div>
+              <small class="text-muted" style="font-size: 0.72rem;">{{ item.productName }}</small>
+            </td>
+            <td>
+              <span class="font-monospace text-dark font-weight-bold d-block lh-1 mb-0.5" style="font-size: 0.8rem;">
+                <i class="fas fa-barcode text-primary me-1"></i>{{ item.locationBarcode }}
+              </span>
+              <small class="text-muted" style="font-size: 0.7rem;">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border" style="font-size: 0.7rem; padding: 0.2rem 0.45rem;">
+                {{ item.lotBatchNumber || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="item.expiryDate" class="text-dark font-weight-bold" style="font-size: 0.75rem;">
+                {{ item.expiryDate | date:'mediumDate' }}
+              </span>
+              <span *ngIf="!item.expiryDate" class="text-muted" style="font-size: 0.72rem;">N/A</span>
+            </td>
+            <td>
+              <strong class="text-dark" style="font-size: 0.84rem;">{{ item.quantityOnHand | number }}</strong>
+            </td>
+            <td>
+              <span class="text-warning font-weight-bold" style="font-size: 0.84rem;">{{ item.quantityAllocated | number }}</span>
+            </td>
+            <td>
+              <span class="text-success font-weight-bold" style="font-size: 0.88rem;">{{ item.quantityAvailable | number }}</span>
+            </td>
+            <td>
+              <span class="wms-badge" [ngClass]="getStatusBadge(item.status)">
+                {{ getStatusLabel(item.status) }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="d-flex justify-content-end gap-1">
+                <button 
+                  type="button"
+                  class="btn btn-outline-primary btn-action-compact" 
+                  title="Bin-to-Bin Relocation"
+                  (click)="openTransferModal(item)"
+                >
+                  <i class="fas fa-exchange-alt me-0.5"></i> Transfer
+                </button>
+                <button 
+                  type="button"
+                  class="btn btn-outline-secondary btn-action-compact" 
+                  title="Audit Stock Adjustment"
+                  (click)="openAdjustModal(item)"
+                >
+                  <i class="fas fa-sliders-h me-0.5"></i> Adjust
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit Transactions Tab -->
+  <div *ngIf="activeTab === 'transactions'" class="wms-card wms-grid-card">
+    <div class="table-responsive">
+      <table class="wms-table wms-table-compact align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width: 14%;">Time</th>
+            <th style="width: 14%;">Type</th>
+            <th style="width: 16%;">Ref Number</th>
+            <th style="width: 10%;">Quantity</th>
+            <th style="width: 14%;">Lot/Batch</th>
+            <th style="width: 32%;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of transactions">
+            <td>
+              <small class="text-muted" style="font-size: 0.72rem;">{{ tx.transactionTime | date:'short' }}</small>
+            </td>
+            <td>
+              <span class="wms-badge" [ngClass]="getTransactionBadge(tx.transactionType)">
+                {{ getTransactionLabel(tx.transactionType) }}
+              </span>
+            </td>
+            <td>
+              <span class="font-monospace font-weight-bold text-dark" style="font-size: 0.78rem;">
+                {{ tx.referenceNumber || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <strong [ngClass]="isStockDeduction(tx.transactionType) ? 'text-danger' : 'text-success'" style="font-size: 0.84rem;">
+                {{ isStockDeduction(tx.transactionType) ? '-' : '+' }}{{ tx.quantity | number }}
+              </strong>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border" style="font-size: 0.7rem; padding: 0.2rem 0.45rem;">
+                {{ tx.lotBatchNumber || '-' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-muted" style="font-size: 0.74rem;">{{ tx.notes || 'Automated WMS transaction' }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && activeTab === 'stock' && filteredItems.length === 0" class="wms-card p-5 text-center">
+    <i class="fas fa-layer-group text-muted fa-3x mb-3"></i>
+    <h5 class="font-weight-bold text-dark">No stock records found</h5>
+    <p class="text-muted small mx-auto empty-state-desc">
+      No inventory exists matching this warehouse filter or search query. Receive items via Inbound orders to generate stock.
+    </p>
+  </div>
+
+  <!-- Modal: Adjust Stock (ZERO BLACK ELEMENTS, CENTERED, SCROLLABLE) -->
+  <div *ngIf="isAdjustModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg overflow-hidden wms-modal-content">
+        
+        <!-- Header (Purple / Indigo Gradient - NO BLACK) -->
+        <div class="wms-modal-header d-flex justify-content-between align-items-center wms-modal-header-adjust">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-sliders-h text-white"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">Audit Stock Adjustment</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Record cycle count discrepancy, breakage, or manual balance adjustment</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeAdjustModal()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body px-4 py-3 wms-modal-body">
+          
+          <!-- Selected Item Summary Card -->
+          <div class="modal-item-summary-card mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.productSku }}</span>
+                <h6 class="font-weight-bold text-dark mb-0 mt-0.5">{{ selectedItemForAction?.productName }}</h6>
+              </div>
+              <span class="wms-badge wms-badge-success">
+                Current On-Hand: {{ selectedItemForAction?.quantityOnHand }}
+              </span>
+            </div>
+            <div class="text-muted small mt-1">
+              <i class="fas fa-barcode me-1"></i>Location: <strong>{{ selectedItemForAction?.locationBarcode }}</strong> &bull; Lot: <strong>{{ selectedItemForAction?.lotBatchNumber || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="wms-compact-label">Quantity Delta (+ to add, - to deduct) *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-plus-minus input-icon"></i>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  placeholder="e.g. +5 or -2" 
+                  [(ngModel)]="adjustModel.quantityDelta" 
+                />
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Enter positive value to increase stock, negative value to decrease</small>
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Audit Reason *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-clipboard-check input-icon"></i>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="e.g. Cycle count reconciliation, broken goods, expiration" 
+                  [(ngModel)]="adjustModel.reason" 
+                />
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Notes & Audit Remarks</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-comment-alt input-icon"></i>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Detailed inspector notes" 
+                  [(ngModel)]="adjustModel.notes" 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">
+            <i class="fas fa-info-circle text-primary me-1"></i>Audited entry will be logged to transactions ledger
+          </span>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-wms-cancel" (click)="closeAdjustModal()">
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-wms-submit" 
+              [disabled]="adjustModel.quantityDelta === 0 || !adjustModel.reason || isSaving" 
+              (click)="saveAdjust()"
+            >
+              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+              <span>{{ isSaving ? 'Saving...' : 'Confirm Adjustment' }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Transfer Stock (ZERO BLACK ELEMENTS, CENTERED, SCROLLABLE) -->
+  <div *ngIf="isTransferModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg overflow-hidden wms-modal-content">
+        
+        <!-- Header (Sky Blue / Ocean Teal Gradient - NO BLACK) -->
+        <div class="wms-modal-header d-flex justify-content-between align-items-center wms-modal-header-transfer">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-exchange-alt text-white"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">Bin-to-Bin Stock Transfer</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Relocate inventory between warehouse storage locations and picking shelves</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeTransferModal()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body px-4 py-3 wms-modal-body">
+          
+          <!-- Source Item Summary Card -->
+          <div class="modal-item-summary-card mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.productSku }}</span>
+                <h6 class="font-weight-bold text-dark mb-0 mt-0.5">{{ selectedItemForAction?.productName }}</h6>
+              </div>
+              <span class="wms-badge wms-badge-success">
+                Available: {{ selectedItemForAction?.quantityAvailable }}
+              </span>
+            </div>
+            <div class="text-muted small mt-1">
+              <i class="fas fa-map-marker-alt text-danger me-1"></i>Source Bin: <strong>{{ selectedItemForAction?.locationBarcode }}</strong> &bull; Total On-Hand: <strong>{{ selectedItemForAction?.quantityOnHand }}</strong>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="wms-compact-label">Target Destination Bin *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-barcode input-icon"></i>
+                <select class="form-select" [(ngModel)]="transferModel.destinationLocationId">
+                  <option *ngFor="let loc of locations" [value]="loc.id">
+                    {{ loc.barcode }} (Aisle: {{ loc.aisle }}, Rack: {{ loc.rack }}, Shelf: {{ loc.shelf }}, Bin: {{ loc.bin }})
+                  </option>
+                </select>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Choose the shelf or rack where inventory is being relocated</small>
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Transfer Quantity *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-boxes input-icon"></i>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="transferModel.quantity" 
+                  min="1" 
+                  [max]="selectedItemForAction?.quantityAvailable || 1" 
+                />
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Maximum transferable: {{ selectedItemForAction?.quantityAvailable }} units</small>
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Relocation Reason / Notes</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-comment-alt input-icon"></i>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="e.g. Replenish pick face, zone optimization" 
+                  [(ngModel)]="transferModel.notes" 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">
+            <i class="fas fa-info-circle text-primary me-1"></i>Target bin balance will be credited instantly
+          </span>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-wms-cancel" (click)="closeTransferModal()">
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-wms-submit" 
+              [disabled]="!transferModel.destinationLocationId || transferModel.quantity <= 0 || isSaving" 
+              (click)="saveTransfer()"
+            >
+              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+              <span>{{ isSaving ? 'Transferring...' : 'Execute Relocation' }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

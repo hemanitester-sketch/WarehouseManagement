@@ -1,0 +1,9 @@
+﻿using Xunit;
+
+namespace WarehouseManagement.EntityFrameworkCore;
+
+[CollectionDefinition(WarehouseManagementTestConsts.CollectionDefinitionName)]
+public class WarehouseManagementEntityFrameworkCoreCollection : ICollectionFixture<WarehouseManagementEntityFrameworkCoreFixture>
+{
+
+}

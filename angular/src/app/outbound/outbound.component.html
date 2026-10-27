@@ -1,0 +1,655 @@
+<div class="container-fluid outbound-container">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Outbound Fulfillment & Shipping</h2>
+        <span class="wms-badge wms-badge-success outbound-badge">Sales Orders & Dispatch</span>
+      </div>
+      <p class="text-muted outbound-subtitle mb-0 mt-1">
+        Fulfill customer demand with FEFO stock allocation, picking from designated bins, carrier packing, and dispatch.
+      </p>
+    </div>
+    <button class="btn btn-wms-primary d-flex align-items-center gap-2" (click)="openCreateOrderModal()">
+      <i class="fas fa-plus-circle"></i>
+      <span>New Sales Order</span>
+    </button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-indigo">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalOrdersCount }}</div>
+          <div class="text-muted kpi-label-compact">TOTAL SALES ORDERS</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-amber">
+          <i class="fas fa-cubes"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ allocatedOrdersCount }}</div>
+          <div class="text-muted kpi-label-compact">ALLOCATED / IN-PICKING</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-blue">
+          <i class="fas fa-box-open"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ pickedOrdersCount }}</div>
+          <div class="text-muted kpi-label-compact">PICKED & PACKAGED</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-green">
+          <i class="fas fa-shipping-fast"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ shippedOrdersCount }}</div>
+          <div class="text-muted kpi-label-compact">DISPATCHED / SHIPPED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="wms-card p-2 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="wms-search-input">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="form-control form-control-sm" 
+            placeholder="Search by Order #, Customer Name, City..." 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="loadOrders()"
+          />
+        </div>
+      </div>
+      <div class="col-12 col-md-4 col-lg-6 text-md-end">
+        <span class="text-muted small">
+          Showing <strong>{{ orders.length }}</strong> outbound orders
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading sales orders...</p>
+  </div>
+
+  <!-- Orders Table -->
+  <div *ngIf="!isLoading && orders.length > 0" class="wms-card wms-grid-card">
+    <div class="table-responsive">
+      <table class="wms-table wms-table-compact">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Facility</th>
+            <th>Customer & Destination</th>
+            <th class="text-center">Priority</th>
+            <th class="text-center">Lines</th>
+            <th class="text-end">Ordered</th>
+            <th class="text-end">Allocated</th>
+            <th class="text-end">Picked</th>
+            <th class="text-center">Status</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ord of orders">
+            <td>
+              <span class="font-monospace font-weight-bold text-primary">{{ ord.orderNumber }}</span>
+            </td>
+            <td>
+              <strong class="text-dark">{{ ord.warehouseCode }}</strong>
+            </td>
+            <td>
+              <strong class="text-dark d-block">{{ ord.customerName }}</strong>
+              <small class="text-muted">{{ ord.city }} &bull; {{ ord.shippingAddress }}</small>
+            </td>
+            <td class="text-center">
+              <span class="wms-badge" [ngClass]="getPriorityBadge(ord.priority)">
+                {{ getPriorityLabel(ord.priority) }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark border">{{ ord.totalLines }}</span>
+            </td>
+            <td class="text-end font-weight-bold">{{ ord.totalOrderedQuantity | number }}</td>
+            <td class="text-end">
+              <span class="text-warning font-weight-bold">{{ ord.totalAllocatedQuantity | number }}</span>
+            </td>
+            <td class="text-end">
+              <span class="text-success font-weight-bold">{{ ord.totalPickedQuantity | number }}</span>
+            </td>
+            <td class="text-center">
+              <span class="wms-badge" [ngClass]="getStatusBadge(ord.status)">
+                {{ getStatusLabel(ord.status) }}
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="d-flex justify-content-center gap-1">
+                <button 
+                  *ngIf="canAllocateOrder(ord)" 
+                  class="btn btn-sm btn-outline-warning py-1 px-2" 
+                  [title]="(ord.totalAllocatedQuantity || 0) > 0 ? 'Allocate remaining stock' : 'Auto-allocate stock with FEFO'"
+                  (click)="allocateStock(ord)"
+                >
+                  <i class="fas fa-boxes me-1"></i> {{ (ord.totalAllocatedQuantity || 0) > 0 ? 'Allocate More' : 'Allocate' }}
+                </button>
+                <button 
+                  class="btn btn-sm btn-wms-primary py-1 px-2" 
+                  title="View Lines & Pick"
+                  (click)="viewOrderDetails(ord)"
+                >
+                  <i class="fas fa-clipboard-list me-1"></i> View / Pick
+                </button>
+                <button 
+                  *ngIf="ord.status === 4 || ord.status === 5" 
+                  class="btn btn-sm btn-success text-white py-1 px-2" 
+                  title="Ship Order"
+                  (click)="openShipModal(ord)"
+                >
+                  <i class="fas fa-shipping-fast me-1"></i> Ship
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && orders.length === 0" class="wms-card p-5 text-center">
+    <i class="fas fa-shipping-fast text-muted fa-3x mb-3"></i>
+    <h5>No Outbound Orders Found</h5>
+    <p class="text-muted">Create a customer order to begin stock allocation, picking, and fulfillment.</p>
+    <button class="btn btn-wms-primary" (click)="openCreateOrderModal()">
+      <i class="fas fa-plus me-1"></i> Create Sales Order
+    </button>
+  </div>
+
+  <!-- Modal 1: Order Details & Picking Drawer/Modal -->
+  <div *ngIf="selectedOrder" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content wms-modal-content">
+        <div class="wms-modal-header-details d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <h5 class="modal-title mb-0">Sales Order: {{ selectedOrder.orderNumber }}</h5>
+                <span class="badge bg-white text-primary font-weight-bold">{{ selectedOrder.warehouseCode }}</span>
+                <span class="wms-badge" [ngClass]="getStatusBadge(selectedOrder.status)">
+                  {{ getStatusLabel(selectedOrder.status) }}
+                </span>
+              </div>
+              <p class="small text-white-50 mb-0 mt-1">
+                Customer: <strong class="text-white">{{ selectedOrder.customerName }}</strong> 
+                &bull; {{ selectedOrder.shippingAddress }}, {{ selectedOrder.city }}
+              </p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="selectedOrder = null"></button>
+        </div>
+        <div class="wms-modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="wms-form-section-title mb-0">Fulfillment Lines</span>
+            <div class="d-flex gap-2">
+              <button 
+                *ngIf="canAllocateOrder(selectedOrder)" 
+                class="btn btn-sm btn-warning font-weight-bold py-1 px-2" 
+                (click)="allocateStock(selectedOrder)"
+              >
+                <i class="fas fa-magic me-1"></i> {{ (selectedOrder.totalAllocatedQuantity || 0) > 0 ? 'Allocate Remaining Stock (FEFO)' : 'Auto-Allocate Stock (FEFO)' }}
+              </button>
+              <button 
+                *ngIf="selectedOrder.status === 4 || selectedOrder.status === 5" 
+                class="btn btn-sm btn-success text-white py-1 px-2" 
+                (click)="openShipModal(selectedOrder)"
+              >
+                <i class="fas fa-truck me-1"></i> Dispatch & Ship
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive border bg-white wms-grid-card">
+            <table class="wms-table wms-table-compact">
+              <thead>
+                <tr>
+                  <th>Product / SKU</th>
+                  <th class="text-end">Ordered</th>
+                  <th class="text-end">Allocated</th>
+                  <th class="text-end">Picked</th>
+                  <th class="text-end">To Pick</th>
+                  <th class="text-end">Unit Price</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of selectedOrder.lines">
+                  <td>
+                    <strong class="text-primary font-monospace d-block">{{ line.productSku }}</strong>
+                    <span class="text-dark small">{{ line.productName }}</span>
+                  </td>
+                  <td class="text-end font-weight-bold">{{ line.orderedQuantity | number }}</td>
+                  <td class="text-end">
+                    <span class="text-warning font-weight-bold">{{ line.allocatedQuantity | number }}</span>
+                    <span *ngIf="(line.allocatedQuantity || 0) > 0 && (line.allocatedQuantity || 0) < (line.orderedQuantity || 0)" class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">
+                      Partial
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <span class="text-success font-weight-bold">{{ line.pickedQuantity | number }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span class="text-danger font-weight-bold">{{ line.remainingToPickQuantity | number }}</span>
+                  </td>
+                  <td class="text-end">₹{{ line.unitPrice | number:'1.2-2' }}</td>
+                  <td class="text-center">
+                    <div class="d-flex align-items-center justify-content-center gap-1">
+                      <button 
+                        *ngIf="!line.isCompleted && (line.allocatedQuantity || 0) > 0" 
+                        class="btn btn-sm btn-wms-primary py-1 px-2"
+                        (click)="openPickModal(line)"
+                      >
+                        <i class="fas fa-box-open me-1"></i> Pick from Bin
+                      </button>
+                      <span *ngIf="line.isCompleted" class="text-success small font-weight-bold">
+                        <i class="fas fa-check-circle me-1"></i> Picked
+                      </span>
+                      <span *ngIf="!line.isCompleted && (line.allocatedQuantity || 0) === 0" class="text-danger small font-weight-bold">
+                        <i class="fas fa-exclamation-triangle me-1"></i> Allocate first (Stock 0)
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="wms-modal-footer d-flex justify-content-end">
+          <button type="button" class="btn-wms-cancel" (click)="selectedOrder = null">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Confirm Bin Picking Modal -->
+  <div *ngIf="isPickModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content wms-modal-content">
+        <div class="wms-modal-header-pick d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-box-open"></i>
+            </div>
+            <div>
+              <h5 class="modal-title mb-0">Confirm Bin Picking</h5>
+              <p class="small text-white-50 mb-0 mt-1">Pick physical stock from warehouse location bin</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isPickModalOpen = false"></button>
+        </div>
+        <div class="wms-modal-body">
+          <div class="so-summary-banner mb-3">
+            <strong class="d-block text-primary font-monospace">{{ selectedLineForPick?.productSku }}</strong>
+            <span class="text-dark small d-block font-weight-bold">{{ selectedLineForPick?.productName }}</span>
+            <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+              <small class="text-muted">
+                Allocated: <strong class="text-warning">{{ selectedLineForPick?.allocatedQuantity }}</strong>
+              </small>
+              <small class="text-muted">
+                Already Picked: <strong class="text-success">{{ selectedLineForPick?.pickedQuantity }}</strong>
+              </small>
+              <small class="text-muted">
+                Remaining to Pick: <strong class="text-danger">{{ getLineRemainingToPick() }}</strong>
+              </small>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="wms-compact-label">Pick from Inventory Bin *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-map-marker-alt input-icon"></i>
+                <select class="form-select" [(ngModel)]="pickModel.sourceInventoryItemId" (ngModelChange)="onSourceItemChange()">
+                  <option value="" disabled>-- Select Inventory Bin Location --</option>
+                  <option *ngFor="let item of availableStockItems" [value]="item.id">
+                    {{ item.locationBarcode }} | Lot: {{ item.lotBatchNumber || 'N/A' }} (On-Hand: {{ item.quantityOnHand }}, Avail: {{ item.quantityAvailable }})
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="wms-compact-label mb-0">Picked Quantity *</label>
+                <small class="text-muted" *ngIf="getSelectedStockItem()">
+                  Max pickable: <strong class="text-primary">{{ getMaxPickableQuantity() }}</strong> units
+                  <span class="text-muted small">(Bin: {{ getSelectedStockItem()?.quantityOnHand }}, Line Need: {{ getLineRemainingToPick() }})</span>
+                </small>
+              </div>
+              <div class="wms-input-icon-group mt-1">
+                <i class="fas fa-calculator input-icon"></i>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="pickModel.pickedQuantity" 
+                  min="1" 
+                  [max]="getMaxPickableQuantity()"
+                  [class.is-invalid]="pickModel.pickedQuantity > getMaxPickableQuantity() || pickModel.pickedQuantity <= 0"
+                />
+              </div>
+              <!-- Real-time User-Friendly Inline Validation Alert -->
+              <div *ngIf="getSelectedStockItem() && pickModel.pickedQuantity > (getSelectedStockItem()?.quantityOnHand || 0)" class="text-danger small mt-1 font-weight-bold">
+                <i class="fas fa-exclamation-triangle me-1"></i> Cannot pick {{ pickModel.pickedQuantity }} units. Source bin only has {{ getSelectedStockItem()?.quantityOnHand }} units on hand.
+              </div>
+              <div *ngIf="getSelectedStockItem() && pickModel.pickedQuantity <= (getSelectedStockItem()?.quantityOnHand || 0) && pickModel.pickedQuantity > getLineRemainingToPick()" class="text-warning small mt-1 font-weight-bold">
+                <i class="fas fa-exclamation-circle me-1"></i> Cannot pick {{ pickModel.pickedQuantity }} units. Line only requires {{ getLineRemainingToPick() }} more units.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Picking Notes / Comments</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-sticky-note input-icon"></i>
+                <input type="text" class="form-control" [(ngModel)]="pickModel.notes" placeholder="Picked from bin" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wms-modal-footer d-flex justify-content-end gap-2">
+          <button type="button" class="btn-wms-cancel" (click)="isPickModalOpen = false">Cancel</button>
+          <button 
+            type="button" 
+            class="btn-wms-submit" 
+            (click)="executePick()" 
+            [disabled]="isSaving || pickModel.pickedQuantity > getMaxPickableQuantity() || pickModel.pickedQuantity <= 0"
+          >
+            <i class="fas fa-check-circle me-1"></i> Confirm Pick
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Ship / Dispatch Order -->
+  <div *ngIf="isShipModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content wms-modal-content">
+        <div class="wms-modal-header-ship d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-truck-moving"></i>
+            </div>
+            <div>
+              <h5 class="modal-title mb-0">Carrier Shipping & Dispatch</h5>
+              <p class="small text-white-50 mb-0 mt-1">Assign logistics carrier and generate shipment tracking</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isShipModalOpen = false"></button>
+        </div>
+        <div class="wms-modal-body">
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="wms-compact-label">Carrier / 3PL Logistics Partner *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-truck input-icon"></i>
+                <input type="text" class="form-control" [(ngModel)]="shipModel.carrierName" placeholder="e.g. BlueDart Express Logix" />
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="wms-compact-label">Air Waybill / Tracking Number *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-barcode input-icon"></i>
+                <input type="text" class="form-control font-monospace font-weight-bold" [(ngModel)]="shipModel.trackingNumber" placeholder="TRK-XXXXXXX" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wms-modal-footer d-flex justify-content-end gap-2">
+          <button type="button" class="btn-wms-cancel" (click)="isShipModalOpen = false">Cancel</button>
+          <button type="button" class="btn-wms-receive-submit" (click)="executeShip()" [disabled]="isSaving">
+            <i class="fas fa-paper-plane me-1"></i> Dispatch & Mark Shipped
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Create Customer Sales Order (New SO Modal - 100% Zero-Black Enterprise Design) -->
+  <div *ngIf="isCreateOrderModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content wms-modal-content">
+        <!-- Header: Indigo / Violet Gradient (NO BLACK!) -->
+        <div class="wms-modal-header-so d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-cart-arrow-down"></i>
+            </div>
+            <div>
+              <h5 class="modal-title mb-0">Create Customer Sales Order</h5>
+              <p class="small text-white-50 mb-0 mt-1">Record outbound customer demand for FEFO stock allocation and dispatch</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isCreateOrderModalOpen = false"></button>
+        </div>
+
+        <div class="wms-modal-body">
+          <!-- Order Information Section -->
+          <span class="wms-form-section-title">Sales Order & Customer Details</span>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="wms-compact-label">Order Number *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-hashtag input-icon"></i>
+                <input type="text" class="form-control font-monospace font-weight-bold" [(ngModel)]="newOrder.orderNumber" placeholder="SO-2026-XXXX" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Fulfillment Facility *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-warehouse input-icon"></i>
+                <select class="form-select" [(ngModel)]="newOrder.warehouseId">
+                  <option value="" disabled>-- Select Facility --</option>
+                  <option *ngFor="let w of warehouses" [value]="w.id">{{ w.code }} - {{ w.name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Customer Name *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Apollo Pharmacy" [(ngModel)]="newOrder.customerName" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Required Delivery Date *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-calendar-alt input-icon"></i>
+                <input type="date" class="form-control" [(ngModel)]="deliveryDateStr" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Order Priority</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-flag input-icon"></i>
+                <select class="form-select" [(ngModel)]="newOrder.priority">
+                  <option *ngFor="let p of priorityOptions" [value]="p.value">{{ p.key }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Shipping Address</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-map-marker-alt input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Sector 18, Commercial Zone" [(ngModel)]="newOrder.shippingAddress" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">City</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-city input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Mumbai" [(ngModel)]="newOrder.city" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">State</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-map input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Maharashtra" [(ngModel)]="newOrder.state" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="wms-compact-label">Order Notes / Instructions</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-sticky-note input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Fragile hospital delivery" [(ngModel)]="newOrder.notes" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Line Items Section -->
+          <span class="wms-form-section-title">Order Line Items</span>
+          <div class="so-items-section mb-3">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-5">
+                <label class="wms-compact-label">Select SKU / Product *</label>
+                <div class="wms-input-icon-group">
+                  <i class="fas fa-box input-icon"></i>
+                  <select class="form-select" [(ngModel)]="selectedProductForLine" (ngModelChange)="onProductSelected()">
+                    <option value="" disabled>-- Select Product --</option>
+                    <option *ngFor="let p of products" [value]="p.id">
+                      {{ p.sku }} - {{ p.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="wms-compact-label">Quantity *</label>
+                <div class="wms-input-icon-group">
+                  <i class="fas fa-calculator input-icon"></i>
+                  <input type="number" class="form-control" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <label class="wms-compact-label">Unit Price (₹)</label>
+                <div class="wms-input-icon-group">
+                  <i class="fas fa-rupee-sign input-icon"></i>
+                  <input type="number" class="form-control" [(ngModel)]="priceForLine" min="0" placeholder="Price" />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <button type="button" class="btn btn-wms-primary btn-add-line w-100" (click)="addLineToOrder()">
+                  <i class="fas fa-plus-circle"></i>
+                  <span>Add Line</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Added Lines Table -->
+            <div *ngIf="(newOrder.lines || []).length > 0" class="mt-3">
+              <div class="table-responsive border bg-white wms-grid-card">
+                <table class="wms-table wms-table-compact">
+                  <thead>
+                    <tr>
+                      <th>Product / SKU</th>
+                      <th class="text-end">Quantity</th>
+                      <th class="text-end">Unit Price</th>
+                      <th class="text-end">Subtotal</th>
+                      <th class="text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let l of newOrder.lines; let idx = index">
+                      <td>
+                        <strong class="text-primary font-monospace">{{ getProductSku(l.productId) }}</strong>
+                        <div class="text-dark small">{{ getProductName(l.productId) }}</div>
+                      </td>
+                      <td class="text-end font-weight-bold">{{ l.orderedQuantity | number }}</td>
+                      <td class="text-end text-muted">₹{{ (l.unitPrice || 0) | number:'1.2-2' }}</td>
+                      <td class="text-end font-weight-bold text-dark">₹{{ (l.orderedQuantity * (l.unitPrice || 0)) | number:'1.2-2' }}</td>
+                      <td class="text-center">
+                        <button type="button" class="btn-remove-line" (click)="removeLineFromOrder(idx)" title="Remove Line Item">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Summary Banner -->
+              <div class="so-summary-banner mt-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                  <div>
+                    <span class="text-muted small">Total SKUs:</span>
+                    <strong class="text-dark ms-1">{{ newOrder.lines?.length }}</strong>
+                  </div>
+                  <div>
+                    <span class="text-muted small">Total Units:</span>
+                    <strong class="text-primary ms-1">{{ getOrderTotalQuantity() | number }}</strong>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-muted small">Estimated Order Value:</span>
+                  <strong class="text-success ms-1 h6 mb-0">₹{{ getOrderTotalAmount() | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty Lines Notice -->
+            <div *ngIf="(!newOrder.lines || newOrder.lines.length === 0)" class="empty-line-notice mt-3">
+              <i class="fas fa-dolly text-muted fa-2x mb-2"></i>
+              <div class="text-muted small">No line items added to this sales order yet.</div>
+              <div class="text-muted small">Select a product and quantity above, then click <strong>"+ Add Line"</strong>.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer: Clean Gray/White (NO BLACK!) -->
+        <div class="wms-modal-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn-wms-cancel" (click)="isCreateOrderModalOpen = false">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <button type="button" class="btn-wms-submit" (click)="saveOrder()" [disabled]="isSaving || (!newOrder.lines || newOrder.lines.length === 0)">
+            <i class="fas fa-check-circle me-1" *ngIf="!isSaving"></i>
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
+            <span>Create Sales Order</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

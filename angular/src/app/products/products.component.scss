@@ -1,0 +1,178 @@
+/* Products & SKU Module Styles */
+
+.products-container {
+  padding: 1rem 1rem;
+}
+
+.products-badge-catalog {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.products-subtitle {
+  font-size: 0.78rem;
+}
+
+/* Metric KPI Cards (Compact) */
+.kpi-card-compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-icon-compact {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+
+  &.kpi-icon-purple {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+  }
+
+  &.kpi-icon-blue {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+
+  &.kpi-icon-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  &.kpi-icon-amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+}
+
+.kpi-value-compact {
+  font-size: 1.1rem;
+}
+
+.kpi-label-compact {
+  font-size: 0.65rem;
+}
+
+.showing-count {
+  font-size: 0.75rem;
+}
+
+/* Table Column Widths & Cells */
+.col-sku {
+  width: 13%;
+}
+
+.col-name {
+  width: 23%;
+}
+
+.col-category {
+  width: 12%;
+}
+
+.col-price {
+  width: 10%;
+}
+
+.col-uom {
+  width: 7%;
+}
+
+.col-tracking {
+  width: 13%;
+}
+
+.col-storage {
+  width: 11%;
+}
+
+.col-status {
+  width: 5%;
+}
+
+.col-actions {
+  width: 6%;
+}
+
+.btn-edit-product {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.sku-code {
+  font-size: 0.85rem;
+}
+
+.sku-barcode {
+  font-size: 0.7rem;
+}
+
+.product-name {
+  font-size: 0.82rem;
+}
+
+.product-brand {
+  font-size: 0.7rem;
+}
+
+.category-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.45rem;
+}
+
+.unit-price {
+  font-size: 0.82rem;
+}
+
+.uom-cell {
+  font-size: 0.8rem;
+}
+
+.storage-badge {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.4rem;
+}
+
+.temp-badge {
+  font-size: 0.65rem;
+  padding: 0.12rem 0.4rem;
+}
+
+.ambient-text {
+  font-size: 0.7rem;
+}
+
+.empty-state-desc {
+  max-width: 420px;
+}
+
+/* Modal Styling */
+.product-modal-backdrop {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1060;
+}
+
+.product-modal-content {
+  border-radius: 16px;
+}
+
+.product-modal-header {
+  background: linear-gradient(135deg, rgb(70, 142, 229) 0%, rgb(95, 136, 202) 100%);
+}
+
+.product-modal-body {
+  background-color: #ffffff;
+  max-height: calc(85vh - 130px);
+  overflow-y: auto;
+}
+
+.tracking-rules-card {
+  background-color: #f8fafc;
+}
+
+.tracking-rule-desc {
+  font-size: 0.7rem;
+}

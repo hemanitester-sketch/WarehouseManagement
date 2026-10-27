@@ -1,0 +1,9 @@
+﻿using WarehouseManagement.EntityFrameworkCore;
+using Xunit;
+
+namespace WarehouseManagement.EntityFrameworkCore;
+
+public class WarehouseManagementEntityFrameworkCoreCollectionFixtureBase : ICollectionFixture<WarehouseManagementEntityFrameworkCoreFixture>
+{
+
+}

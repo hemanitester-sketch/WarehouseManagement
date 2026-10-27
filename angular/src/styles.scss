@@ -1,0 +1,801 @@
+/* You can add global styles to this file, and also import other style files */
+
+@keyframes donut-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+:root {
+  --lpx-logo: url('/assets/images/logo/logo-light.png');
+  --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png');
+  --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Brand Theme Colors */
+  --wms-primary: #4f46e5;
+  --wms-primary-hover: #4338ca;
+  --wms-primary-light: #eef2ff;
+  --wms-secondary: #0ea5e9;
+  --wms-accent: #8b5cf6;
+  --wms-success: #10b981;
+  --wms-success-bg: #ecfdf5;
+  --wms-warning: #f59e0b;
+  --wms-warning-bg: #fffbeb;
+  --wms-danger: #ef4444;
+  --wms-danger-bg: #fef2f2;
+  --wms-dark: #0f172a;
+  --wms-card-bg: #ffffff;
+  --wms-border: #e2e8f0;
+  --wms-text-main: #1e293b;
+  --wms-text-muted: #64748b;
+  --wms-radius-sm: 8px;
+  --wms-radius-md: 14px;
+  --wms-radius-lg: 20px;
+  --wms-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+  --wms-shadow-hover: 0 20px 30px -10px rgba(79, 70, 229, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
+}
+
+body {
+  font-family: var(--font-family-base) !important;
+  color: var(--wms-text-main);
+  background-color: #f8fafc;
+}
+
+/* Remove rounded corners from main layout section */
+.lpx-topbar-container .lpx-topbar,
+.lpx-topbar-container,
+.lpx-topbar,
+.lpx-content-wrapper,
+.lpx-content-container,
+.lpx-content,
+.lpx-main,
+.lpx-footbar-container,
+.lpx-footbar {
+  border-radius: 0 !important;
+}
+
+/* WMS Core Card Design */
+.wms-card {
+  background: var(--wms-card-bg);
+  border: 1px solid var(--wms-border);
+  border-radius: var(--wms-radius-md);
+  box-shadow: var(--wms-shadow);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.wms-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--wms-shadow-hover);
+  border-color: #cbd5e1;
+}
+
+/* WMS Metric KPI Cards */
+.wms-metric-card {
+  background: var(--wms-card-bg);
+  border: 1px solid var(--wms-border);
+  border-radius: var(--wms-radius-md);
+  padding: 1.1rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--wms-shadow);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--wms-shadow-hover);
+  }
+
+  .metric-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .metric-content {
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--wms-dark);
+      line-height: 1.2;
+    }
+
+    .metric-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--wms-text-muted);
+      margin-top: 2px;
+    }
+  }
+}
+
+/* WMS Badges & Chips */
+.wms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  line-height: 1;
+
+  &.wms-badge-primary {
+    background-color: var(--wms-primary-light);
+    color: var(--wms-primary);
+  }
+  &.wms-badge-success {
+    background-color: var(--wms-success-bg);
+    color: var(--wms-success);
+  }
+  &.wms-badge-warning {
+    background-color: var(--wms-warning-bg);
+    color: var(--wms-warning);
+  }
+  &.wms-badge-danger {
+    background-color: var(--wms-danger-bg);
+    color: var(--wms-danger);
+  }
+  &.wms-badge-info {
+    background-color: #e0f2fe;
+    color: #0284c7;
+  }
+  &.wms-badge-purple {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+  }
+}
+
+/* WMS Buttons */
+.btn-wms-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  border-radius: var(--wms-radius-sm);
+  padding: 0.55rem 1.15rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+  }
+}
+
+.btn-wms-outline {
+  background: transparent;
+  color: var(--wms-text-main);
+  border: 1px solid var(--wms-border);
+  font-weight: 600;
+  border-radius: var(--wms-radius-sm);
+  padding: 0.55rem 1.15rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+}
+
+/* WMS Table & Data Grid Styling - Normal Straight/Square Corners (No Border Radius Curve) */
+.wms-grid-card,
+.wms-card:has(table),
+.wms-card:has(.table-responsive),
+.wms-card:has(.wms-table),
+.table-responsive,
+.wms-table,
+.wms-table thead,
+.wms-table tbody,
+.wms-table tr,
+.wms-table th,
+.wms-table td,
+.table-responsive.border.rounded {
+  border-radius: 0 !important;
+}
+
+.wms-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 0 !important;
+
+  thead th {
+    background-color: #f8fafc;
+    color: var(--wms-text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.95rem;
+    border-bottom: 1px solid var(--wms-border);
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      padding: 0.65rem 0.95rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.84rem;
+    }
+  }
+
+  /* Compact Mode for Data Grids */
+  &.wms-table-compact {
+    thead th {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+    }
+
+    tbody tr td {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .wms-badge {
+      padding: 0.18rem 0.5rem;
+      font-size: 0.68rem;
+    }
+  }
+}
+
+/* WMS Search Input */
+.wms-search-input {
+  position: relative;
+  
+  i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+  }
+
+  input {
+    padding-left: 2.75rem;
+    border-radius: var(--wms-radius-sm);
+    border: 1px solid var(--wms-border);
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: var(--wms-primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      outline: none;
+    }
+  }
+}
+.donut {
+  display: inline-block;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #7983ff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: donut-spin 1.2s linear infinite;
+
+  &.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.abp-logo {
+  background-repeat: no-repeat;
+}
+
+.abp-support {
+  width: 178px;
+  height: 30px;
+  background-image: url('/assets/images/getting-started/abp-support.svg');
+}
+
+.abp-community {
+  width: 215px;
+  height: 30px;
+  background-image: url('/assets/images/getting-started/abp-community.svg');
+}
+
+.abp-blog {
+  width: 142px;
+  height: 30px;
+  background-image: url('/assets/images/getting-started/abp-blog.svg');
+}
+
+.logo-x {
+  width: 20px;
+  height: 20px;
+  background-image: url('/assets/images/getting-started/x.svg');
+}
+
+/* Premium Horizontal Facility Card Design */
+.wh-facility-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 200px;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 12px 28px -4px rgba(79, 70, 229, 0.14), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Top Bar with badges and status */
+  .wh-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    .wh-card-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Vibrant light indigo badge - NO BLACK */
+    .wh-code-badge {
+      background: #eef2ff;
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .wh-type-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background-color: #f0f7ff;
+      color: #2563eb;
+      border: 1px solid #dbeafe;
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 0.22rem 0.6rem;
+      border-radius: 6px;
+
+      i {
+        font-size: 0.75rem;
+      }
+    }
+
+    .wh-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.25rem 0.7rem;
+      border-radius: 9999px;
+      flex-shrink: 0;
+
+      &.operational {
+        background-color: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background-color: #10b981;
+          box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+      }
+
+      &.inactive {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background-color: #ef4444;
+        }
+      }
+    }
+  }
+
+  /* Facility Title (Full-width) */
+  .wh-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.35;
+    margin-bottom: 0.45rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Single-line Address & Phone Row */
+  .wh-address-phone-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.95rem;
+
+    @media (max-width: 575.98px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
+    }
+
+    .wh-address-line {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: #64748b;
+      min-width: 0;
+      flex: 1;
+
+      i {
+        color: #ef4444;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .wh-phone-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background-color: #f0f7ff;
+      color: #1d4ed8;
+      border: 1px solid #dbeafe;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.22rem 0.65rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+
+      i {
+        font-size: 0.75rem;
+        color: #2563eb;
+      }
+    }
+  }
+
+  /* Bottom Row: Specs on Left, Action Button on Right */
+  .wh-card-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #f1f5f9;
+    margin-top: auto;
+
+    @media (max-width: 767.98px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .wh-specs-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: nowrap;
+      flex: 1;
+      min-width: 0;
+
+      .wh-stat-box {
+        background-color: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: 8px;
+        padding: 0.4rem 0.65rem;
+        flex: 1;
+        min-width: 0;
+
+        .stat-label {
+          font-size: 0.65rem;
+          font-weight: 600;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          display: block;
+          margin-bottom: 2px;
+          white-space: nowrap;
+        }
+
+        .stat-val {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: #1e293b;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    .btn-manage-facility {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.55rem 1.15rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.2);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+
+      &:hover {
+        background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.32);
+        transform: translateY(-1px);
+        color: #ffffff;
+      }
+
+      i.fa-arrow-right {
+        transition: transform 0.2s ease;
+      }
+
+      &:hover i.fa-arrow-right {
+        transform: translateX(3px);
+      }
+    }
+  }
+}
+
+/* WMS Modal Tabs & Inspection Workspace */
+.wms-modal-tabs {
+  gap: 0.5rem;
+  
+  .nav-link {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.55rem 1.15rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+      color: #1e293b;
+      background-color: #f1f5f9;
+    }
+
+    &.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+  }
+}
+
+.wms-inspection-header {
+  background: linear-gradient(135deg, rgb(70, 142, 229) 0%, rgb(95, 136, 202) 100%);
+  color: #ffffff;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.wms-zone-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.2rem;
+  transition: all 0.2s ease;
+  height: 100%;
+
+  &:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+  }
+}
+
+.wms-hierarchy-step {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  height: 100%;
+  position: relative;
+}
+
+/* Premium Modal Header & Form Input Styles (Compact & Sleek) */
+.wms-modal-header {
+  background: linear-gradient(135deg, rgb(70, 142, 229) 0%, rgb(95, 136, 202) 100%);
+  color: #ffffff;
+  padding: 0.8rem 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+  &.wms-header-zone {
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  }
+
+  &.wms-header-bin {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .wms-modal-icon-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .modal-title {
+    font-size: 1.05rem;
+  }
+}
+
+.wms-form-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #f1f5f9;
+  }
+}
+
+.wms-input-icon-group {
+  position: relative;
+
+  .input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.78rem;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .form-control, .form-select {
+    padding-left: 2.15rem;
+    padding-top: 0.32rem;
+    padding-bottom: 0.32rem;
+    height: 34px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2.5px rgba(79, 70, 229, 0.12);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.wms-compact-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+/* Premium Modal Footer (Overrides ABP muddy cement-gray bg-light) */
+.wms-modal-footer {
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0.75rem 1.4rem !important;
+
+  .btn-wms-cancel {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.38rem 1.1rem;
+    border-radius: 7px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      border-color: #94a3b8;
+    }
+  }
+
+  .btn-wms-submit {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: #ffffff !important;
+    border: none;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.42rem 1.25rem;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.22);
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+      box-shadow: 0 5px 15px rgba(79, 70, 229, 0.32);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background: #e0e7ff !important;
+      color: #6366f1 !important;
+      border: 1px solid #c7d2fe !important;
+      opacity: 0.85;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+}

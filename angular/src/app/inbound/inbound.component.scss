@@ -1,0 +1,149 @@
+/* Inbound Orders & PO Management Styles */
+
+.inbound-container {
+  padding: 1rem 1.25rem;
+}
+
+.inbound-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.inbound-subtitle {
+  font-size: 0.78rem;
+}
+
+/* KPI Cards (Compact) */
+.kpi-card-compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-icon-compact {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.kpi-icon-indigo {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+  }
+  &.kpi-icon-blue {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+  &.kpi-icon-amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+  &.kpi-icon-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+}
+
+.kpi-value-compact {
+  font-size: 1.1rem;
+}
+
+.kpi-label-compact {
+  font-size: 0.65rem;
+}
+
+/* Modal Backdrops & Overlays (Zero pitch black) */
+.wms-modal-backdrop {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 1055;
+}
+
+.wms-modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Modal Headers */
+.wms-modal-header-po {
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+  color: #ffffff;
+  padding: 0.85rem 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.wms-modal-header-details {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  color: #ffffff;
+  padding: 0.85rem 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.wms-modal-header-receive {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+  padding: 0.85rem 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.wms-modal-body {
+  background-color: #ffffff;
+  padding: 1.2rem 1.4rem;
+  max-height: calc(85vh - 130px);
+  overflow-y: auto;
+}
+
+/* PO Line Items & Summaries */
+.po-items-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.po-summary-banner {
+  background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+}
+
+.btn-remove-line {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+  }
+}
+
+.btn-add-line {
+  height: 34px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.empty-line-notice {
+  background: #ffffff;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+}

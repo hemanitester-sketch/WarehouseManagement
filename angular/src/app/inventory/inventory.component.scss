@@ -1,0 +1,137 @@
+/* Live Stock Inventory Styles */
+
+.inventory-container {
+  padding: 1rem 1rem;
+}
+
+.inventory-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.inventory-subtitle {
+  font-size: 0.78rem;
+}
+
+/* KPI Cards (Compact) */
+.kpi-card-compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-icon-compact {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+
+  &.kpi-icon-blue {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+
+  &.kpi-icon-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  &.kpi-icon-amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+
+  &.kpi-icon-purple {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+  }
+}
+
+.kpi-value-compact {
+  font-size: 1.1rem;
+}
+
+.kpi-label-compact {
+  font-size: 0.65rem;
+}
+
+.showing-count {
+  font-size: 0.75rem;
+}
+
+/* Table Columns */
+.col-sku {
+  width: 17%;
+}
+
+.col-bin {
+  width: 17%;
+}
+
+.col-lot {
+  width: 11%;
+}
+
+.col-exp {
+  width: 10%;
+}
+
+.col-onhand {
+  width: 9%;
+}
+
+.col-allocated {
+  width: 9%;
+}
+
+.col-available {
+  width: 9%;
+}
+
+.col-status {
+  width: 8%;
+}
+
+.col-actions {
+  width: 10%;
+}
+
+.btn-action-compact {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+.empty-state-desc {
+  max-width: 420px;
+}
+
+/* Modals */
+.wms-modal-backdrop {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1060;
+}
+
+.wms-modal-content {
+  border-radius: 16px;
+}
+
+.wms-modal-header-transfer {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+}
+
+.wms-modal-header-adjust {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.wms-modal-body {
+  background-color: #ffffff;
+  max-height: calc(85vh - 130px);
+  overflow-y: auto;
+}
+
+.modal-item-summary-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}

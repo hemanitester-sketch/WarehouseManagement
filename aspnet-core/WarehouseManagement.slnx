@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WarehouseManagement.Application.Contracts/WarehouseManagement.Application.Contracts.csproj" />
+    <Project Path="src/WarehouseManagement.Application/WarehouseManagement.Application.csproj" />
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <Project Path="src/WarehouseManagement.DbMigrator/WarehouseManagement.DbMigrator.csproj" />
+    <Project Path="src/WarehouseManagement.Domain.Shared/WarehouseManagement.Domain.Shared.csproj" />
+    <Project Path="src/WarehouseManagement.Domain/WarehouseManagement.Domain.csproj" />
+    <Project Path="src/WarehouseManagement.EntityFrameworkCore/WarehouseManagement.EntityFrameworkCore.csproj" />
+    <Project Path="src/WarehouseManagement.HttpApi.Client/WarehouseManagement.HttpApi.Client.csproj" />
+    
+    <Project Path="src/WarehouseManagement.HttpApi.Host/WarehouseManagement.HttpApi.Host.csproj" />
+    <Project Path="src/WarehouseManagement.HttpApi/WarehouseManagement.HttpApi.csproj" />
+    
+    
+    
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/WarehouseManagement.Application.Tests/WarehouseManagement.Application.Tests.csproj" />
+    <Project Path="test/WarehouseManagement.Domain.Tests/WarehouseManagement.Domain.Tests.csproj" />
+    <Project Path="test/WarehouseManagement.EntityFrameworkCore.Tests/WarehouseManagement.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test/WarehouseManagement.HttpApi.Client.ConsoleTestApp/WarehouseManagement.HttpApi.Client.ConsoleTestApp.csproj" />
+    
+    <Project Path="test/WarehouseManagement.TestBase/WarehouseManagement.TestBase.csproj" />
+    
+  </Folder>
+</Solution>

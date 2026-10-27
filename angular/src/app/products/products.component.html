@@ -1,0 +1,422 @@
+<div class="container-fluid products-container">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Product & SKU Master</h2>
+        <span class="wms-badge wms-badge-purple products-badge-catalog">Multi-Industry Catalog</span>
+      </div>
+      <p class="text-muted small mb-0 mt-0.5 products-subtitle">
+        Manage item catalog, tracking parameters (Lot/Batch, Expiry, Serial numbers), and cold-chain temperature limits.
+      </p>
+    </div>
+    <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i>
+      <span>Add New SKU</span>
+    </button>
+  </div>
+
+  <!-- Metric KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-purple">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ products.length }}</div>
+          <div class="metric-label kpi-label-compact">Total SKUs in Catalog</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-blue">
+          <i class="fas fa-snowflake"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">Cold-Chain</div>
+          <div class="metric-label kpi-label-compact">Pharma & Perishables (2°C-8°C)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-green">
+          <i class="fas fa-barcode"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">Barcoded</div>
+          <div class="metric-label kpi-label-compact">Automated Inbound Scanning</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-amber">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">FEFO Ready</div>
+          <div class="metric-label kpi-label-compact">Lot & Expiry Tracking</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="wms-card p-2 px-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="wms-search-input">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            class="form-control form-control-sm" 
+            placeholder="Search by SKU, Product Name, Barcode, Brand..." 
+            [(ngModel)]="searchQuery" 
+            (ngModelChange)="applyFilter()"
+          />
+        </div>
+      </div>
+      <div class="col-12 col-md-4 col-lg-3">
+        <select 
+          class="form-select form-select-sm" 
+          [(ngModel)]="selectedCategoryFilter" 
+          (ngModelChange)="applyFilter()"
+        >
+          <option [ngValue]="null">All Categories</option>
+          <option *ngFor="let c of categoryOptions" [ngValue]="c.value">{{ c.key }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 text-md-end">
+        <span class="text-muted showing-count">
+          Showing <strong>{{ filteredProducts.length }}</strong> of {{ products.length }} items
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-4">
+    <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+    <p class="text-muted small mt-2 mb-0">Loading product catalog...</p>
+  </div>
+
+  <!-- Table (Compact Grid Mode) -->
+  <div *ngIf="!isLoading && filteredProducts.length > 0" class="wms-card wms-grid-card">
+    <div class="table-responsive">
+      <table class="wms-table wms-table-compact align-middle mb-0">
+        <thead>
+          <tr>
+            <th class="col-sku">SKU & Barcode</th>
+            <th class="col-name">Product Name</th>
+            <th class="col-category">Category</th>
+            <th class="col-price">Unit Price</th>
+            <th class="col-uom">UOM</th>
+            <th class="col-tracking">Tracking</th>
+            <th class="col-storage">Storage & Temp</th>
+            <th class="col-status">Status</th>
+            <th class="col-actions text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of filteredProducts">
+            <td>
+              <div class="font-monospace font-weight-bold text-primary lh-1 mb-0.5 sku-code">{{ p.sku }}</div>
+              <small class="text-muted sku-barcode"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
+            </td>
+            <td>
+              <span class="font-weight-bold text-dark d-block lh-sm product-name">{{ p.name }}</span>
+              <small class="text-muted product-brand">{{ p.brand || 'Standard' }}</small>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border category-badge">{{ getCategoryLabel(p.category) }}</span>
+            </td>
+            <td>
+              <strong class="text-dark unit-price">₹{{ p.unitPrice | number:'1.2-2' }}</strong>
+            </td>
+            <td class="uom-cell">{{ getUomLabel(p.uom) }}</td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                <span *ngIf="p.isLotTracked" class="wms-badge wms-badge-primary">Lot</span>
+                <span *ngIf="p.isExpiryTracked" class="wms-badge wms-badge-warning">Expiry</span>
+                <span *ngIf="p.isSerialTracked" class="wms-badge wms-badge-info">Serial</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-column gap-0.5">
+                <div>
+                  <span class="badge bg-light text-secondary border storage-badge">
+                    {{ getStorageTypeLabel(p.requiredStorageType) }}
+                  </span>
+                </div>
+                <span *ngIf="p.temperatureMinCelsius !== null" class="wms-badge wms-badge-info temp-badge">
+                  ❄️ {{ p.temperatureMinCelsius }}° to {{ p.temperatureMaxCelsius }}°C
+                </span>
+                <span *ngIf="p.temperatureMinCelsius === null" class="text-muted ambient-text">Ambient</span>
+              </div>
+            </td>
+            <td>
+              <span class="wms-badge" [ngClass]="p.isActive ? 'wms-badge-success' : 'wms-badge-danger'">
+                {{ p.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="text-end">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary btn-sm btn-edit-product"
+                (click)="openEditModal(p)"
+                title="Edit Product Details"
+              >
+                <i class="fas fa-edit me-1"></i> Edit
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredProducts.length === 0" class="wms-card p-5 text-center">
+    <i class="fas fa-boxes text-muted fa-3x mb-3"></i>
+    <h5 class="font-weight-bold text-dark">No products found</h5>
+    <p class="text-muted small mx-auto empty-state-desc">
+      Your catalog is currently empty or no items match your search filter. Register your first SKU to get started.
+    </p>
+    <button class="btn btn-wms-primary" (click)="openCreateModal()">
+      <i class="fas fa-plus me-1"></i> Register New SKU
+    </button>
+  </div>
+
+  <!-- Modal: Create / Edit Product (ZERO BLACK ELEMENTS, CENTERED, SCROLLABLE) -->
+  <div *ngIf="isCreateModalOpen" class="modal fade show d-block product-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg overflow-hidden product-modal-content">
+        
+        <!-- Header (Purple / Indigo Gradient - NO BLACK) -->
+        <div class="wms-modal-header d-flex justify-content-between align-items-center product-modal-header">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas" [ngClass]="editingProductId ? 'fa-edit text-white' : 'fa-box-open text-white'"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">
+                {{ editingProductId ? 'Edit SKU Product' : 'Register New SKU Product' }}
+              </h5>
+              <p class="small text-white-50 mb-0 mt-0.5">
+                {{ editingProductId ? 'Update item details, pricing, storage criteria, and active status' : 'Configure item identity, pricing, storage requirements, and tracking rules' }}
+              </p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body px-4 py-3 product-modal-body">
+          
+          <!-- Section 1: Identification -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-tag text-primary"></i>
+            <span>Product Identification</span>
+          </div>
+
+          <!-- Active Status Switch on Edit -->
+          <div *ngIf="editingProductId" class="mb-2 p-2 px-3 rounded border d-flex justify-content-between align-items-center tracking-rules-card">
+            <div class="d-flex align-items-center gap-2">
+              <span class="font-weight-bold text-dark small">Status:</span>
+              <span class="wms-badge" [ngClass]="newProduct.isActive ? 'wms-badge-success' : 'wms-badge-danger'">
+                {{ newProduct.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="chkActive" [(ngModel)]="newProduct.isActive" />
+              <label class="form-check-label small font-weight-bold text-dark" for="chkActive">
+                {{ newProduct.isActive ? 'Available for Inventory & Orders' : 'Archived / Deactivated' }}
+              </label>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="wms-compact-label">SKU Code *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-barcode input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. MED-PARA-650" [(ngModel)]="newProduct.sku" />
+              </div>
+            </div>
+            <div class="col-md-8">
+              <label class="wms-compact-label">Product Name *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-tag input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Paracetamol 650mg Dolo Tablets" [(ngModel)]="newProduct.name" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Barcode / UPC</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-qrcode input-icon"></i>
+                <input type="text" class="form-control" placeholder="890123456789" [(ngModel)]="newProduct.barcode" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Brand</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-certificate input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Micro Labs" [(ngModel)]="newProduct.brand" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Description</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-align-left input-icon"></i>
+                <input type="text" class="form-control" placeholder="Brief specification" [(ngModel)]="newProduct.description" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Classification & Pricing -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-layer-group text-success"></i>
+            <span>Classification & Inventory Parameters</span>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="wms-compact-label">Industry Category</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-folder input-icon"></i>
+                <select class="form-select" [(ngModel)]="newProduct.category">
+                  <option *ngFor="let c of categoryOptions" [ngValue]="c.value">{{ c.key }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Unit of Measure (UOM)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-ruler input-icon"></i>
+                <select class="form-select" [(ngModel)]="newProduct.uom">
+                  <option *ngFor="let u of uomOptions" [ngValue]="u.value">{{ u.key }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Unit Price (₹)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-rupee-sign input-icon"></i>
+                <input type="number" class="form-control" [(ngModel)]="newProduct.unitPrice" min="0" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wms-compact-label">Reorder Alert Level</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-bell input-icon"></i>
+                <input type="number" class="form-control" [(ngModel)]="newProduct.reorderLevel" min="0" placeholder="50" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wms-compact-label">Target Maximum Stock</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-boxes input-icon"></i>
+                <input type="number" class="form-control" [(ngModel)]="newProduct.targetStockLevel" min="0" placeholder="500" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Storage & Temperature Requirements -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-snowflake text-info"></i>
+            <span>Warehouse Storage & Cold-Chain Criteria</span>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="wms-compact-label">Required Storage Zone Type</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-warehouse input-icon"></i>
+                <select class="form-select" [(ngModel)]="newProduct.requiredStorageType">
+                  <option *ngFor="let s of storageTypeOptions" [ngValue]="s.value">{{ s.key }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Min Temp (°C, optional)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-temperature-low input-icon"></i>
+                <input type="number" class="form-control" placeholder="2" [(ngModel)]="newProduct.temperatureMinCelsius" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Max Temp (°C, optional)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-temperature-high input-icon"></i>
+                <input type="number" class="form-control" placeholder="8" [(ngModel)]="newProduct.temperatureMaxCelsius" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Multi-Industry Tracking Rules -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-check-double text-warning"></i>
+            <span>Multi-Industry Tracking Rules</span>
+          </div>
+          <div class="p-3 rounded border mb-2 tracking-rules-card">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="chkLot" [(ngModel)]="newProduct.isLotTracked" />
+                  <label class="form-check-label font-weight-bold text-dark small" for="chkLot">
+                    Lot / Batch Tracked
+                  </label>
+                  <div class="text-muted tracking-rule-desc">Batch numbers assigned during inbound GRN</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="chkExp" [(ngModel)]="newProduct.isExpiryTracked" />
+                  <label class="form-check-label font-weight-bold text-dark small" for="chkExp">
+                    Expiry Tracked (FEFO)
+                  </label>
+                  <div class="text-muted tracking-rule-desc">First-Expiry-First-Out picking logic</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="chkSerial" [(ngModel)]="newProduct.isSerialTracked" />
+                  <label class="form-check-label font-weight-bold text-dark small" for="chkSerial">
+                    Serial Tracked
+                  </label>
+                  <div class="text-muted tracking-rule-desc">Individual serial scan per unit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">
+            <i class="fas fa-info-circle text-primary me-1"></i>Fields marked with <strong>*</strong> are mandatory
+          </span>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-wms-cancel" (click)="closeCreateModal()">
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-wms-submit" 
+              [disabled]="!newProduct.sku || !newProduct.name || isSaving" 
+              (click)="saveProduct()"
+            >
+              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+              <span>{{ editingProductId ? (isSaving ? 'Updating...' : 'Save Changes') : (isSaving ? 'Registering...' : 'Register Product SKU') }}</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

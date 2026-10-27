@@ -1,0 +1,821 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h3 font-weight-bold text-dark mb-0">Warehouses & Storage Zones</h2>
+        <span class="wms-badge wms-badge-primary">Multi-Facility Network</span>
+      </div>
+      <p class="text-muted small mb-0 mt-1">
+        Manage central distribution hubs, storage zones, and barcode bin locations.
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-wms-primary d-flex align-items-center gap-2" (click)="openCreateWarehouseModal()">
+        <i class="fas fa-plus"></i>
+        <span>Add Warehouse</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;">
+          <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ warehouses.length }}</div>
+          <div class="metric-label">Active Warehouses</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+          <i class="fas fa-th-large"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">
+            {{ totalZonesCount > 0 ? totalZonesCount : (selectedWarehouse ? selectedWarehouseZones.length : '—') }}
+          </div>
+          <div class="metric-label">Configured Zones</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+          <i class="fas fa-barcode"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">
+            {{ totalLocationsCount > 0 ? totalLocationsCount : (selectedWarehouse ? selectedWarehouseLocations.length :
+            '—') }}
+          </div>
+          <div class="metric-label">Scannable Bins</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+          <i class="fas fa-snowflake"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">2°C to 8°C</div>
+          <div class="metric-label">Cold-Chain Control</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar (Compact & Harmonized with other modules) -->
+  <div class="wms-card p-2 px-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-6 col-lg-5">
+        <div class="wms-search-input">
+          <i class="fas fa-search"></i>
+          <input type="text" class="form-control form-control-sm" placeholder="Search by warehouse code, name, city..."
+            [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" />
+        </div>
+      </div>
+      <div class="col-12 col-md-4 col-lg-3">
+        <select class="form-select form-select-sm" [(ngModel)]="selectedTypeFilter" (ngModelChange)="applyFilter()">
+          <option [ngValue]="null">All Warehouse Types</option>
+          <option *ngFor="let t of warehouseTypes" [ngValue]="t.value">{{ t.key }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 col-lg-4 text-md-end">
+        <span class="text-muted small">
+          Showing <strong>{{ filteredWarehouses.length }}</strong> of {{ warehouses.length }} warehouses
+          <span *ngIf="isLoading && warehouses.length > 0" class="spinner-border spinner-border-sm text-primary ms-1"
+            role="status" title="Syncing..."></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton Loading State (Initial load only) -->
+  <div *ngIf="isLoading && warehouses.length === 0" class="row g-4 mb-4">
+    <div *ngFor="let s of [1, 2, 3, 4]" class="col-12 col-xl-6">
+      <div class="wh-facility-card placeholder-glow" style="min-height: 180px; opacity: 0.85;">
+        <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
+          <div class="d-flex gap-2">
+            <span class="placeholder col-4 py-2 rounded bg-secondary"></span>
+            <span class="placeholder col-4 py-2 rounded bg-secondary"></span>
+          </div>
+          <span class="placeholder col-3 py-2 rounded bg-secondary"></span>
+        </div>
+        <div class="placeholder col-6 py-2 mb-2 rounded bg-secondary"></div>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="placeholder col-8 py-2 rounded bg-secondary"></span>
+          <span class="placeholder col-3 py-2 rounded bg-secondary"></span>
+        </div>
+        <div class="d-flex justify-content-between pt-2 border-top">
+          <div class="d-flex gap-2">
+            <span class="placeholder col-5 py-3 rounded bg-secondary" style="width: 120px;"></span>
+            <span class="placeholder col-5 py-3 rounded bg-secondary" style="width: 120px;"></span>
+          </div>
+          <span class="placeholder col-4 py-3 rounded bg-secondary" style="width: 160px;"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredWarehouses.length === 0" class="wms-card p-5 text-center">
+    <i class="fas fa-warehouse text-muted fa-3x mb-3"></i>
+    <h5>No facilities found</h5>
+    <p class="text-muted">No warehouses match your search query or filter.</p>
+    <button class="btn btn-wms-primary mt-2" (click)="openCreateWarehouseModal()">Create First Warehouse</button>
+  </div>
+
+  <!-- Warehouse Cards Grid (Instantly visible if cached or loaded) -->
+  <div *ngIf="filteredWarehouses.length > 0" class="row g-4">
+    <div *ngFor="let wh of filteredWarehouses" class="col-12 col-xl-6">
+      <div class="wh-facility-card">
+        <!-- Top Status Bar: Badges Left, Status Right -->
+        <div class="wh-card-top">
+          <div class="wh-card-badges">
+            <span class="wh-code-badge">{{ wh.code }}</span>
+            <span class="wh-type-tag">
+              <i class="fas fa-warehouse me-1"></i> {{ getTypeLabel(wh.type) }}
+            </span>
+          </div>
+          <div class="wh-status-chip" [ngClass]="wh.isActive ? 'operational' : 'inactive'">
+            <span class="dot"></span>
+            <span>{{ wh.isActive ? 'Operational' : 'Inactive' }}</span>
+          </div>
+        </div>
+
+        <!-- Facility Title (Full Width) -->
+        <h4 class="wh-title" [title]="wh.name">{{ wh.name }}</h4>
+
+        <!-- Single-Line Address & Phone Row (Full Width - Never wraps awkwardly in half) -->
+        <div class="wh-address-phone-row">
+          <div class="wh-address-line" [title]="wh.address + ', ' + wh.city + ', ' + wh.state + ' ' + wh.postalCode">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ wh.address }}, {{ wh.city }}, {{ wh.state }} {{ wh.postalCode }}</span>
+          </div>
+          <div class="wh-phone-pill" [title]="wh.contactPhone || 'No contact registered'">
+            <i class="fas fa-phone-alt"></i>
+            <span>{{ wh.contactPhone || 'No contact registered' }}</span>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Specs on Left, Action Button on Right -->
+        <div class="wh-card-bottom-row">
+          <div class="wh-specs-group">
+            <div class="wh-stat-box">
+              <span class="stat-label">Total Floor Area</span>
+              <div class="stat-val">{{ wh.totalAreaSqFt | number }} sq.ft</div>
+            </div>
+            <div class="wh-stat-box">
+              <span class="stat-label">Facility Manager</span>
+              <div class="stat-val" [title]="wh.contactPerson || 'Facility Head'">
+                {{ wh.contactPerson || 'Facility Head' }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wh-card-bottom-row">
+
+          <button type="button" class="btn-manage-facility" (click)="inspectWarehouse(wh)">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fas fa-sitemap"></i>
+              <span>Manage Zones & Bins</span>
+            </span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warehouse Zones & Bins Inspection Modal / Workspace -->
+  <div *ngIf="selectedWarehouse" class="modal fade show d-block" tabindex="-1"
+    style="background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(6px); z-index: 1050;">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+
+        <!-- Header -->
+        <div class="wms-inspection-header d-flex justify-content-between align-items-center">
+          <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h5 class="font-weight-bold text-white mb-0">{{ selectedWarehouse.name }}</h5>
+              <span class="badge bg-primary font-monospace">{{ selectedWarehouse.code }}</span>
+              <span class="badge bg-secondary">{{ getTypeLabel(selectedWarehouse.type) }}</span>
+            </div>
+            <p class="small text-white-50 mb-0 mt-1">
+              <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ selectedWarehouse.city }}, {{
+              selectedWarehouse.state }} &bull; Total Area: {{ selectedWarehouse.totalAreaSqFt | number }} sq.ft
+            </p>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeInspection()"></button>
+        </div>
+
+        <!-- Tab Navigation Bar -->
+        <div class="border-bottom px-4 pt-2 pb-2">
+          <ul class="nav nav-pills wms-modal-tabs">
+            <li class="nav-item">
+              <button class="nav-link" [class.active]="activeDetailTab === 'zones'" (click)="activeDetailTab = 'zones'">
+                <i class="fas fa-th-large me-2"></i>Storage Zones
+                <span class="badge ms-2"
+                  [ngClass]="activeDetailTab === 'zones' ? 'bg-white text-primary' : 'bg-secondary'">{{
+                  selectedWarehouseZones.length }}</span>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" [class.active]="activeDetailTab === 'bins'" (click)="activeDetailTab = 'bins'">
+                <i class="fas fa-barcode me-2"></i>Barcode Bins & Shelves
+                <span class="badge ms-2"
+                  [ngClass]="activeDetailTab === 'bins' ? 'bg-white text-primary' : 'bg-secondary'">{{
+                  selectedWarehouseLocations.length }}</span>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" [class.active]="activeDetailTab === 'guide'" (click)="activeDetailTab = 'guide'">
+                <i class="fas fa-sitemap me-2"></i>Facility Hierarchy Guide
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="modal-body p-4 bg-white" style="min-height: 400px;">
+
+          <!-- Loading State for Modal -->
+          <div *ngIf="isLoadingDetails || isQuickSettingUp" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+            <h6 class="font-weight-bold text-dark">{{ isQuickSettingUp ? 'Setting up standard zones & bins...' :
+              'Loading facility zones and locations...' }}</h6>
+            <p class="text-muted small">Synchronizing chambers, ambient pallet racks, and barcode locations.</p>
+          </div>
+
+          <!-- TAB 1: Storage Zones -->
+          <div *ngIf="!isLoadingDetails && !isQuickSettingUp && activeDetailTab === 'zones'">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+              <div>
+                <h6 class="font-weight-bold text-dark mb-0">Configured Storage Zones</h6>
+                <span class="text-muted small">Distinct chambers, cold chain rooms, and pallet racking zones inside this
+                  facility</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button *ngIf="selectedWarehouseZones.length === 0"
+                  class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+                  (click)="quickSetupDefaultZones()"
+                  title="Creates Ambient + Cold Chain zones with sample bins automatically">
+                  <i class="fas fa-magic"></i>
+                  <span>1-Click Quick Setup</span>
+                </button>
+                <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
+                  (click)="openCreateZoneModal()">
+                  <i class="fas fa-plus"></i>
+                  <span>Add Zone</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty Zones State -->
+            <div *ngIf="selectedWarehouseZones.length === 0" class="p-5 text-center border rounded-3 bg-light">
+              <i class="fas fa-th-large text-muted fa-3x mb-3"></i>
+              <h5 class="text-dark font-weight-bold">No Storage Zones Configured Yet</h5>
+              <p class="text-muted mx-auto" style="max-width: 520px; font-size: 0.9rem;">
+                Har warehouse ke andar alag-alag zones hote hain (jaise <strong>Ambient Dry Storage</strong> aur
+                <strong>Cold Storage Chamber</strong>). Bins aur goods place karne ke liye pehle ek Zone banayein.
+              </p>
+              <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+                <button class="btn btn-primary d-flex align-items-center gap-2" (click)="quickSetupDefaultZones()">
+                  <i class="fas fa-magic"></i>
+                  <span>✨ 1-Click Quick Setup (Ambient + Cold Chain)</span>
+                </button>
+                <button class="btn btn-outline-secondary" (click)="openCreateZoneModal()">
+                  <i class="fas fa-plus me-1"></i> Add Custom Zone
+                </button>
+              </div>
+            </div>
+
+            <!-- Zones Grid -->
+            <div *ngIf="selectedWarehouseZones.length > 0" class="row g-3">
+              <div *ngFor="let zone of selectedWarehouseZones" class="col-12 col-md-6 col-lg-4">
+                <div class="wms-zone-card shadow-sm">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-dark font-monospace">{{ zone.code }}</span>
+                    <span class="wms-badge"
+                      [ngClass]="zone.temperatureMinCelsius !== null ? 'wms-badge-info' : 'wms-badge-primary'">
+                      {{ zone.temperatureMinCelsius !== null ? '❄️ Cold Chain' : 'Ambient' }}
+                    </span>
+                  </div>
+                  <h6 class="font-weight-bold text-dark mb-1">{{ zone.name }}</h6>
+                  <div class="text-muted small mb-3">{{ getStorageTypeLabel(zone.storageType) }}</div>
+
+                  <div class="p-2 rounded border mb-3">
+                    <div class="d-flex justify-content-between small text-muted">
+                      <span>Mapped Bins:</span>
+                      <strong class="text-dark">{{ getBinsCountForZone(zone.id) }} locations</strong>
+                    </div>
+                    <div *ngIf="zone.temperatureMinCelsius !== null"
+                      class="d-flex justify-content-between small text-info mt-1">
+                      <span>Temperature:</span>
+                      <strong>{{ zone.temperatureMinCelsius }}°C to {{ zone.temperatureMaxCelsius }}°C</strong>
+                    </div>
+                  </div>
+
+                  <button type="button"
+                    class="btn btn-sm btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                    (click)="activeDetailTab = 'bins'; selectedZoneFilter = zone.id || 'all'">
+                    <i class="fas fa-barcode"></i>
+                    <span>View Bins in this Zone</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Barcode Bins & Shelves -->
+          <div *ngIf="!isLoadingDetails && !isQuickSettingUp && activeDetailTab === 'bins'">
+            <!-- When 0 Zones exist, show warning -->
+            <div *ngIf="selectedWarehouseZones.length === 0" class="alert alert-warning p-4 border-warning">
+              <div class="d-flex gap-3 align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                <div>
+                  <h6 class="font-weight-bold mb-1">Storage Zone Required First!</h6>
+                  <p class="mb-2 small">
+                    Bin locations (Aisle-Rack-Shelf-Bin) kisi na kisi Storage Zone ke andar belong karti hain. Is
+                    facility me abhi koi zone nahi hai. Pehle ek Zone create karein ya Quick Setup use karein.
+                  </p>
+                  <button class="btn btn-sm btn-primary" (click)="activeDetailTab = 'zones'">
+                    <i class="fas fa-arrow-left me-1"></i> Go to Zones & Create First Zone
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- When Zones DO exist -->
+            <div *ngIf="selectedWarehouseZones.length > 0">
+              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                  <h6 class="font-weight-bold text-dark mb-0">Barcode Storage Locations & Shelves</h6>
+                  <span class="text-muted small">4-coordinate locations (Aisle-Rack-Shelf-Bin) for automated FEFO
+                    picking</span>
+                </div>
+                <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
+                  (click)="openCreateLocationModal()">
+                  <i class="fas fa-barcode"></i>
+                  <span>Add Bin Location</span>
+                </button>
+              </div>
+
+              <!-- Filter Bar for Bins -->
+              <div class="row g-2 mb-3">
+                <div class="col-12 col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Filter by barcode, aisle, rack..."
+                      [(ngModel)]="binSearchQuery" />
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedZoneFilter">
+                    <option value="all">All Storage Zones ({{ selectedWarehouseLocations.length }})</option>
+                    <option *ngFor="let z of selectedWarehouseZones" [value]="z.id">
+                      {{ z.code }} - {{ z.name }} ({{ getBinsCountForZone(z.id) }})
+                    </option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-3 text-md-end small text-muted align-self-center">
+                  Showing <strong>{{ filteredLocations.length }}</strong> of {{ selectedWarehouseLocations.length }}
+                  bins
+                </div>
+              </div>
+
+              <!-- Empty Bins State -->
+              <div *ngIf="selectedWarehouseLocations.length === 0" class="p-5 text-center border rounded-3 bg-light">
+                <i class="fas fa-barcode text-muted fa-3x mb-3"></i>
+                <h6 class="text-dark font-weight-bold">No Bin Locations Created Yet</h6>
+                <p class="text-muted small mx-auto" style="max-width: 450px;">
+                  Zones ban chuki hain! Ab aap har zone ke andar scannable barcodes ke saath racks aur shelves define
+                  kar sakte hain.
+                </p>
+                <button class="btn btn-sm btn-wms-primary" (click)="openCreateLocationModal()">
+                  <i class="fas fa-plus me-1"></i> Add First Bin Location
+                </button>
+              </div>
+
+              <!-- Bins Table -->
+              <div *ngIf="selectedWarehouseLocations.length > 0" class="table-responsive border bg-white wms-grid-card">
+                <table class="wms-table">
+                  <thead>
+                    <tr>
+                      <th>Barcode</th>
+                      <th>Zone</th>
+                      <th>Coordinates (A-R-S-B)</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Capacity</th>
+                      <th>Pick Face</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let loc of filteredLocations">
+                      <td>
+                        <span class="font-monospace font-weight-bold text-primary">
+                          <i class="fas fa-barcode me-1"></i>{{ loc.barcode }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-dark border">
+                          {{ getZoneByLocation(loc)?.code || 'Zone' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="text-dark font-weight-bold">
+                          {{ loc.aisle }}-{{ loc.rack }}-{{ loc.shelf }}-{{ loc.bin }}
+                        </span>
+                      </td>
+                      <td>{{ getLocationTypeLabel(loc.locationType) }}</td>
+                      <td>
+                        <span class="wms-badge" [ngClass]="getLocationStatusBadge(loc.status)">
+                          {{ getLocationStatusLabel(loc.status) }}
+                        </span>
+                      </td>
+                      <td>{{ loc.maxWeightKg }} kg</td>
+                      <td>
+                        <span *ngIf="loc.isPickFace" class="text-success small"><i class="fas fa-check"></i> Yes</span>
+                        <span *ngIf="!loc.isPickFace" class="text-muted small">Reserve</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Hierarchy Guide -->
+          <div *ngIf="activeDetailTab === 'guide'">
+            <h6 class="font-weight-bold text-dark mb-1">Facility Network Architecture</h6>
+            <p class="text-muted small mb-4">Understanding how physical warehouses translate into digital barcodes,
+              inventory lots, and picking routes.</p>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <div class="wms-hierarchy-step">
+                  <div class="badge bg-primary mb-2">Step 1</div>
+                  <h6 class="font-weight-bold text-dark">🏢 Warehouse Facility</h6>
+                  <p class="small text-muted mb-0">
+                    The overall physical campus or building (e.g. {{ selectedWarehouse.name }}). Holds address,
+                    capacity, and city hub details.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="wms-hierarchy-step">
+                  <div class="badge bg-info text-dark mb-2">Step 2</div>
+                  <h6 class="font-weight-bold text-dark">📦 Storage Zones</h6>
+                  <p class="small text-muted mb-0">
+                    Physical chambers inside the building. E.g., Cold Chain (2°C - 8°C), Ambient Pallet Reserve,
+                    Mezzanine, or Quarantine.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="wms-hierarchy-step">
+                  <div class="badge bg-success mb-2">Step 3</div>
+                  <h6 class="font-weight-bold text-dark">🏷️ Barcode Bins</h6>
+                  <p class="small text-muted mb-0">
+                    4-coordinate scannable slots (Aisle, Rack, Shelf, Bin). Putaway workers scan this code on mobile
+                    handheld scanners.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="wms-hierarchy-step">
+                  <div class="badge bg-warning text-dark mb-2">Step 4</div>
+                  <h6 class="font-weight-bold text-dark">📊 Stock Inventory</h6>
+                  <p class="small text-muted mb-0">
+                    Specific product SKUs, batches, expiry dates, and quantities stored directly into these scannable
+                    bins.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted small">
+            Status: <span class="badge bg-success">Operational</span> &bull; Facility: <strong>{{ selectedWarehouse.code
+              }}</strong>
+          </span>
+          <button type="button" class="btn btn-wms-cancel" (click)="closeInspection()">Close Workspace</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create Warehouse -->
+  <div *ngIf="isCreateWarehouseModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(6px); z-index: 1060;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+
+        <!-- Header (Indigo Gradient - NO BLACK) -->
+        <div class="wms-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-warehouse text-white"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">Register New Warehouse</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Configure warehouse identity, storage capacity, and regional
+                address</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isCreateWarehouseModalOpen = false"></button>
+        </div>
+
+        <div class="modal-body px-4 py-3" style="background-color: #ffffff;">
+          <!-- Section 1: Identification & Classification -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-id-card text-primary"></i>
+            <span>Warehouse Identification</span>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-md-4">
+              <label class="wms-compact-label">Warehouse Code *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-barcode input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. WH-BLR-02" [(ngModel)]="newWarehouse.code" />
+              </div>
+            </div>
+            <div class="col-md-8">
+              <label class="wms-compact-label">Warehouse Name *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-building input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Bengaluru East Fulfillment Center"
+                  [(ngModel)]="newWarehouse.name" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wms-compact-label">Warehouse Type</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-cubes input-icon"></i>
+                <select class="form-select" [(ngModel)]="newWarehouse.type">
+                  <option *ngFor="let t of warehouseTypes" [ngValue]="t.value">{{ t.key }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wms-compact-label">Total Floor Area (Sq. Ft) *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-ruler-combined input-icon"></i>
+                <input type="number" class="form-control" placeholder="50000"
+                  [(ngModel)]="newWarehouse.totalAreaSqFt" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Physical Address -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-map-marker-alt text-danger"></i>
+            <span>Geographic Location</span>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-12">
+              <label class="wms-compact-label">Street Address *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-road input-icon"></i>
+                <input type="text" class="form-control" placeholder="Plot / Sector / Road / Industrial Area"
+                  [(ngModel)]="newWarehouse.address" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">City *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-city input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Bengaluru" [(ngModel)]="newWarehouse.city" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">State *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-map input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Karnataka" [(ngModel)]="newWarehouse.state" />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="wms-compact-label">Postal Code *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-mail-bulk input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. 560001"
+                  [(ngModel)]="newWarehouse.postalCode" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Operations & Contact -->
+          <div class="wms-form-section-title">
+            <i class="fas fa-user-tie text-success"></i>
+            <span>Operations & Contact Person</span>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="wms-compact-label">Facility Manager / Head *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-user-circle input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Rahul Sharma"
+                  [(ngModel)]="newWarehouse.contactPerson" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="wms-compact-label">Contact Phone *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-phone-alt input-icon"></i>
+                <input type="text" class="form-control" placeholder="+91 98765 43210"
+                  [(ngModel)]="newWarehouse.contactPhone" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-wms-cancel" (click)="isCreateWarehouseModalOpen = false">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-wms-submit" 
+            [disabled]="!newWarehouse.code || !newWarehouse.name || !newWarehouse.address || !newWarehouse.city || !newWarehouse.state || !newWarehouse.postalCode || (newWarehouse.totalAreaSqFt || 0) <= 0"
+            (click)="saveWarehouse()">
+            <i class="fas fa-check"></i>
+            <span>Save Warehouse</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create Zone -->
+  <div *ngIf="isCreateZoneModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(6px); z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+
+        <!-- Header (Sky Blue Gradient - NO BLACK) -->
+        <div class="wms-modal-header wms-header-zone d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-th-large text-white"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">Add Storage Zone</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Partition warehouse into dedicated storage sections</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isCreateZoneModalOpen = false"></button>
+        </div>
+
+        <div class="modal-body px-4 py-3" style="background-color: #ffffff;">
+          <div class="row g-2">
+            <div class="col-4">
+              <label class="wms-compact-label">Zone Code *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-tag input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. ZN-COLD" [(ngModel)]="newZone.code" />
+              </div>
+            </div>
+            <div class="col-8">
+              <label class="wms-compact-label">Zone Name *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-door-open input-icon"></i>
+                <input type="text" class="form-control" placeholder="e.g. Cold Chamber 01" [(ngModel)]="newZone.name" />
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="wms-compact-label">Storage Type</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-layer-group input-icon"></i>
+                <select class="form-select" [(ngModel)]="newZone.storageType">
+                  <option *ngFor="let t of zoneStorageTypes" [ngValue]="t.value">{{ t.key }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="wms-compact-label">Min Temp (°C, optional)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-thermometer-half input-icon text-info"></i>
+                <input type="number" class="form-control" placeholder="2" [(ngModel)]="newZone.temperatureMinCelsius" />
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="wms-compact-label">Max Temp (°C, optional)</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-thermometer-three-quarters input-icon text-danger"></i>
+                <input type="number" class="form-control" placeholder="8" [(ngModel)]="newZone.temperatureMaxCelsius" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-wms-cancel" (click)="isCreateZoneModalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-wms-submit" [disabled]="!newZone.code || !newZone.name"
+            (click)="saveZone()">
+            <i class="fas fa-check"></i>
+            <span>Save Zone</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create Bin Location -->
+  <div *ngIf="isCreateLocationModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(6px); z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+
+        <!-- Header (Emerald Gradient - NO BLACK) -->
+        <div class="wms-modal-header wms-header-bin d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-modal-icon-badge">
+              <i class="fas fa-barcode text-white"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-white mb-0">Create Barcode Bin Location</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Assign aisle, rack, shelf, and scannable barcode label</p>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="isCreateLocationModalOpen = false"></button>
+        </div>
+
+        <div class="modal-body px-4 py-3" style="background-color: #ffffff;">
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="wms-compact-label">Target Zone *</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-th-large input-icon"></i>
+                <select class="form-select" [(ngModel)]="newLocation.zoneId" (ngModelChange)="updateGeneratedBarcode()">
+                  <option *ngFor="let z of selectedWarehouseZones" [ngValue]="z.id">{{ z.code }} - {{ z.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-3">
+              <label class="wms-compact-label">Aisle</label>
+              <input type="text" class="form-control form-control-sm text-center font-monospace"
+                [(ngModel)]="newLocation.aisle" (ngModelChange)="updateGeneratedBarcode()" />
+            </div>
+            <div class="col-3">
+              <label class="wms-compact-label">Rack</label>
+              <input type="text" class="form-control form-control-sm text-center font-monospace"
+                [(ngModel)]="newLocation.rack" (ngModelChange)="updateGeneratedBarcode()" />
+            </div>
+            <div class="col-3">
+              <label class="wms-compact-label">Shelf</label>
+              <input type="text" class="form-control form-control-sm text-center font-monospace"
+                [(ngModel)]="newLocation.shelf" (ngModelChange)="updateGeneratedBarcode()" />
+            </div>
+            <div class="col-3">
+              <label class="wms-compact-label">Bin</label>
+              <input type="text" class="form-control form-control-sm text-center font-monospace"
+                [(ngModel)]="newLocation.bin" (ngModelChange)="updateGeneratedBarcode()" />
+            </div>
+
+            <div class="col-12">
+              <label class="wms-compact-label">Generated Barcode</label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-barcode input-icon text-primary"></i>
+                <input type="text" class="form-control font-monospace text-primary font-weight-bold"
+                  [(ngModel)]="newLocation.barcode" />
+              </div>
+            </div>
+
+            <div class="col-6">
+              <label class="wms-compact-label">Location Type</label>
+              <select class="form-select form-select-sm" [(ngModel)]="newLocation.locationType">
+                <option *ngFor="let t of locationTypes" [ngValue]="t.value">{{ t.key }}</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="wms-compact-label">Max Weight (Kg)</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="newLocation.maxWeightKg" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-wms-cancel" (click)="isCreateLocationModalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-wms-submit" [disabled]="!newLocation.zoneId || !newLocation.barcode"
+            (click)="saveLocation()">
+            <i class="fas fa-check"></i>
+            <span>Save Bin Location</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

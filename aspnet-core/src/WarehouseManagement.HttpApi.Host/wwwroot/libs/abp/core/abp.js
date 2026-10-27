@@ -879,4 +879,59 @@ var abp = abp || {};
         return abp.globalFeatures.enabledFeatures.indexOf(name) != -1;
     }
 
+    // Set Custom Warehouse Logo Favicon dynamically
+    (function () {
+        var faviconData = 'data:image/png;base64,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';
+
+        function applyWarehouseFavicon() {
+            try {
+                var links = document.querySelectorAll("link[rel*='icon']");
+                if (links && links.length > 0) {
+                    for (var i = 0; i < links.length; i++) {
+                        links[i].type = 'image/png';
+                        links[i].href = faviconData;
+                    }
+                } else {
+                    var link = document.createElement('link');
+                    link.type = 'image/png';
+                    link.rel = 'icon';
+                    link.href = faviconData;
+                    document.head.appendChild(link);
+                }
+
+                var shortcut = document.querySelector("link[rel='shortcut icon']");
+                if (!shortcut) {
+                    shortcut = document.createElement('link');
+                    shortcut.rel = 'shortcut icon';
+                    shortcut.type = 'image/png';
+                    document.head.appendChild(shortcut);
+                }
+                shortcut.href = faviconData;
+
+                var apple = document.querySelector("link[rel='apple-touch-icon']");
+                if (!apple) {
+                    apple = document.createElement('link');
+                    apple.rel = 'apple-touch-icon';
+                    document.head.appendChild(apple);
+                }
+                apple.href = faviconData;
+            } catch (e) {
+                console.error('Error setting warehouse favicon:', e);
+            }
+        }
+
+        applyWarehouseFavicon();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyWarehouseFavicon);
+        }
+        window.addEventListener('load', applyWarehouseFavicon);
+
+        var count = 0;
+        var interval = setInterval(function () {
+            applyWarehouseFavicon();
+            count++;
+            if (count > 10) clearInterval(interval);
+        }, 300);
+    })();
+
 })();

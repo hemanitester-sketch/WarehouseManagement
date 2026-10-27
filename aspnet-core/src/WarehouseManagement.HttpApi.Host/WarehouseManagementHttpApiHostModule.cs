@@ -213,6 +213,37 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
 
         app.UseForwardedHeaders();
 
+        app.Use(async (httpContext, next) =>
+        {
+            var path = httpContext.Request.Path.Value;
+            if (string.Equals(path, "/favicon.svg", StringComparison.OrdinalIgnoreCase))
+            {
+                var faviconSvgPath = Path.Combine(env.ContentRootPath, "wwwroot", "favicon.svg");
+                if (File.Exists(faviconSvgPath))
+                {
+                    httpContext.Response.ContentType = "image/svg+xml";
+                    httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                    var bytes = await File.ReadAllBytesAsync(faviconSvgPath);
+                    await httpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                    return;
+                }
+            }
+            else if (string.Equals(path, "/favicon.ico", StringComparison.OrdinalIgnoreCase))
+            {
+                var faviconIcoPath = Path.Combine(env.ContentRootPath, "wwwroot", "favicon.ico");
+                if (File.Exists(faviconIcoPath))
+                {
+                    httpContext.Response.ContentType = "image/x-icon";
+                    httpContext.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                    var bytes = await File.ReadAllBytesAsync(faviconIcoPath);
+                    await httpContext.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                    return;
+                }
+            }
+
+            await next();
+        });
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();

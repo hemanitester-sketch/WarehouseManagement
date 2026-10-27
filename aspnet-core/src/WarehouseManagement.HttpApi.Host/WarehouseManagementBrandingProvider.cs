@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Localization;
 using WarehouseManagement.Localization;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Ui.Branding;
@@ -15,5 +15,7 @@ public class WarehouseManagementBrandingProvider : DefaultBrandingProvider
         _localizer = localizer;
     }
 
-    public override string AppName => _localizer["AppName"];
+    public override string AppName => "Warehouse Management";
+    public override string LogoUrl => "/images/logo/warehouse-logo.png";
+    public override string LogoReverseUrl => "/images/logo/warehouse-logo.png";
 }

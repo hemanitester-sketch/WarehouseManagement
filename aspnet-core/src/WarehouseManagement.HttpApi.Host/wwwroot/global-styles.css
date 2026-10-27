@@ -28,37 +28,34 @@ body {
 
 /* Brand Title & Logo */
 .lpx-logo-container {
-  text-align: center;
-  margin-top: 1.5rem;
-  margin-bottom: 1.25rem;
+  text-align: center !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0 !important;
 }
 
 .lpx-brand-logo {
-  width: 54px !important;
-  height: 54px !important;
-  margin: 0 auto 0.75rem auto !important;
-  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  width: 110px !important;
+  height: 110px !important;
+  margin: 0 auto !important;
+  background-image: url('/images/logo/warehouse-logo.png') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: block !important;
   position: relative;
 }
 
 .lpx-brand-logo::after {
-  content: '📦';
-  font-size: 28px;
-  line-height: 1;
+  content: none !important;
 }
 
-.lpx-brand-name {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-size: 1.5rem !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.5px !important;
-  color: #0f172a !important;
-  margin-top: 0.25rem !important;
+/* Hide text below logo since the logo image already contains the brand title */
+.lpx-brand-name,
+.lpx-login-name {
+  display: none !important;
 }
 
 /* Top App Name in Auth Page */
@@ -78,6 +75,82 @@ body > .container,
   overflow: hidden;
   margin-bottom: 1.25rem !important;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Move Register link, Remember me & Forgot password below the Login button */
+.col-md-8.col-lg-5 > .card.mt-3 .card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 2rem 2.25rem !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > h4 {
+  order: 1 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > form {
+  order: 2 !important;
+  margin-top: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Inside form: 1. Username, 2. Password, 3. Login Button, 4. Remember me & Forgot password */
+.col-md-8.col-lg-5 > .card.mt-3 form > .mb-3:nth-of-type(1) {
+  order: 1 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form > .mb-3:nth-of-type(2) {
+  order: 2 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Exactly 1rem margin above Login button */
+.col-md-8.col-lg-5 > .card.mt-3 form > .d-grid {
+  order: 3 !important;
+  margin-top: 1rem !important;
+  padding-top: 0 !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form button[type="submit"],
+.col-md-8.col-lg-5 > .card.mt-3 form button.mt-3,
+.col-md-8.col-lg-5 > .card.mt-3 form .btn-primary {
+  margin-top: 0 !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form > .row {
+  order: 4 !important;
+  margin-top: 0.85rem !important;
+  margin-bottom: 0 !important;
+  align-items: center !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form .custom-checkbox,
+.col-md-8.col-lg-5 > .card.mt-3 form .form-check-input {
+  margin-bottom: 0 !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > strong {
+  order: 3 !important;
+  margin-top: 1rem !important;
+  text-align: center !important;
+  display: block !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  color: #64748b !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > strong a {
+  color: #2563eb !important;
+  font-weight: 600 !important;
+  margin-left: 0.25rem;
+  text-decoration: none !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > strong a:hover {
+  text-decoration: underline !important;
 }
 
 /* Top Language & Tenant Card - Hidden for a clean single-tenant login */
@@ -157,7 +230,7 @@ body > .container,
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
   transition: all 0.2s ease !important;
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 0 !important;
 }
 
 .btn-primary:hover, button[type="submit"]:hover {
@@ -216,3 +289,62 @@ div:has(> div > #AbpTenantSwitchLink),
   --lpx-logo: url('/images/logo/leptonx/logo-light.png');
   --lpx-logo-icon: url('/images/logo/leptonx/logo-light-thumbnail.png');
 }
+
+/* ==========================================================================
+   LeptonX Sidebar Menu - Override Pink with Blue on Hover & Active
+   ========================================================================== */
+:root,
+body,
+.lpx-sidebar,
+.lpx-nav-menu,
+.lpx-menu-item {
+  --lpx-brand: #2563eb !important;
+  --lpx-brand-rgb: 37, 99, 235 !important;
+}
+
+/* Menu icons & text on hover, active, selected, and expanded */
+.lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link:hover .dd-icon,
+.lpx-nav-menu .lpx-menu-item-link.selected .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link.selected .dd-icon,
+.lpx-nav-menu .lpx-menu-item-link.expanded .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item-link.expanded .dd-icon,
+.lpx-menu-item:hover .lpx-menu-item-icon,
+.lpx-menu-item:hover .dd-icon,
+.lpx-menu-item.selected .lpx-menu-item-icon,
+.lpx-menu-item.selected .dd-icon,
+.lpx-menu-item.expanded .lpx-menu-item-icon,
+.lpx-menu-item.expanded .dd-icon,
+.lpx-inner-menu-item .lpx-menu-item-link.selected .lpx-menu-item-icon,
+.lpx-inner-menu-item .lpx-menu-item-link:hover .lpx-menu-item-icon,
+.lpx-menu-item-link:hover > i,
+.lpx-menu-item-link.selected > i,
+.lpx-menu-item-link.active > i,
+.lpx-menu-item-link.active .lpx-menu-item-icon,
+.lpx-menu-item.active .lpx-menu-item-icon {
+  color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+/* Any SVG or icon fills in sidebar */
+.lpx-menu-item:hover svg,
+.lpx-menu-item.selected svg,
+.lpx-menu-item-link:hover svg,
+.lpx-menu-item-link.selected svg,
+.lpx-nav-menu .lpx-menu-item-link.selected svg path,
+.lpx-nav-menu .lpx-menu-item-link:hover svg path {
+  fill: #2563eb !important;
+  stroke: #2563eb !important;
+}
+
+/* Active / Hover borders or indicators */
+.lpx-breadcrumb-dropdown-item:hover::before,
+.lpx-breadcrumb-dropdown-item.active::before {
+  background-color: #2563eb !important;
+}
+.bg-brand {
+  background: #2563eb !important;
+}
+.bg-brand-gradient {
+  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%) !important;
+}

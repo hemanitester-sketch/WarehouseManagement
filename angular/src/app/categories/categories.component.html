@@ -1,0 +1,352 @@
+<div class="container-fluid categories-container">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Product Categories & Subcategories</h2>
+        <span class="wms-badge wms-badge-purple categories-badge">Multi-Tier Hierarchy</span>
+      </div>
+      <p class="text-muted small mb-0 mt-0.5 categories-subtitle">
+        Organize your warehouse product catalog into top-level parent categories and specialized subcategories.
+      </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+        <i class="fas fa-plus"></i>
+        <span>Add Category</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-purple">
+          <i class="fas fa-tags"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ totalCategories }}</div>
+          <div class="metric-label kpi-label-compact">Total Categories</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-blue">
+          <i class="fas fa-folder"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ rootCategoriesCount }}</div>
+          <div class="metric-label kpi-label-compact">Main / Parent Categories</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-amber">
+          <i class="fas fa-folder-tree"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ subCategoriesCount }}</div>
+          <div class="metric-label kpi-label-compact">Subcategories</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card kpi-card-compact">
+        <div class="metric-icon kpi-icon-compact kpi-icon-green">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact">{{ activeCategoriesCount }}</div>
+          <div class="metric-label kpi-label-compact">Active & In-Use</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="wms-filter-card mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-5">
+        <div class="wms-search-input">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Search by code, category name, or parent..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="applyFilters()"
+          />
+          @if (searchQuery) {
+            <button class="btn btn-sm btn-link clear-search text-muted p-0" (click)="searchQuery = ''; applyFilters()">
+              <i class="fas fa-times-circle"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <select class="form-select form-select-sm" [(ngModel)]="tierFilter" (ngModelChange)="applyFilters()">
+          <option value="all">All Category Tiers</option>
+          <option value="root">Main / Parent Categories Only</option>
+          <option value="sub">Subcategories Only</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+          <option value="all">All Statuses</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-2 text-md-end text-muted small">
+        Showing <strong>{{ filteredCategories.length }}</strong> of {{ categories.length }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories Table -->
+  <div class="card border-0 shadow-xs rounded-3 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3" style="width: 140px;">Code</th>
+            <th>Category Name</th>
+            <th style="width: 220px;">Tier / Parent</th>
+            <th style="width: 150px;">Subcategories</th>
+            <th>Description</th>
+            <th style="width: 100px;">Status</th>
+            <th class="text-end pe-3" style="width: 140px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                <span class="text-muted">Loading categories...</span>
+              </td>
+            </tr>
+          } @else if (filteredCategories.length === 0) {
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <div class="text-muted mb-2">
+                  <i class="fas fa-folder-open fs-2 text-secondary opacity-50"></i>
+                </div>
+                <p class="mb-2 fw-semibold text-dark">No categories found</p>
+                <p class="text-muted small mb-3">
+                  {{ searchQuery || tierFilter !== 'all' || statusFilter !== 'all' ? 'Try adjusting your search filters.' : 'Get started by creating your first product category.' }}
+                </p>
+                <button class="btn btn-sm btn-wms-primary" (click)="openCreateModal()">
+                  <i class="fas fa-plus me-1"></i> Add Category
+                </button>
+              </td>
+            </tr>
+          } @else {
+            @for (cat of filteredCategories; track cat.id) {
+              <tr>
+                <td class="ps-3">
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-2 py-1">
+                    {{ cat.code }}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="cat-icon-pill" [class.cat-parent]="!cat.parentCategoryId" [class.cat-sub]="!!cat.parentCategoryId">
+                      <i [class]="!cat.parentCategoryId ? 'fas fa-folder' : 'fas fa-folder-tree'"></i>
+                    </div>
+                    <div>
+                      <span class="fw-semibold text-dark">{{ cat.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  @if (cat.parentCategoryId) {
+                    <span class="badge bg-purple-subtle text-purple border border-purple-subtle d-inline-flex align-items-center gap-1">
+                      <i class="fas fa-level-up-alt fa-rotate-90 fs-xs"></i>
+                      <span>{{ cat.parentCategoryName || 'Parent' }}</span>
+                    </span>
+                  } @else {
+                    <span class="badge bg-light text-dark border">
+                      <i class="fas fa-crown text-warning me-1"></i> Main Category
+                    </span>
+                  }
+                </td>
+                <td>
+                  @if (!cat.parentCategoryId) {
+                    <span class="badge bg-light text-secondary border">
+                      <i class="fas fa-sitemap me-1 text-primary"></i>
+                      {{ cat.subCategoriesCount }} Subcategories
+                    </span>
+                  } @else {
+                    <span class="text-muted small">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="text-muted small text-truncate d-inline-block" style="max-width: 250px;" [title]="cat.description || ''">
+                    {{ cat.description || '—' }}
+                  </span>
+                </td>
+                <td>
+                  @if (cat.isActive) {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                      <i class="fas fa-check-circle me-1"></i> Active
+                    </span>
+                  } @else {
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                      Inactive
+                    </span>
+                  }
+                </td>
+                <td class="text-end pe-3">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    @if (!cat.parentCategoryId) {
+                      <button
+                        class="btn btn-xs btn-outline-primary"
+                        (click)="openCreateModal(cat)"
+                        title="Add Subcategory under this category"
+                      >
+                        <i class="fas fa-plus fs-xs"></i>
+                        <span class="d-none d-md-inline ms-1">Sub</span>
+                      </button>
+                    }
+                    <button class="btn btn-xs btn-light border text-muted" (click)="openEditModal(cat)" title="Edit Category">
+                      <i class="fas fa-pen fs-xs"></i>
+                    </button>
+                    <button class="btn btn-xs btn-light border text-danger" (click)="deleteCategory(cat)" title="Delete Category">
+                      <i class="fas fa-trash-alt fs-xs"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create / Edit Modal -->
+  @if (isModalOpen) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+          <div class="modal-header border-bottom py-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="modal-header-icon bg-primary-subtle text-primary">
+                <i class="fas fa-tags"></i>
+              </div>
+              <h5 class="modal-title fw-bold text-dark fs-6 mb-0">{{ modalTitle }}</h5>
+            </div>
+            <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body p-4">
+            <!-- Parent Category Selection -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-dark mb-1">
+                Parent Category <span class="text-muted fw-normal">(Optional - Leave blank for Main Category)</span>
+              </label>
+              <select class="form-select form-select-sm" [(ngModel)]="formModel.parentCategoryId">
+                <option [ngValue]="null">None (Top-Level Main Category)</option>
+                @for (parent of parentCategoryOptions; track parent.id) {
+                  @if (!editingCategoryId || parent.id !== editingCategoryId) {
+                    <option [ngValue]="parent.id">{{ parent.name }} ({{ parent.code }})</option>
+                  }
+                }
+              </select>
+              <div class="form-text small text-muted">
+                Selecting a parent category designates this item as a <strong>Subcategory</strong>.
+              </div>
+            </div>
+
+            <!-- Category Code -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-dark mb-1">
+                Category Code <span class="text-danger">*</span>
+              </label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light text-muted"><i class="fas fa-barcode"></i></span>
+                <input
+                  type="text"
+                  class="form-control text-uppercase"
+                  placeholder="e.g. PHARM, ELEC, MED-TAB"
+                  maxlength="32"
+                  [(ngModel)]="formModel.code"
+                />
+              </div>
+              <div class="form-text small text-muted">Unique identifier code (letters and numbers).</div>
+            </div>
+
+            <!-- Category Name -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-dark mb-1">
+                Category Name <span class="text-danger">*</span>
+              </label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light text-muted"><i class="fas fa-tag"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="e.g. Pharmaceuticals, Electronics, Pain Relievers"
+                  maxlength="128"
+                  [(ngModel)]="formModel.name"
+                />
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-dark mb-1">Description</label>
+              <textarea
+                class="form-control form-control-sm"
+                rows="2"
+                placeholder="Optional notes or details about products in this category..."
+                maxlength="512"
+                [(ngModel)]="formModel.description"
+              ></textarea>
+            </div>
+
+            <!-- Is Active -->
+            <div class="form-check form-switch mt-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="catIsActive"
+                [(ngModel)]="formModel.isActive"
+              />
+              <label class="form-check-label small fw-semibold text-dark" for="catIsActive">
+                Active in Catalog (Available for Product SKU Assignment)
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer border-top bg-light py-2 px-4 d-flex justify-content-between">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()" [disabled]="isSaving">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1.5" (click)="saveCategory()" [disabled]="isSaving">
+              @if (isSaving) {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Saving...</span>
+              } @else {
+                <i class="fas fa-check"></i>
+                <span>{{ editingCategoryId ? 'Update Category' : 'Save Category' }}</span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

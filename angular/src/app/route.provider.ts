@@ -23,10 +23,26 @@ function configureRoutes(routesService: RoutesService) {
         layout: eLayoutType.application,
       },
       {
-        path: '/products',
-        name: 'Products & SKUs',
+        path: undefined,
+        name: 'Products & Catalog',
         iconClass: 'fas fa-boxes',
         order: 3,
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/categories',
+        name: 'Categories',
+        parentName: 'Products & Catalog',
+        iconClass: 'fas fa-tags',
+        order: 1,
+        layout: eLayoutType.application,
+      },
+      {
+        path: '/products',
+        name: 'Products & SKUs',
+        parentName: 'Products & Catalog',
+        iconClass: 'fas fa-box-open',
+        order: 2,
         layout: eLayoutType.application,
       },
       {

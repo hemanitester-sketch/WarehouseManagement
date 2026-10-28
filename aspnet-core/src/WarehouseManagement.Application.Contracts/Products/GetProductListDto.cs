@@ -1,3 +1,4 @@
+using System;
 using Volo.Abp.Application.Dtos;
 using WarehouseManagement.Warehouses;
 
@@ -8,6 +9,8 @@ public class GetProductListDto : PagedAndSortedResultRequestDto
     public string? Filter { get; set; }
 
     public ProductCategory? Category { get; set; }
+
+    public Guid? CategoryId { get; set; }
 
     public UnitOfMeasure? Uom { get; set; }
 

@@ -19,9 +19,14 @@ public class ProductAppService :
         CreateUpdateProductDto>,
     IProductAppService
 {
-    public ProductAppService(IRepository<Product, Guid> repository)
+    private readonly IRepository<Category, Guid> _categoryRepository;
+
+    public ProductAppService(
+        IRepository<Product, Guid> repository,
+        IRepository<Category, Guid> categoryRepository)
         : base(repository)
     {
+        _categoryRepository = categoryRepository;
         GetPolicyName = null;
         GetListPolicyName = null;
         CreatePolicyName = null;
@@ -83,7 +88,7 @@ public class ProductAppService :
         await MapToEntityAsync(input, entity);
         await Repository.UpdateAsync(entity, autoSave: true);
 
-        return MapToGetOutputDto(entity);
+        return await GetAsync(entity.Id);
     }
 
     private static void ValidateProductInput(CreateUpdateProductDto input)
@@ -159,6 +164,7 @@ public class ProductAppService :
                      (x.Barcode != null && x.Barcode.Contains(input.Filter!)) ||
                      (x.Brand != null && x.Brand.Contains(input.Filter!)))
             .WhereIf(input.Category.HasValue, x => x.Category == input.Category!.Value)
+            .WhereIf(input.CategoryId.HasValue, x => x.CategoryId == input.CategoryId!.Value)
             .WhereIf(input.Uom.HasValue, x => x.Uom == input.Uom!.Value)
             .WhereIf(input.RequiredStorageType.HasValue, x => x.RequiredStorageType == input.RequiredStorageType!.Value)
             .WhereIf(input.IsLotTracked.HasValue, x => x.IsLotTracked == input.IsLotTracked!.Value)
@@ -193,7 +199,8 @@ public class ProductAppService :
             createInput.ReorderLevel,
             createInput.TargetStockLevel,
             createInput.UnitPrice,
-            createInput.IsActive
+            createInput.IsActive,
+            createInput.CategoryId
         );
 
         return Task.FromResult(entity);
@@ -223,6 +230,7 @@ public class ProductAppService :
         entity.TargetStockLevel = updateInput.TargetStockLevel;
         entity.UnitPrice = updateInput.UnitPrice;
         entity.IsActive = updateInput.IsActive;
+        entity.CategoryId = updateInput.CategoryId;
 
         return Task.CompletedTask;
     }
@@ -238,6 +246,7 @@ public class ProductAppService :
             Description = entity.Description,
             Brand = entity.Brand,
             Category = entity.Category,
+            CategoryId = entity.CategoryId,
             Uom = entity.Uom,
             IsLotTracked = entity.IsLotTracked,
             IsExpiryTracked = entity.IsExpiryTracked,
@@ -261,9 +270,52 @@ public class ProductAppService :
         };
     }
 
-    protected override Task<List<ProductDto>> MapToGetListOutputDtosAsync(List<Product> entities)
+    public override async Task<ProductDto> GetAsync(Guid id)
     {
-        var dtos = entities.Select(MapToGetOutputDto).ToList();
-        return Task.FromResult(dtos);
+        var entity = await Repository.GetAsync(id);
+        var dto = MapToGetOutputDto(entity);
+        if (entity.CategoryId.HasValue)
+        {
+            var cat = await _categoryRepository.FindAsync(entity.CategoryId.Value);
+            if (cat != null)
+            {
+                dto.CategoryName = cat.Name;
+                dto.CategoryCode = cat.Code;
+            }
+        }
+        return dto;
+    }
+
+    protected override async Task<List<ProductDto>> MapToGetListOutputDtosAsync(List<Product> entities)
+    {
+        if (entities.Count == 0)
+        {
+            return new List<ProductDto>();
+        }
+
+        var categoryIds = entities
+            .Where(e => e.CategoryId.HasValue)
+            .Select(e => e.CategoryId!.Value)
+            .Distinct()
+            .ToList();
+
+        var categories = categoryIds.Count > 0
+            ? await _categoryRepository.GetListAsync(c => categoryIds.Contains(c.Id))
+            : new List<Category>();
+
+        var catMap = categories.ToDictionary(c => c.Id);
+
+        var dtos = entities.Select(e =>
+        {
+            var dto = MapToGetOutputDto(e);
+            if (e.CategoryId.HasValue && catMap.TryGetValue(e.CategoryId.Value, out var cat))
+            {
+                dto.CategoryName = cat.Name;
+                dto.CategoryCode = cat.Code;
+            }
+            return dto;
+        }).ToList();
+
+        return dtos;
     }
 }

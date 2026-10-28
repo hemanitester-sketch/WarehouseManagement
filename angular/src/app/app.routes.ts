@@ -14,6 +14,11 @@ export const appRoutes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'categories',
+    loadChildren: () => import('./categories/categories.routes').then(m => m.categoriesRoutes),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'products',
     loadChildren: () => import('./products/products.routes').then(m => m.productsRoutes),
     canActivate: [AuthGuard],

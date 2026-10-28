@@ -25,6 +25,8 @@ public class CreateUpdateProductDto
 
     public ProductCategory Category { get; set; } = ProductCategory.General;
 
+    public Guid? CategoryId { get; set; }
+
     public UnitOfMeasure Uom { get; set; } = UnitOfMeasure.Pieces;
 
     public bool IsLotTracked { get; set; } = false;

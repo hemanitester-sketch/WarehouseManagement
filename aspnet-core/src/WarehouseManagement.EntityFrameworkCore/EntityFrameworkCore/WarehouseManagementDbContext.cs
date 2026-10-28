@@ -58,6 +58,7 @@ public class WarehouseManagementDbContext :
     public DbSet<WarehouseManagement.Warehouses.WarehouseLocation> WarehouseLocations { get; set; }
 
     // Products
+    public DbSet<WarehouseManagement.Products.Category> Categories { get; set; }
     public DbSet<WarehouseManagement.Products.Product> Products { get; set; }
 
     // Inventory
@@ -156,6 +157,24 @@ public class WarehouseManagementDbContext :
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        builder.Entity<WarehouseManagement.Products.Category>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "Categories", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(WarehouseManagement.Products.CategoryConsts.MaxCodeLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Products.CategoryConsts.MaxNameLength);
+            b.Property(x => x.Description).HasMaxLength(WarehouseManagement.Products.CategoryConsts.MaxDescriptionLength);
+
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ParentCategoryId });
+
+            b.HasOne<WarehouseManagement.Products.Category>()
+                .WithMany()
+                .HasForeignKey(x => x.ParentCategoryId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         builder.Entity<WarehouseManagement.Products.Product>(b =>
         {
             b.ToTable(WarehouseManagementConsts.DbTablePrefix + "Products", WarehouseManagementConsts.DbSchema);
@@ -170,6 +189,13 @@ public class WarehouseManagementDbContext :
             b.HasIndex(x => new { x.TenantId, x.Sku }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.Barcode });
             b.HasIndex(x => new { x.TenantId, x.Category });
+            b.HasIndex(x => new { x.TenantId, x.CategoryId });
+
+            b.HasOne<WarehouseManagement.Products.Category>()
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<WarehouseManagement.Inventory.InventoryItem>(b =>

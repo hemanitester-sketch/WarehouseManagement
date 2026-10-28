@@ -6,11 +6,11 @@ export const environment = {
   production: true,
   application: {
     baseUrl,
-    name: 'Warehouse Management',
+    name: 'WareFlow',
     logoUrl: '',
   },
   oAuthConfig: {
-    issuer: 'https://warehousemanagement-tewt.onrender.com/',
+    issuer: 'https://warehouseflow-api.runasp.net/',
     redirectUri: baseUrl,
     clientId: 'WarehouseManagement_App',
     responseType: 'code',
@@ -19,7 +19,7 @@ export const environment = {
   },
   apis: {
     default: {
-      url: 'https://warehousemanagement-tewt.onrender.com',
+      url: 'https://warehouseflow-api.runasp.net',
       rootNamespace: 'WarehouseManagement',
     },
   },

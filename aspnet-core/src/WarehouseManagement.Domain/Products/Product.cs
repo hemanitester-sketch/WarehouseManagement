@@ -22,6 +22,8 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public ProductCategory Category { get; set; }
 
+    public Guid? CategoryId { get; set; }
+
     public UnitOfMeasure Uom { get; set; }
 
     public bool IsLotTracked { get; set; }
@@ -82,7 +84,8 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
         int reorderLevel = 10,
         int targetStockLevel = 100,
         decimal unitPrice = 0,
-        bool isActive = true)
+        bool isActive = true,
+        Guid? categoryId = null)
         : base(id)
     {
         TenantId = tenantId;
@@ -108,6 +111,7 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
         TargetStockLevel = targetStockLevel;
         UnitPrice = unitPrice;
         IsActive = isActive;
+        CategoryId = categoryId;
     }
 
     public void SetSku(string sku)

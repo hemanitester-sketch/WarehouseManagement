@@ -18,6 +18,12 @@ public class ProductDto : FullAuditedEntityDto<Guid>
 
     public ProductCategory Category { get; set; }
 
+    public Guid? CategoryId { get; set; }
+
+    public string? CategoryName { get; set; }
+
+    public string? CategoryCode { get; set; }
+
     public UnitOfMeasure Uom { get; set; }
 
     public bool IsLotTracked { get; set; }

@@ -6,20 +6,20 @@ export const environment = {
   production: false,
   application: {
     baseUrl,
-    name: 'Warehouse Management',
+    name: 'WareFlow',
     logoUrl: '',
   },
   oAuthConfig: {
-    issuer: 'https://localhost:44319/',
+    issuer: 'https://warehouseflow-api.runasp.net/',
     redirectUri: baseUrl,
     clientId: 'WarehouseManagement_App',
     responseType: 'code',
     scope: 'offline_access WarehouseManagement',
-    requireHttps: true,
+    requireHttps: true
   },
   apis: {
     default: {
-      url: 'https://localhost:44319',
+      url: 'https://warehouseflow-api.runasp.net',
       rootNamespace: 'WarehouseManagement',
     },
   },

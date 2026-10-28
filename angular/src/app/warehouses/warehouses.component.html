@@ -285,8 +285,8 @@
               <i class="fas fa-th-large text-muted fa-3x mb-3"></i>
               <h5 class="text-dark font-weight-bold">No Storage Zones Configured Yet</h5>
               <p class="text-muted mx-auto" style="max-width: 520px; font-size: 0.9rem;">
-                Har warehouse ke andar alag-alag zones hote hain (jaise <strong>Ambient Dry Storage</strong> aur
-                <strong>Cold Storage Chamber</strong>). Bins aur goods place karne ke liye pehle ek Zone banayein.
+                Warehouses require designated storage zones (such as <strong>Ambient Dry Storage</strong> and
+                <strong>Cold Storage Chamber</strong>). Please create a Zone first before mapping storage bins and inventory items.
               </p>
               <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
                 <button class="btn btn-primary d-flex align-items-center gap-2" (click)="quickSetupDefaultZones()">
@@ -345,8 +345,8 @@
                 <div>
                   <h6 class="font-weight-bold mb-1">Storage Zone Required First!</h6>
                   <p class="mb-2 small">
-                    Bin locations (Aisle-Rack-Shelf-Bin) kisi na kisi Storage Zone ke andar belong karti hain. Is
-                    facility me abhi koi zone nahi hai. Pehle ek Zone create karein ya Quick Setup use karein.
+                    Bin locations (Aisle-Rack-Shelf-Bin) must belong to a Storage Zone. This
+                    facility currently has no configured zones. Please create a Zone first or use Quick Setup.
                   </p>
                   <button class="btn btn-sm btn-primary" (click)="activeDetailTab = 'zones'">
                     <i class="fas fa-arrow-left me-1"></i> Go to Zones & Create First Zone
@@ -398,8 +398,7 @@
                 <i class="fas fa-barcode text-muted fa-3x mb-3"></i>
                 <h6 class="text-dark font-weight-bold">No Bin Locations Created Yet</h6>
                 <p class="text-muted small mx-auto" style="max-width: 450px;">
-                  Zones ban chuki hain! Ab aap har zone ke andar scannable barcodes ke saath racks aur shelves define
-                  kar sakte hain.
+                  Storage zones are ready! You can now define racks, shelves, and scannable barcode bins within each zone.
                 </p>
                 <button class="btn btn-sm btn-wms-primary" (click)="openCreateLocationModal()">
                   <i class="fas fa-plus me-1"></i> Add First Bin Location

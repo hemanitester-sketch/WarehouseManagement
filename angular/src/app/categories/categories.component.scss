@@ -1,0 +1,106 @@
+/* Product Categories Component Styles */
+
+.categories-container {
+  padding: 1rem 1rem;
+}
+
+.categories-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.categories-subtitle {
+  font-size: 0.78rem;
+}
+
+/* Metric KPI Cards (Compact) */
+.kpi-card-compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-icon-compact {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+
+  &.kpi-icon-purple {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+  }
+
+  &.kpi-icon-blue {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+
+  &.kpi-icon-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  &.kpi-icon-amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+}
+
+.kpi-value-compact {
+  font-size: 1.1rem;
+}
+
+.kpi-label-compact {
+  font-size: 0.65rem;
+}
+
+/* Category Icons */
+.cat-icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+
+  &.cat-parent {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+  }
+
+  &.cat-sub {
+    background: #f5f3ff;
+    color: #7c3aed;
+    border: 1px solid #ede9fe;
+  }
+}
+
+.bg-purple-subtle {
+  background-color: #f5f3ff !important;
+}
+
+.text-purple {
+  color: #7c3aed !important;
+}
+
+.border-purple-subtle {
+  border-color: #ddd6fe !important;
+}
+
+/* Modal Styling */
+.modal-header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.btn-xs {
+  padding: 0.2rem 0.45rem;
+  font-size: 0.725rem;
+  border-radius: 5px;
+}

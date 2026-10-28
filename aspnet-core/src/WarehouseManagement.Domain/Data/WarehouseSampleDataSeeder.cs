@@ -5,6 +5,7 @@ using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 using WarehouseManagement.Warehouses;
+using WarehouseManagement.Products;
 
 namespace WarehouseManagement.Data;
 
@@ -14,6 +15,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
     private readonly IRepository<WarehouseZone, Guid> _zoneRepository;
     private readonly IRepository<WarehouseLocation, Guid> _locationRepository;
     private readonly IRepository<WarehouseManagement.Products.Product, Guid> _productRepository;
+    private readonly IRepository<WarehouseManagement.Products.Category, Guid> _categoryRepository;
     private readonly IRepository<WarehouseManagement.Inventory.InventoryItem, Guid> _inventoryRepository;
     private readonly IRepository<WarehouseManagement.Inventory.InventoryTransaction, Guid> _transactionRepository;
     private readonly IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> _inboundOrderRepository;
@@ -25,6 +27,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         IRepository<WarehouseZone, Guid> zoneRepository,
         IRepository<WarehouseLocation, Guid> locationRepository,
         IRepository<WarehouseManagement.Products.Product, Guid> productRepository,
+        IRepository<WarehouseManagement.Products.Category, Guid> categoryRepository,
         IRepository<WarehouseManagement.Inventory.InventoryItem, Guid> inventoryRepository,
         IRepository<WarehouseManagement.Inventory.InventoryTransaction, Guid> transactionRepository,
         IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> inboundOrderRepository,
@@ -35,6 +38,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         _zoneRepository = zoneRepository;
         _locationRepository = locationRepository;
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
         _inventoryRepository = inventoryRepository;
         _transactionRepository = transactionRepository;
         _inboundOrderRepository = inboundOrderRepository;
@@ -254,5 +258,36 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
             }
         }
 
+        if (await _categoryRepository.GetCountAsync() == 0)
+        {
+            var pharma = new Category(_guidGenerator.Create(), "PHARMACEUTICALS", "Pharmaceuticals", description: "Medicines, prescription drugs, tablets, and medical healthcare supplies.", tenantId: context.TenantId);
+            var electronics = new Category(_guidGenerator.Create(), "ELECTRONICS", "Electronics", description: "Consumer electronics, computing devices, displays, and electronic accessories.", tenantId: context.TenantId);
+            var apparel = new Category(_guidGenerator.Create(), "APPAREL", "Apparel & Fashion", description: "Clothing, footwear, sportswear, and fashion apparel.", tenantId: context.TenantId);
+            var food = new Category(_guidGenerator.Create(), "FOOD-BEVERAGE", "Food & Beverage", description: "Packaged foods, beverages, canned items, and dry grocery supplies.", tenantId: context.TenantId);
+            var chem = new Category(_guidGenerator.Create(), "CHEMICALS", "Chemicals", description: "Industrial chemicals, solvents, cleaning agents, and raw laboratory reagents.", tenantId: context.TenantId);
+            var fmcg = new Category(_guidGenerator.Create(), "FMCG", "Fast Moving Consumer Goods (FMCG)", description: "Daily essentials, toiletries, household cleaning, and personal hygiene products.", tenantId: context.TenantId);
+            var auto = new Category(_guidGenerator.Create(), "AUTOMOTIVE", "Automotive & Spare Parts", description: "Vehicle spare parts, lubricants, mechanical components, and auto accessories.", tenantId: context.TenantId);
+            var general = new Category(_guidGenerator.Create(), "GENERAL", "General Merchandise", description: "General warehouse inventory, utility goods, packaging materials, and miscellaneous items.", tenantId: context.TenantId);
+
+            await _categoryRepository.InsertAsync(pharma, autoSave: true);
+            await _categoryRepository.InsertAsync(electronics, autoSave: true);
+            await _categoryRepository.InsertAsync(apparel, autoSave: true);
+            await _categoryRepository.InsertAsync(food, autoSave: true);
+            await _categoryRepository.InsertAsync(chem, autoSave: true);
+            await _categoryRepository.InsertAsync(fmcg, autoSave: true);
+            await _categoryRepository.InsertAsync(auto, autoSave: true);
+            await _categoryRepository.InsertAsync(general, autoSave: true);
+
+            // Sample Subcategories
+            var laptops = new Category(_guidGenerator.Create(), "ELEC-LAPTOPS", "Laptops & Computers", parentCategoryId: electronics.Id, description: "Notebooks, desktop computers, workstations, and servers.", tenantId: context.TenantId);
+            var accessories = new Category(_guidGenerator.Create(), "ELEC-ACCESSORIES", "Peripherals & Accessories", parentCategoryId: electronics.Id, description: "Keyboards, mice, monitors, cables, and electronic peripherals.", tenantId: context.TenantId);
+            var tablets = new Category(_guidGenerator.Create(), "PHARMA-TABLETS", "Tablets & Capsules", parentCategoryId: pharma.Id, description: "Oral solid dosage forms including pain relief, antibiotics, and vitamins.", tenantId: context.TenantId);
+            var menswear = new Category(_guidGenerator.Create(), "APP-MENSWEAR", "Men's Wear", parentCategoryId: apparel.Id, description: "Men's shirts, trousers, jackets, and formal wear.", tenantId: context.TenantId);
+
+            await _categoryRepository.InsertAsync(laptops, autoSave: true);
+            await _categoryRepository.InsertAsync(accessories, autoSave: true);
+            await _categoryRepository.InsertAsync(tablets, autoSave: true);
+            await _categoryRepository.InsertAsync(menswear, autoSave: true);
+        }
     }
 }

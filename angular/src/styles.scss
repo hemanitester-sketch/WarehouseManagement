@@ -814,7 +814,7 @@ abp-language-selection,
 }
 
 /* ==========================================================================
-   LeptonX Sidebar Menu - Override Pink with Blue on Hover & Active
+   Clean Modern Light Sidebar Theme
    ========================================================================== */
 :root,
 body,
@@ -825,39 +825,248 @@ body,
   --lpx-brand-rgb: 37, 99, 235 !important;
 }
 
-/* Menu icons & text on hover, active, selected, and expanded */
-.lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-icon,
-.lpx-nav-menu .lpx-menu-item-link:hover .dd-icon,
-.lpx-nav-menu .lpx-menu-item-link.selected .lpx-menu-item-icon,
-.lpx-nav-menu .lpx-menu-item-link.selected .dd-icon,
-.lpx-nav-menu .lpx-menu-item-link.expanded .lpx-menu-item-icon,
-.lpx-nav-menu .lpx-menu-item-link.expanded .dd-icon,
-.lpx-menu-item:hover .lpx-menu-item-icon,
-.lpx-menu-item:hover .dd-icon,
-.lpx-menu-item.selected .lpx-menu-item-icon,
-.lpx-menu-item.selected .dd-icon,
-.lpx-menu-item.expanded .lpx-menu-item-icon,
-.lpx-menu-item.expanded .dd-icon,
-.lpx-inner-menu-item .lpx-menu-item-link.selected .lpx-menu-item-icon,
-.lpx-inner-menu-item .lpx-menu-item-link:hover .lpx-menu-item-icon,
-.lpx-menu-item-link:hover > i,
-.lpx-menu-item-link.selected > i,
-.lpx-menu-item-link.active > i,
-.lpx-menu-item-link.active .lpx-menu-item-icon,
-.lpx-menu-item.active .lpx-menu-item-icon {
-  color: #2563eb !important;
-  opacity: 1 !important;
+/* Sidebar & Nav Containers - Crisp Light Background */
+.lpx-sidebar-container,
+.lpx-sidebar,
+.lpx-sidebar.lpx-scroll-container,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+  background-color: #ffffff !important;
+  color: #334155 !important;
 }
 
-/* Any SVG or icon fills in sidebar */
-.lpx-menu-item:hover svg,
-.lpx-menu-item.selected svg,
-.lpx-menu-item-link:hover svg,
-.lpx-menu-item-link.selected svg,
-.lpx-nav-menu .lpx-menu-item-link.selected svg path,
-.lpx-nav-menu .lpx-menu-item-link:hover svg path {
-  fill: #2563eb !important;
-  stroke: #2563eb !important;
+.lpx-sidebar-container {
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Hide sidebar scrollbars completely across all browsers */
+.lpx-sidebar,
+.lpx-sidebar-container,
+.lpx-scroll-container,
+.lpx-nav,
+.lpx-nav-menu,
+#lpx-wrapper .lpx-sidebar,
+#lpx-wrapper .lpx-sidebar-container,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+  overflow-y: auto !important; /* Still allow mouse wheel scrolling */
+  overflow-x: hidden !important;
+}
+
+.lpx-sidebar::-webkit-scrollbar,
+.lpx-sidebar-container::-webkit-scrollbar,
+.lpx-scroll-container::-webkit-scrollbar,
+.lpx-nav::-webkit-scrollbar,
+.lpx-nav-menu::-webkit-scrollbar,
+#lpx-wrapper .lpx-sidebar::-webkit-scrollbar,
+#lpx-wrapper .lpx-sidebar *::-webkit-scrollbar,
+.lpx-sidebar-container *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.lpx-scroll-container::-webkit-scrollbar-thumb,
+.lpx-nav-menu::-webkit-scrollbar-thumb,
+.lpx-nav-menu::-webkit-scrollbar-track {
+  background: transparent !important;
+  display: none !important;
+}
+
+/* Logo container & brand header */
+.lpx-sidebar .lpx-logo-container,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
+#lpx-wrapper .lpx-logo-container {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+.lpx-brand-name,
+#lpx-wrapper .lpx-brand-name,
+.lpx-logo-container .lpx-brand-name {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  font-size: 17px !important;
+  letter-spacing: -0.02em;
+  line-height: 32px !important;
+}
+
+.lpx-brand-logo,
+a.lpx-brand-logo,
+lpx-brand-logo {
+  background-color: transparent !important;
+}
+
+.menu-collapse-icon {
+  color: #64748b !important;
+  transition: color 0.2s ease;
+  &:hover {
+    color: #0f172a !important;
+  }
+}
+
+/* Menu Filter Input inside sidebar */
+.lpx-menu-filter {
+  background-color: transparent !important;
+  .menu-filter-input {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+    font-size: 0.8rem !important;
+    border: 1px solid #e2e8f0 !important;
+    &::placeholder {
+      color: #94a3b8 !important;
+    }
+    &:focus,
+    &:active {
+      background-color: #ffffff !important;
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+    }
+  }
+  .menu-filter-clear .clear-icon {
+    color: #94a3b8 !important;
+  }
+}
+
+/* Top-level menu links */
+.lpx-nav-menu .lpx-menu-item-link {
+  color: #475569 !important;
+  background-color: transparent !important;
+  border-radius: 6px;
+  margin: 1px 8px;
+  padding: 5px 10px !important;
+  height: 36px !important;
+  line-height: 26px !important;
+  width: calc(100% - 16px) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+  .lpx-menu-item-text {
+    color: #334155 !important;
+    font-weight: 500 !important;
+    font-size: 0.835rem !important; /* Slightly smaller, refined font */
+    letter-spacing: -0.01em;
+  }
+
+  .lpx-menu-item-icon {
+    color: #64748b !important;
+    font-size: 0.875rem !important;
+  }
+
+  .dd-icon {
+    color: #94a3b8 !important;
+    font-size: 0.75rem !important;
+  }
+
+  &:hover {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+
+    .lpx-menu-item-text {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+
+    .lpx-menu-item-icon,
+    .dd-icon {
+      color: #2563eb !important;
+    }
+  }
+
+  &.selected,
+  &.expanded {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+
+    .lpx-menu-item-text {
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+    }
+
+    .lpx-menu-item-icon,
+    .dd-icon {
+      color: #2563eb !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* Inner Submenu items (e.g. Products & Catalog -> Categories, Products) */
+.lpx-nav-menu .lpx-inner-menu {
+  background-color: #f8fafc !important;
+  border-left: 2px solid #e2e8f0 !important;
+  margin: 3px 8px 5px 24px !important;
+  padding: 3px 0 !important;
+  border-radius: 0 6px 6px 0;
+
+  .lpx-inner-menu-item .lpx-menu-item-link {
+    height: 31px !important;
+    line-height: 31px !important;
+    padding-left: 12px !important;
+    margin: 1px 6px !important;
+    width: calc(100% - 12px) !important;
+    border-radius: 5px;
+    background-color: transparent !important;
+
+    .lpx-menu-item-text {
+      color: #64748b !important;
+      font-size: 0.795rem !important; /* Compact sub-item font */
+      font-weight: 500 !important;
+    }
+
+    .lpx-menu-item-icon {
+      color: #94a3b8 !important;
+      font-size: 0.78rem !important;
+    }
+
+    &:hover {
+      background-color: #f1f5f9 !important;
+
+      .lpx-menu-item-text {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+      }
+
+      .lpx-menu-item-icon {
+        color: #2563eb !important;
+      }
+    }
+
+    &.selected {
+      background-color: #dbeafe !important;
+
+      .lpx-menu-item-text {
+        color: #1d4ed8 !important;
+        font-weight: 600 !important;
+      }
+
+      .lpx-menu-item-icon {
+        color: #1d4ed8 !important;
+      }
+    }
+  }
+}
+
+/* Topbar background to match clean light theme */
+.lpx-topbar-container,
+.lpx-topbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* Mobile navbar styling */
+.lpx-mobile-navbar,
+.lpx-mobile-navbar-container {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 /* Active / Hover borders or indicators */

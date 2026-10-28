@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ToasterService } from '@abp/ng.theme.shared';
-import { ProductService } from '../proxy/products';
-import { ProductDto, CreateUpdateProductDto } from '../proxy/products/models';
+import { ProductService, CategoryService } from '../proxy/products';
+import { ProductDto, CreateUpdateProductDto, CategoryLookupDto } from '../proxy/products/models';
 import { ProductCategory, productCategoryOptions } from '../proxy/products/product-category.enum';
 import { UnitOfMeasure, unitOfMeasureOptions } from '../proxy/products/unit-of-measure.enum';
 import { WarehouseZoneStorageType, warehouseZoneStorageTypeOptions } from '../proxy/warehouses/warehouse-zone-storage-type.enum';
@@ -11,21 +12,23 @@ import { WarehouseZoneStorageType, warehouseZoneStorageTypeOptions } from '../pr
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
 })
 export class ProductsComponent implements OnInit {
   private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
   private toasterService = inject(ToasterService);
   private cdr = inject(ChangeDetectorRef);
 
   products: ProductDto[] = [];
   filteredProducts: ProductDto[] = [];
+  categoryLookups: CategoryLookupDto[] = [];
   isLoading = false;
   isSaving = false;
   searchQuery = '';
-  selectedCategoryFilter: number | null = null;
+  selectedCategoryFilter: string | number | null = null;
 
   isCreateModalOpen = false;
   editingProductId: string | null = null;
@@ -37,6 +40,7 @@ export class ProductsComponent implements OnInit {
     brand: '',
     description: '',
     category: ProductCategory.Pharmaceuticals,
+    categoryId: null,
     uom: UnitOfMeasure.Pieces,
     isLotTracked: true,
     isExpiryTracked: true,
@@ -58,6 +62,17 @@ export class ProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadCategoryLookups();
+  }
+
+  loadCategoryLookups(): void {
+    this.categoryService.getLookup().subscribe({
+      next: (res) => {
+        this.categoryLookups = res.items || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.warn('Could not load category lookups:', err),
+    });
   }
 
   loadProducts(): void {
@@ -89,7 +104,14 @@ export class ProductsComponent implements OnInit {
         p.barcode?.toLowerCase().includes(q) ||
         p.brand?.toLowerCase().includes(q);
 
-      const matchesCat = this.selectedCategoryFilter === null || p.category === this.selectedCategoryFilter;
+      let matchesCat = true;
+      if (this.selectedCategoryFilter !== null && this.selectedCategoryFilter !== undefined) {
+        if (typeof this.selectedCategoryFilter === 'string') {
+          matchesCat = p.categoryId === this.selectedCategoryFilter;
+        } else {
+          matchesCat = p.category === this.selectedCategoryFilter;
+        }
+      }
 
       return matchesSearch && matchesCat;
     });
@@ -119,6 +141,7 @@ export class ProductsComponent implements OnInit {
       brand: '',
       description: '',
       category: ProductCategory.Pharmaceuticals,
+      categoryId: null,
       uom: UnitOfMeasure.Pieces,
       isLotTracked: true,
       isExpiryTracked: true,
@@ -147,6 +170,7 @@ export class ProductsComponent implements OnInit {
       brand: p.brand || '',
       description: p.description || '',
       category: p.category ?? ProductCategory.Pharmaceuticals,
+      categoryId: p.categoryId ?? null,
       uom: p.uom ?? UnitOfMeasure.Pieces,
       isLotTracked: p.isLotTracked ?? false,
       isExpiryTracked: p.isExpiryTracked ?? false,

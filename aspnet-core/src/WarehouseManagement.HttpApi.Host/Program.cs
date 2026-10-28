@@ -29,7 +29,15 @@ public class Program
         try
         {
             Log.Information("Starting WarehouseManagement.HttpApi.Host.");
+#if !DEBUG
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+            {
+                Args = args,
+                EnvironmentName = Environments.Production
+            });
+#else
             var builder = WebApplication.CreateBuilder(args);
+#endif
             builder.Host.AddAppSettingsSecretsJson()
                 .UseAutofac()
                 .UseSerilog();

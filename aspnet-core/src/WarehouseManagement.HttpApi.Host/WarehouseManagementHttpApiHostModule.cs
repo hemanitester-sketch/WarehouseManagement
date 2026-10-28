@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using WarehouseManagement.EntityFrameworkCore;
 using WarehouseManagement.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
@@ -28,6 +32,7 @@ using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
+using Volo.Abp.OpenIddict;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
@@ -48,10 +53,43 @@ namespace WarehouseManagement;
 )]
 public class WarehouseManagementHttpApiHostModule : AbpModule
 {
+    private const string OpenIddictPemKey = @"-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAuPTvi0ZhnvYMvjtSuMAIbEIy8PPjQYPzM/CIGfPw69ZUhyLL
+4WtaGGTJvpDpaYVvSWu3sUFxLUcZw9/VnQSBU1A/il1rDNGubjxkts7XrgA4FLFe
+UY2oBWB+h+4TabzWllOjZM70wSRpTuXQu9oI73U3alcZDvqXZ+htETa+2AwP+hdL
+xRwvLQupfDFiRC833aM0u/AJ/a2vZLCTEShVvH4Em2E2V7iSjZSX04Xb4UTdvjhh
+1KGpmszA+hdWV2YVYpzi1uAflALkRmTcMXEEtn8n+BXpGxlcKWxpb02jJYCwLICQ
+tWlsSkFooYYOZbsSxA0RJz+thQM5CZ9v3/vmXQIDAQABAoIBAFoDYn1ewG3Tg3ol
+dunRE4hUY2Re3Y/p/redbS9sSCkOw06NQbowO8W5b3HeJqqjNPj/goOyvLjzbHem
+fNiQ87uvR204b7vqZEDkBYPugIr/Mkvn0mZQUaBkSNAwrqP8Mlcw10lda0KATPwH
+3qE9yLF5U4HeZ6ShkoQQWtxQz2pnCJSRGyXQZhmdrAJmdx3s7LDq6fYImV0q7G9V
+F1rURQj9CGzx848CSSs966smWiabZiOPnWkEF+7X6IdtLAOlQURX5C96sf/nZAKy
++3ZFaCR3z31aL5pwm7Eo48hZh0HEM7ifbOtFYWq1aLUY/jRmgmCUk7KPILZq/1vT
+3RU8YYUCgYEA30RcyvhRqxjNMMk+iDEQAMHklARSe4RVHa5RY2n/aPeevqrgvSmy
+OlfdjuL7mAWKHPPrgmcgvugRIJ5aFxBkGLN+a63ra0DMrlJh0zoXryQIMdKZoqH+
+esxDVtimE9NMcdK/JoACa6wDh2qea5ZmHmn5TKc51w1JKFoIGrNXR0sCgYEA1BK3
+VcNtkEl5/WG+DOscPZY+6ejqr7qfMjR4KJk0f/xsAO/tz+WKScAKRtqtGuBM05Bs
+ohn6PDru3x8igP+cgLRXxvyo090d/OrUbL9h4xPTVkKwF/rAsgKoqONDbzivRn2f
+wY/I1oLhnydWDUatgLlHKHFkZuGUmZvL4cE/N/cCgYB9ykptoNKCj4qr/fZZTSsz
+AgsCyhyessQx4NDCLipUvY6W5jeQ3DkqXe7aXlBaKmTSQythYTE13hIoSo9/hyCe
+OiL0EB0fZHbtkETFeWl2p9pmF72vv41dKlCWUaHgcaAUUSSZUG4Ms/GZDh0LiMUo
+RZTL9zvDShz5ux/tyzVVWQKBgE9vg0SYox18qDkEt49XMYjQEljDacTQ/nhrtuZe
+HJAkGMBxHn7U1+uwBylrF5QNmDlWy5ocaOLOoFLq8p2nIRQEeSyLzyEsneLygwcI
+2L2Z23tgF12kCzGiVVKNbeDnNqAMxh5WoT/YXnKi5VSruKmSvNilQJpYvLSc6s1w
++SEZAoGBAMpWSsjsVAtq4qcZL8ciF3yn3CCOBL42z1cdmdggUBYgJlaT8O9rKD88
+0NQBAwvOco5pczkZRficQNjmwsMvnGrbsjfApqsGoAwTxISTi1HBJEXC5in37Ksu
+3oeQKBuAWSEcdR31vYJENzSmcF/0r7q51csxMs8TAFKQY87xUK1d
+-----END RSA PRIVATE KEY-----";
+
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
         var authority = configuration["AuthServer:Authority"]?.TrimEnd('/');
+
+        PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+        {
+            options.AddDevelopmentEncryptionAndSigningCertificate = false;
+        });
 
         PreConfigure<OpenIddictBuilder>(builder =>
         {
@@ -64,6 +102,14 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
             builder.AddServer(options =>
             {
                 options.UseAspNetCore().DisableTransportSecurityRequirement();
+
+                var rsa = RSA.Create();
+                rsa.ImportFromPem(OpenIddictPemKey);
+                var rsaKey = new RsaSecurityKey(rsa) { KeyId = "WarehouseManagement-SigningKey" };
+                options.AddSigningKey(rsaKey);
+                options.AddEncryptionKey(rsaKey);
+                options.DisableAccessTokenEncryption();
+
                 if (!string.IsNullOrEmpty(authority))
                 {
                     options.SetIssuer(new Uri(authority + "/"));
@@ -79,7 +125,7 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
 
         Configure<ForwardedHeadersOptions>(options =>
         {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
             options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
@@ -211,7 +257,22 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
         var app = context.GetApplicationBuilder();
         var env = context.GetEnvironment();
 
+        app.Use(async (httpContext, next) =>
+        {
+            try
+            {
+                await next();
+            }
+            catch (Exception ex)
+            {
+                httpContext.Response.StatusCode = 500;
+                httpContext.Response.ContentType = "text/plain; charset=utf-8";
+                await httpContext.Response.WriteAsync($"SERVER EXCEPTION:\nType: {ex.GetType().FullName}\nMessage: {ex.Message}\nStack:\n{ex.StackTrace}\nInner:\n{ex.InnerException?.ToString()}");
+            }
+        });
+
         app.UseForwardedHeaders();
+        app.UseDeveloperExceptionPage();
 
         app.Use(async (httpContext, next) =>
         {
@@ -244,18 +305,7 @@ public class WarehouseManagementHttpApiHostModule : AbpModule
             await next();
         });
 
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-
         app.UseAbpRequestLocalization();
-
-        if (!env.IsDevelopment())
-        {
-            app.UseErrorPage();
-        }
-
         app.UseCorrelationId();
         app.MapAbpStaticAssets();
         app.UseRouting();

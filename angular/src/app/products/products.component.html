@@ -112,75 +112,73 @@
   </div>
 
   <!-- Table (Compact Grid Mode) -->
-  <div *ngIf="!isLoading && filteredProducts.length > 0" class="wms-card wms-grid-card">
+  <div *ngIf="!isLoading && filteredProducts.length > 0" class="card products-table-card overflow-hidden">
     <div class="table-responsive">
-      <table class="wms-table wms-table-compact align-middle mb-0">
-        <thead>
+      <table class="table table-hover align-middle mb-0 wms-table products-table">
+        <thead class="table-light">
           <tr>
-            <th class="col-sku">SKU & Barcode</th>
-            <th class="col-name">Product Name</th>
-            <th class="col-category">Category</th>
-            <th class="col-price">Unit Price</th>
-            <th class="col-uom">UOM</th>
-            <th class="col-tracking">Tracking</th>
-            <th class="col-storage">Storage & Temp</th>
-            <th class="col-status">Status</th>
-            <th class="col-actions text-end">Action</th>
+            <th class="ps-3" style="width: 140px;">SKU & Barcode</th>
+            <th>Product Name</th>
+            <th style="width: 140px;">Category</th>
+            <th style="width: 110px;">Unit Price</th>
+            <th style="width: 80px;">UOM</th>
+            <th style="width: 130px;">Tracking</th>
+            <th style="width: 140px;">Storage & Temp</th>
+            <th style="width: 110px;">Status</th>
+            <th class="text-end pe-3" style="width: 80px;">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let p of filteredProducts">
-            <td>
-              <div class="font-monospace font-weight-bold text-primary lh-1 mb-0.5 sku-code">{{ p.sku }}</div>
-              <small class="text-muted sku-barcode"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
+            <td class="ps-3">
+              <span class="product-cell-text d-block">{{ p.sku }}</span>
+              <small class="product-cell-subtext"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
             </td>
             <td>
-              <span class="font-weight-bold text-dark d-block lh-sm product-name">{{ p.name }}</span>
-              <small class="text-muted product-brand">{{ p.brand || 'Standard' }}</small>
+              <span class="product-cell-text d-block">{{ p.name }}</span>
+              <small class="product-cell-subtext">{{ p.brand || 'Standard' }}</small>
             </td>
             <td>
-              <span class="badge bg-light text-dark border category-badge">
-                {{ p.categoryName || getCategoryLabel(p.category) }}
-              </span>
+              <span class="product-cell-text">{{ p.categoryName || getCategoryLabel(p.category) }}</span>
             </td>
             <td>
-              <strong class="text-dark unit-price">₹{{ p.unitPrice | number:'1.2-2' }}</strong>
+              <span class="product-cell-text font-monospace">₹{{ p.unitPrice | number:'1.2-2' }}</span>
             </td>
-            <td class="uom-cell">{{ getUomLabel(p.uom) }}</td>
+            <td>
+              <span class="product-cell-text">{{ getUomLabel(p.uom) }}</span>
+            </td>
             <td>
               <div class="d-flex gap-1 flex-wrap">
-                <span *ngIf="p.isLotTracked" class="wms-badge wms-badge-primary">Lot</span>
-                <span *ngIf="p.isExpiryTracked" class="wms-badge wms-badge-warning">Expiry</span>
-                <span *ngIf="p.isSerialTracked" class="wms-badge wms-badge-info">Serial</span>
+                <span *ngIf="p.isLotTracked" class="badge-tag-lot">Lot</span>
+                <span *ngIf="p.isExpiryTracked" class="badge-tag-expiry">Expiry</span>
+                <span *ngIf="p.isSerialTracked" class="badge-tag-serial">Serial</span>
+                <span *ngIf="!p.isLotTracked && !p.isExpiryTracked && !p.isSerialTracked" class="product-cell-subtext">—</span>
               </div>
             </td>
             <td>
-              <div class="d-flex flex-column gap-0.5">
-                <div>
-                  <span class="badge bg-light text-secondary border storage-badge">
-                    {{ getStorageTypeLabel(p.requiredStorageType) }}
-                  </span>
-                </div>
-                <span *ngIf="p.temperatureMinCelsius !== null" class="wms-badge wms-badge-info temp-badge">
-                  ❄️ {{ p.temperatureMinCelsius }}° to {{ p.temperatureMaxCelsius }}°C
-                </span>
-                <span *ngIf="p.temperatureMinCelsius === null" class="text-muted ambient-text">Ambient</span>
-              </div>
+              <span class="product-cell-text d-block">{{ getStorageTypeLabel(p.requiredStorageType) }}</span>
+              <small class="product-cell-subtext" *ngIf="p.temperatureMinCelsius !== null">
+                ❄️ {{ p.temperatureMinCelsius }}° - {{ p.temperatureMaxCelsius }}°C
+              </small>
+              <small class="product-cell-subtext" *ngIf="p.temperatureMinCelsius === null">Ambient</small>
             </td>
             <td>
-              <span class="wms-badge" [ngClass]="p.isActive ? 'wms-badge-success' : 'wms-badge-danger'">
+              <span class="product-status-badge" [ngClass]="p.isActive ? 'active' : 'inactive'">
+                <i class="fas" [ngClass]="p.isActive ? 'fa-check-circle' : 'fa-minus-circle'"></i>
                 {{ p.isActive ? 'Active' : 'Inactive' }}
               </span>
             </td>
-            <td class="text-end">
-              <button 
-                type="button" 
-                class="btn btn-outline-primary btn-sm btn-edit-product"
-                (click)="openEditModal(p)"
-                title="Edit Product Details"
-              >
-                <i class="fas fa-edit me-1"></i> Edit
-              </button>
+            <td class="text-end pe-3">
+              <div class="d-inline-flex align-items-center justify-content-end">
+                <button 
+                  type="button" 
+                  class="btn btn-table-action btn-edit"
+                  (click)="openEditModal(p)"
+                  title="Edit Product Details"
+                >
+                  <i class="fas fa-pen"></i>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

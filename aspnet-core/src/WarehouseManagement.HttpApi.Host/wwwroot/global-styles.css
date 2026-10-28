@@ -560,6 +560,14 @@ body,
   margin-top: 0 !important;
 }
 
+/* Sidebar navigation menu starting padding (pt-2) */
+.lpx-nav-menu,
+.lpx-sidebar .lpx-nav-menu,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+  padding-top: 0.5rem !important;
+}
+
 /* Menu icons & text on hover, active, selected, and expanded */
 .lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-icon,
 .lpx-nav-menu .lpx-menu-item-link:hover .dd-icon,
@@ -586,4 +594,148 @@ body,
 
 .lpx-nav-menu .lpx-menu-item-link:hover {
   background-color: rgba(37, 99, 235, 0.06) !important;
+}
+
+/* Topbar height & alignment */
+.lpx-topbar-container,
+.lpx-topbar {
+  min-height: 64px !important;
+  height: 64px !important;
+}
+
+.lpx-topbar {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+.lpx-topbar-content {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  gap: 0.75rem !important;
+}
+
+.lpx-topbar .lpx-user-profile,
+.lpx-topbar-content .lpx-user-profile,
+.lpx-user-profile {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  outline: none !important;
+  user-select: none !important;
+}
+
+.lpx-topbar .lpx-user-profile:hover,
+.lpx-topbar-content .lpx-user-profile:hover,
+.lpx-user-profile:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.lpx-topbar .lpx-user-profile:hover .lpx-avatar,
+.lpx-topbar-content .lpx-user-profile:hover .lpx-avatar,
+.lpx-user-profile:hover .lpx-avatar {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.lpx-topbar .lpx-user-profile:hover .lpx-avatar-icon,
+.lpx-topbar .lpx-user-profile:hover .lpx-avatar-img,
+.lpx-topbar .lpx-user-profile:hover .lpx-icon,
+.lpx-topbar .lpx-user-profile:hover i,
+.lpx-user-profile:hover .lpx-avatar-icon,
+.lpx-user-profile:hover .lpx-avatar-img,
+.lpx-user-profile:hover .lpx-icon,
+.lpx-user-profile:hover i {
+  color: #2563eb !important;
+}
+
+.lpx-topbar .lpx-user-profile:hover .user-full-name,
+.lpx-topbar-content .lpx-user-profile:hover .user-full-name,
+.lpx-user-profile:hover .user-full-name {
+  color: #2563eb !important;
+}
+
+.lpx-user-profile .lpx-avatar,
+.lpx-user-profile lpx-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 50% !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.lpx-user-profile .lpx-avatar-icon,
+.lpx-user-profile .lpx-avatar-img,
+.lpx-user-profile .lpx-icon,
+.lpx-user-profile i {
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 1.15rem !important;
+  color: #475569 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  transition: color 0.2s ease !important;
+}
+
+.lpx-user-profile .user-full-name {
+  display: inline-block !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.2 !important;
+  text-transform: capitalize !important;
+  margin: 0 !important;
+  transition: color 0.2s ease !important;
+}
+
+.lpx-user-profile::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Universal Module Container Padding (Matching Dashboard 1.25em 2em 3em) */
+.lpx-content .container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+
+.lpx-content .products-container,
+.lpx-content .inventory-container,
+.lpx-content .inbound-container,
+.lpx-content .outbound-container,
+.lpx-content .categories-container,
+.lpx-content .dashboard-page {
+  padding: 0.5rem 0 1.5rem 0 !important;
 }

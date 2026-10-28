@@ -7,5 +7,69 @@
   overflow-y: auto;
 }
 .products-container {
-  padding: 1rem 1rem;
+  padding: 0.5rem 0 1.5rem 0;
+}
+
+.btn-wms-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  font-size: 0.8rem !important;
+  padding: 0.38rem 0.85rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22) !important;
+
+  &:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32) !important;
+  }
+}
+
+.btn-manage-facility {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 0.38rem 0.85rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22) !important;
+
+  &:hover {
+    background: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32) !important;
+  }
+}
+
+/* Warehouse Type Filter & Form Selects - Override Pink with Blue */
+.form-select,
+select {
+  accent-color: #2563eb !important;
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected] {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+  }
 }

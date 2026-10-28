@@ -1,7 +1,7 @@
 /* Live Stock Inventory Styles */
 
 .inventory-container {
-  padding: 1rem 1rem;
+  padding: 0.5rem 0 1.5rem 0;
 }
 
 .inventory-badge {
@@ -56,48 +56,161 @@
   font-size: 0.75rem;
 }
 
-/* Table Columns */
-.col-sku {
-  width: 17%;
+/* Inventory Table Subtle Clean Border (Matching Categories & Products) */
+.inventory-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
-.col-bin {
-  width: 17%;
+.inventory-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th,
+  .table-light th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.64rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.95rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.65rem 0.95rem;
+      vertical-align: middle;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
 }
 
-.col-lot {
-  width: 11%;
+/* Unified & Clean Inventory Cell Typography */
+.inventory-cell-text {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1.45;
 }
 
-.col-exp {
-  width: 10%;
+.inventory-cell-subtext {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.3;
 }
 
-.col-onhand {
-  width: 9%;
-}
-
-.col-allocated {
-  width: 9%;
-}
-
-.col-available {
-  width: 9%;
-}
-
-.col-status {
-  width: 8%;
-}
-
-.col-actions {
-  width: 10%;
-}
-
-.btn-action-compact {
+/* Solid Inventory Status Pill Badges */
+.inventory-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.72rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
   line-height: 1.2;
+
+  &.status-available {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+
+    i {
+      font-size: 0.7rem;
+      color: #10b981;
+    }
+  }
+
+  &.status-quarantined {
+    background-color: #fefce8;
+    color: #ca8a04;
+    border: 1px solid #fef08a;
+
+    i {
+      font-size: 0.7rem;
+      color: #eab308;
+    }
+  }
+
+  &.status-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+
+    i {
+      font-size: 0.7rem;
+      color: #ef4444;
+    }
+  }
+
+  &.status-standard {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+
+    i {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+  }
+}
+
+/* Action Buttons: Normal Icon Only, Button on Hover */
+.btn-table-action {
+  width: 28px;
+  height: 28px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+
+  &.btn-transfer {
+    color: #0284c7;
+
+    &:hover {
+      background-color: #e0f2fe !important;
+      background: #e0f2fe !important;
+      border-color: #bae6fd !important;
+      color: #0369a1 !important;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
+    }
+  }
+
+  &.btn-adjust {
+    color: #64748b;
+
+    &:hover {
+      background-color: #f1f5f9 !important;
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+  }
 }
 
 .empty-state-desc {

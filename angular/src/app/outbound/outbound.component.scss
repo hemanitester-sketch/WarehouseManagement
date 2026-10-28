@@ -1,7 +1,7 @@
 /* Outbound Fulfillment & Sales Orders Styles */
 
 .outbound-container {
-  padding: 1rem 1.25rem;
+  padding: 0.5rem 0 1.5rem 0;
 }
 
 .outbound-badge {
@@ -11,6 +11,21 @@
 
 .outbound-subtitle {
   font-size: 0.78rem;
+}
+
+.btn-wms-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  font-size: 0.8rem !important;
+  padding: 0.38rem 0.85rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22) !important;
+
+  &:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32) !important;
+  }
 }
 
 /* KPI Cards (Compact) */
@@ -154,3 +169,194 @@
   padding: 1.2rem 1rem;
   text-align: center;
 }
+
+/* Outbound Table Card & Unified Grid */
+.outbound-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.outbound-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th,
+  .table-light th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.64rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.95rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.65rem 0.95rem;
+      vertical-align: middle;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+}
+
+/* Unified & Clean Outbound Cell Typography */
+.outbound-cell-text {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1.45;
+}
+
+.outbound-cell-subtext {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.outbound-lines-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+/* Solid Outbound Status Pill Badges */
+.outbound-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+
+  &.wms-badge-success {
+    background-color: #ecfdf5 !important;
+    color: #059669 !important;
+    border: 1px solid #a7f3d0 !important;
+  }
+  &.wms-badge-info {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #bfdbfe !important;
+  }
+  &.wms-badge-warning {
+    background-color: #fffbeb !important;
+    color: #d97706 !important;
+    border: 1px solid #fde68a !important;
+  }
+  &.wms-badge-primary {
+    background-color: #f5f3ff !important;
+    color: #6366f1 !important;
+    border: 1px solid #ddd6fe !important;
+  }
+  &.wms-badge-danger {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fca5a5 !important;
+  }
+  &.wms-badge-secondary {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+}
+
+/* Action Buttons: Normal Icon Only, Button on Hover */
+.btn-table-action {
+  width: 28px;
+  height: 28px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+
+  &.btn-allocate {
+    color: #d97706;
+
+    &:hover {
+      background-color: #fffbeb !important;
+      background: #fffbeb !important;
+      border-color: #fde68a !important;
+      color: #b45309 !important;
+      box-shadow: 0 1px 3px rgba(217, 119, 6, 0.12);
+    }
+  }
+
+  &.btn-view-pick {
+    color: #2563eb;
+
+    &:hover {
+      background-color: #eff6ff !important;
+      background: #eff6ff !important;
+      border-color: #bfdbfe !important;
+      color: #1d4ed8 !important;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12);
+    }
+  }
+
+  &.btn-pick {
+    color: #0284c7;
+
+    &:hover {
+      background-color: #e0f2fe !important;
+      background: #e0f2fe !important;
+      border-color: #bae6fd !important;
+      color: #0369a1 !important;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
+    }
+  }
+
+  &.btn-ship {
+    color: #059669;
+
+    &:hover {
+      background-color: #ecfdf5 !important;
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      color: #047857 !important;
+      box-shadow: 0 1px 3px rgba(5, 150, 105, 0.12);
+    }
+  }
+
+  &.btn-delete {
+    color: #ef4444;
+
+    &:hover {
+      background-color: #fef2f2 !important;
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      color: #b91c1c !important;
+      box-shadow: 0 1px 3px rgba(239, 68, 68, 0.12);
+    }
+  }
+}
+

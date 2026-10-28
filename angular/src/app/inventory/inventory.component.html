@@ -121,76 +121,74 @@
   </div>
 
   <!-- Stock Ledger Table (Compact Grid) -->
-  <div *ngIf="!isLoading && activeTab === 'stock' && filteredItems.length > 0" class="wms-card wms-grid-card">
+  <div *ngIf="!isLoading && activeTab === 'stock' && filteredItems.length > 0" class="card inventory-table-card overflow-hidden">
     <div class="table-responsive">
-      <table class="wms-table wms-table-compact align-middle mb-0">
-        <thead>
+      <table class="table table-hover align-middle mb-0 wms-table inventory-table">
+        <thead class="table-light">
           <tr>
-            <th class="col-sku">Product / SKU</th>
-            <th class="col-bin">Location / Bin</th>
-            <th class="col-lot">Lot / Batch</th>
-            <th class="col-exp">Expiry Date</th>
-            <th class="col-onhand">On Hand</th>
-            <th class="col-allocated">Allocated</th>
-            <th class="col-available">Available</th>
-            <th class="col-status">Status</th>
-            <th class="col-actions text-end">Actions</th>
+            <th class="ps-3" style="width: 170px;">Product / SKU</th>
+            <th style="width: 170px;">Location / Bin</th>
+            <th style="width: 110px;">Lot / Batch</th>
+            <th style="width: 110px;">Expiry Date</th>
+            <th style="width: 90px;">On Hand</th>
+            <th style="width: 90px;">Allocated</th>
+            <th style="width: 90px;">Available</th>
+            <th style="width: 110px;">Status</th>
+            <th class="text-end pe-3" style="width: 85px;">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of filteredItems">
-            <td>
-              <div class="font-monospace font-weight-bold text-primary lh-1 mb-0.5">{{ item.productSku }}</div>
-              <small class="text-muted" style="font-size: 0.72rem;">{{ item.productName }}</small>
+            <td class="ps-3">
+              <span class="inventory-cell-text d-block">{{ item.productSku }}</span>
+              <small class="inventory-cell-subtext">{{ item.productName }}</small>
             </td>
             <td>
-              <span class="font-monospace text-dark font-weight-bold d-block lh-1 mb-0.5" style="font-size: 0.8rem;">
+              <span class="inventory-cell-text d-block">
                 <i class="fas fa-barcode text-primary me-1"></i>{{ item.locationBarcode }}
               </span>
-              <small class="text-muted" style="font-size: 0.7rem;">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
+              <small class="inventory-cell-subtext">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
             </td>
             <td>
-              <span class="badge bg-light text-dark border" style="font-size: 0.7rem; padding: 0.2rem 0.45rem;">
-                {{ item.lotBatchNumber || 'N/A' }}
+              <span class="inventory-cell-text">{{ item.lotBatchNumber || '—' }}</span>
+            </td>
+            <td>
+              <span class="inventory-cell-text">
+                {{ item.expiryDate ? (item.expiryDate | date:'mediumDate') : '—' }}
               </span>
             </td>
             <td>
-              <span *ngIf="item.expiryDate" class="text-dark font-weight-bold" style="font-size: 0.75rem;">
-                {{ item.expiryDate | date:'mediumDate' }}
-              </span>
-              <span *ngIf="!item.expiryDate" class="text-muted" style="font-size: 0.72rem;">N/A</span>
+              <span class="inventory-cell-text font-monospace">{{ item.quantityOnHand | number }}</span>
             </td>
             <td>
-              <strong class="text-dark" style="font-size: 0.84rem;">{{ item.quantityOnHand | number }}</strong>
+              <span class="inventory-cell-text font-monospace text-warning">{{ item.quantityAllocated | number }}</span>
             </td>
             <td>
-              <span class="text-warning font-weight-bold" style="font-size: 0.84rem;">{{ item.quantityAllocated | number }}</span>
+              <span class="inventory-cell-text font-monospace text-success font-weight-bold">{{ item.quantityAvailable | number }}</span>
             </td>
             <td>
-              <span class="text-success font-weight-bold" style="font-size: 0.88rem;">{{ item.quantityAvailable | number }}</span>
-            </td>
-            <td>
-              <span class="wms-badge" [ngClass]="getStatusBadge(item.status)">
+              <span class="inventory-status-pill" [ngClass]="'status-' + (item.status === 1 ? 'available' : (item.status === 2 ? 'quarantined' : 'danger'))">
+                <i class="fas" [ngClass]="item.status === 1 ? 'fa-check-circle' : (item.status === 2 ? 'fa-exclamation-triangle' : 'fa-times-circle')"></i>
                 {{ getStatusLabel(item.status) }}
               </span>
             </td>
-            <td class="text-end">
-              <div class="d-flex justify-content-end gap-1">
+            <td class="text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1 justify-content-end">
                 <button 
                   type="button"
-                  class="btn btn-outline-primary btn-action-compact" 
+                  class="btn btn-table-action btn-transfer" 
                   title="Bin-to-Bin Relocation"
                   (click)="openTransferModal(item)"
                 >
-                  <i class="fas fa-exchange-alt me-0.5"></i> Transfer
+                  <i class="fas fa-exchange-alt"></i>
                 </button>
                 <button 
                   type="button"
-                  class="btn btn-outline-secondary btn-action-compact" 
+                  class="btn btn-table-action btn-adjust" 
                   title="Audit Stock Adjustment"
                   (click)="openAdjustModal(item)"
                 >
-                  <i class="fas fa-sliders-h me-0.5"></i> Adjust
+                  <i class="fas fa-sliders-h"></i>
                 </button>
               </div>
             </td>
@@ -201,46 +199,42 @@
   </div>
 
   <!-- Audit Transactions Tab -->
-  <div *ngIf="activeTab === 'transactions'" class="wms-card wms-grid-card">
+  <div *ngIf="activeTab === 'transactions'" class="card inventory-table-card overflow-hidden">
     <div class="table-responsive">
-      <table class="wms-table wms-table-compact align-middle mb-0">
-        <thead>
+      <table class="table table-hover align-middle mb-0 wms-table inventory-table">
+        <thead class="table-light">
           <tr>
-            <th style="width: 14%;">Time</th>
-            <th style="width: 14%;">Type</th>
-            <th style="width: 16%;">Ref Number</th>
-            <th style="width: 10%;">Quantity</th>
-            <th style="width: 14%;">Lot/Batch</th>
-            <th style="width: 32%;">Notes</th>
+            <th class="ps-3" style="width: 140px;">Time</th>
+            <th style="width: 140px;">Type</th>
+            <th style="width: 150px;">Ref Number</th>
+            <th style="width: 100px;">Quantity</th>
+            <th style="width: 130px;">Lot / Batch</th>
+            <th class="pe-3">Notes</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let tx of transactions">
-            <td>
-              <small class="text-muted" style="font-size: 0.72rem;">{{ tx.transactionTime | date:'short' }}</small>
+            <td class="ps-3">
+              <span class="inventory-cell-text">{{ tx.transactionTime | date:'short' }}</span>
             </td>
             <td>
-              <span class="wms-badge" [ngClass]="getTransactionBadge(tx.transactionType)">
+              <span class="inventory-status-pill status-standard">
                 {{ getTransactionLabel(tx.transactionType) }}
               </span>
             </td>
             <td>
-              <span class="font-monospace font-weight-bold text-dark" style="font-size: 0.78rem;">
-                {{ tx.referenceNumber || 'N/A' }}
-              </span>
+              <span class="inventory-cell-text font-monospace">{{ tx.referenceNumber || '—' }}</span>
             </td>
             <td>
-              <strong [ngClass]="isStockDeduction(tx.transactionType) ? 'text-danger' : 'text-success'" style="font-size: 0.84rem;">
+              <span class="inventory-cell-text font-monospace" [ngClass]="isStockDeduction(tx.transactionType) ? 'text-danger' : 'text-success'">
                 {{ isStockDeduction(tx.transactionType) ? '-' : '+' }}{{ tx.quantity | number }}
-              </strong>
-            </td>
-            <td>
-              <span class="badge bg-light text-dark border" style="font-size: 0.7rem; padding: 0.2rem 0.45rem;">
-                {{ tx.lotBatchNumber || '-' }}
               </span>
             </td>
             <td>
-              <span class="text-muted" style="font-size: 0.74rem;">{{ tx.notes || 'Automated WMS transaction' }}</span>
+              <span class="inventory-cell-text">{{ tx.lotBatchNumber || '—' }}</span>
+            </td>
+            <td class="pe-3">
+              <span class="inventory-cell-subtext">{{ tx.notes || 'Automated WMS transaction' }}</span>
             </td>
           </tr>
         </tbody>

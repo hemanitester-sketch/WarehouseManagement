@@ -37,6 +37,46 @@
   --wms-radius-lg: 20px;
   --wms-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
   --wms-shadow-hover: 0 20px 30px -10px rgba(79, 70, 229, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
+  accent-color: #2563eb !important;
+}
+
+*,
+*:focus,
+*:active {
+  accent-color: #2563eb !important;
+}
+
+/* Global Select & Dropdown Option Styling - Override Browser/OS Pink with Blue */
+select,
+.form-select {
+  accent-color: #2563eb !important;
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected] {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
+  }
 }
 
 body {
@@ -558,31 +598,32 @@ body {
     }
 
     .btn-manage-facility {
-      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-      color: #ffffff;
-      border: none;
-      font-size: 0.82rem;
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border: none !important;
+      font-size: 0.78rem !important;
       font-weight: 600;
-      padding: 0.55rem 1.15rem;
-      border-radius: 8px;
+      padding: 0.38rem 0.85rem !important;
+      border-radius: 6px;
       display: inline-flex;
       align-items: center;
-      gap: 0.65rem;
-      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.2);
+      gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
       transition: all 0.2s ease;
       white-space: nowrap;
       cursor: pointer;
       flex-shrink: 0;
 
       &:hover {
-        background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.32);
+        background: #1d4ed8 !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
         transform: translateY(-1px);
-        color: #ffffff;
+        color: #ffffff !important;
       }
 
       i.fa-arrow-right {
         transition: transform 0.2s ease;
+        font-size: 0.72rem;
       }
 
       &:hover i.fa-arrow-right {
@@ -1021,6 +1062,14 @@ a.lpx-brand-logo:hover,
   }
 }
 
+/* Sidebar navigation menu starting padding (pt-2) */
+.lpx-nav-menu,
+.lpx-sidebar .lpx-nav-menu,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+  padding-top: 0.5rem !important;
+}
+
 /* Top-level menu links */
 .lpx-nav-menu .lpx-menu-item-link {
   color: #475569 !important;
@@ -1139,11 +1188,13 @@ a.lpx-brand-logo:hover,
   }
 }
 
-/* Topbar background to match clean light theme */
+/* Topbar background & height to match clean light theme */
 .lpx-topbar-container,
 .lpx-topbar {
   background-color: #ffffff !important;
   border-bottom: 1px solid #e2e8f0 !important;
+  min-height: 64px !important;
+  height: 64px !important;
 }
 
 /* Mobile navbar styling */
@@ -1178,15 +1229,202 @@ nav[aria-label="breadcrumb"] {
   display: none !important;
 }
 
-/* Keep topbar content (admin profile & avatar) aligned to far right */
+/* Keep topbar content (admin profile & avatar) aligned to far right and vertically centered */
 .lpx-topbar {
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
+  padding: 0 1.5rem !important;
 }
 
 .lpx-topbar-content {
   margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  gap: 0.75rem !important;
+
+  abp-nav-items {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  abp-user-profile {
+    display: inline-flex !important;
+    align-items: center !important;
+  }
 }
+
+/* ==========================================================================
+   Admin User Profile & Avatar - 40px Matching Circle with Name next to it
+   ========================================================================== */
+.lpx-topbar .lpx-user-profile,
+.lpx-topbar-content .lpx-user-profile,
+.lpx-user-profile {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  outline: none !important;
+  user-select: none !important;
+
+  &:hover {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    .lpx-avatar,
+    lpx-avatar {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12) !important;
+      transform: translateY(-1px) !important;
+
+      .lpx-avatar-icon,
+      .lpx-avatar-img,
+      .lpx-icon,
+      i {
+        color: #2563eb !important;
+      }
+    }
+
+    .user-full-name {
+      color: #2563eb !important;
+    }
+  }
+
+  &:active {
+    .lpx-avatar,
+    lpx-avatar {
+      transform: translateY(0) !important;
+    }
+  }
+
+  /* Exact 40px Circular Avatar Container matching Notification Bell */
+  .lpx-avatar,
+  lpx-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    border-radius: 50% !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+    .lpx-avatar-icon,
+    .lpx-avatar-img,
+    .lpx-icon,
+    i {
+      width: 100% !important;
+      height: 100% !important;
+      font-size: 1.15rem !important;
+      color: #475569 !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1 !important;
+      transition: color 0.2s ease !important;
+    }
+  }
+
+  /* Admin Name displayed next to avatar */
+  .user-full-name {
+    display: inline-block !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.2 !important;
+    text-transform: capitalize !important;
+    margin: 0 !important;
+    transition: color 0.2s ease !important;
+  }
+
+  /* Hide dropdown caret */
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+/* User profile dropdown menu styling */
+.lpx-topbar-content .dropdown-menu {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  padding: 0.5rem !important;
+  min-width: 190px !important;
+  margin-top: 8px !important;
+
+  .dropdown-item {
+    border-radius: 8px !important;
+    padding: 0.5rem 0.85rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+    transition: all 0.15s ease !important;
+
+    &:hover {
+      background-color: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+  }
+
+  .dropdown-divider {
+    margin: 0.4rem 0 !important;
+    border-top-color: #f1f5f9 !important;
+  }
+}
+
+/* ==========================================================================
+   Universal Module Container Padding (Matching Dashboard: 1.25em 2em 3em)
+   ========================================================================== */
+.lpx-content {
+  /* Ensure container wrappers inside lpx-content do not add extra gutters or offsets */
+  .container-fluid.products-container,
+  .container-fluid.inventory-container,
+  .container-fluid.inbound-container,
+  .container-fluid.outbound-container,
+  .container-fluid.categories-container,
+  > router-outlet + * > .container-fluid,
+  > ng-component > .container-fluid,
+  > * > .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Match dashboard-page padding across all modules */
+  .products-container,
+  .inventory-container,
+  .inbound-container,
+  .outbound-container,
+  .categories-container,
+  .dashboard-page {
+    padding: 0.5rem 0 1.5rem 0 !important;
+  }
+}
+
 
 

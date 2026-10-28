@@ -20,11 +20,13 @@ import { provideTenantManagementConfig } from '@abp/ng.tenant-management/config'
 import { provideFeatureManagementConfig } from '@abp/ng.feature-management';
 import { provideThemeLeptonX } from '@abp/ng.theme.lepton-x';
 import { provideSideMenuLayout } from '@abp/ng.theme.lepton-x/layouts';
+import { NOTIFICATION_BELL_PROVIDER } from './shared/components/notification-bell/notification-bell.provider';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(appRoutes),
     APP_ROUTE_PROVIDER,
+    NOTIFICATION_BELL_PROVIDER,
     provideAbpCore(
       withOptions({
         environment,

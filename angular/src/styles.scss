@@ -11,8 +11,8 @@
 :root {
   --lpx-brand: #2563eb !important;
   --lpx-brand-hover: #3b82f6 !important;
-  --lpx-logo: url('/assets/images/logo/logo-light.png');
-  --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png');
+  --lpx-logo: url('/assets/images/logo/sleek-wareflow-wordmark.png');
+  --lpx-logo-icon: url('/assets/images/logo/sleek-wareflow-wordmark.png');
   --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Brand Theme Colors */
@@ -841,6 +841,15 @@ body,
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Remove 72px extra top margin on sidebar */
+.lpx-sidebar-container .lpx-sidebar,
+.lpx-sidebar.lpx-scroll-container,
+.lpx-sidebar,
+#lpx-wrapper .lpx-sidebar,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container {
+  margin-top: 0 !important;
+}
+
 /* Hide sidebar scrollbars completely across all browsers */
 .lpx-sidebar,
 .lpx-sidebar-container,
@@ -885,29 +894,105 @@ body,
   background-color: #ffffff !important;
   border-bottom: 1px solid #f1f5f9 !important;
   border-right: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 8px 16px !important;
 }
 
+/* Hide separate text next to logo */
 .lpx-brand-name,
 #lpx-wrapper .lpx-brand-name,
-.lpx-logo-container .lpx-brand-name {
-  background: transparent !important;
+.lpx-logo-container .lpx-brand-name,
+.lpx-brand-title,
+.lpx-logo-title,
+.brand-title,
+.lpx-brand-text {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Center wordmark logo */
+.lpx-brand-logo,
+a.lpx-brand-logo,
+lpx-brand-logo,
+lpx-brand-logo a,
+.lpx-logo-container > a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background-color: transparent !important;
-  color: #0f172a !important;
-  font-weight: 700 !important;
-  font-size: 17px !important;
-  letter-spacing: -0.02em;
-  line-height: 32px !important;
+  text-decoration: none !important;
+  width: 100% !important;
+  max-width: 185px !important;
+  margin: 0 auto !important;
 }
 
 .lpx-brand-logo,
-a.lpx-brand-logo,
-lpx-brand-logo {
-  background-color: transparent !important;
+lpx-brand-logo .lpx-brand-logo {
+  background-image: var(--lpx-logo) !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  background-position: center !important;
+  height: 42px !important;
+  width: 100% !important;
+  max-width: 180px !important;
+  margin: 0 auto !important;
 }
 
-.menu-collapse-icon {
+/* Keep logo fixed and static at all times - NO zoom in/out effect on hover/unhover */
+.lpx-brand-logo,
+a.lpx-brand-logo,
+lpx-brand-logo,
+lpx-brand-logo a,
+.lpx-logo-container > a,
+.lpx-brand-logo:hover,
+a.lpx-brand-logo:hover,
+.lpx-sidebar-container .lpx-brand-logo,
+.lpx-sidebar-container:not(:hover) .lpx-brand-logo,
+.lpx-sidebar-container:hover .lpx-brand-logo,
+.hover-trigger .lpx-sidebar-container .lpx-brand-logo,
+.hover-trigger .lpx-sidebar-container:not(:hover) .lpx-brand-logo,
+.hover-trigger .lpx-sidebar-container:hover .lpx-brand-logo {
+  max-width: 180px !important;
+  width: 100% !important;
+  height: 42px !important;
+  transform: none !important;
+  transition: none !important;
+  background-size: contain !important;
+  background-position: center !important;
+}
+
+.lpx-sidebar .lpx-logo-container,
+#lpx-wrapper .lpx-logo-container,
+.lpx-sidebar-container .lpx-logo-container,
+.lpx-sidebar-container:not(:hover) .lpx-logo-container,
+.lpx-sidebar-container:hover .lpx-logo-container,
+.hover-trigger .lpx-sidebar-container .lpx-logo-container,
+.hover-trigger .lpx-sidebar-container:not(:hover) .lpx-logo-container,
+.hover-trigger .lpx-sidebar-container:hover .lpx-logo-container {
+  padding: 8px 16px !important;
+  justify-content: center !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.menu-collapse-icon,
+.lpx-logo-container .menu-collapse-icon {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
   color: #64748b !important;
   transition: color 0.2s ease;
+  z-index: 10;
   &:hover {
     color: #0f172a !important;
   }

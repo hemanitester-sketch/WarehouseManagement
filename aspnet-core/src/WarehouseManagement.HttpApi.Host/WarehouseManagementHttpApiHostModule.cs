@@ -169,6 +169,13 @@ HJAkGMBxHn7U1+uwBylrF5QNmDlWy5ocaOLOoFLq8p2nIRQEeSyLzyEsneLygwcI
                     bundle.AddFiles("/global-styles.css");
                 }
             );
+            options.ScriptBundles.Configure(
+                LeptonXLiteThemeBundles.Scripts.Global,
+                bundle =>
+                {
+                    bundle.AddFiles("/global-scripts.js");
+                }
+            );
         });
     }
 

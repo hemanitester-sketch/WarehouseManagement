@@ -7,10 +7,10 @@ export const environment = {
   application: {
     baseUrl,
     name: 'WareFlow',
-    logoUrl: '',
+    logoUrl: 'assets/images/logo/sleek-wareflow-wordmark.png',
   },
   oAuthConfig: {
-    issuer: 'https://warehouseflow-api.runasp.net/',
+    issuer: 'https://localhost:44319/',
     redirectUri: baseUrl,
     clientId: 'WarehouseManagement_App',
     responseType: 'code',
@@ -19,7 +19,7 @@ export const environment = {
   },
   apis: {
     default: {
-      url: 'https://warehouseflow-api.runasp.net',
+      url: 'https://localhost:44319',
       rootNamespace: 'WarehouseManagement',
     },
   },

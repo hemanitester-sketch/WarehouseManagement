@@ -7,7 +7,7 @@ export const environment = {
   application: {
     baseUrl,
     name: 'WareFlow',
-    logoUrl: '',
+    logoUrl: 'assets/images/logo/sleek-wareflow-wordmark.png',
   },
   oAuthConfig: {
     issuer: 'https://warehouseflow-api.runasp.net/',

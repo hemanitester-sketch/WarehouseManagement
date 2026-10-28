@@ -1,3 +1,25 @@
+(function() {
+    function setPlaceholders() {
+        var u = document.getElementById('LoginInput_UserNameOrEmailAddress') || document.querySelector('input[name*="UserName"]');
+        if (u) {
+            u.placeholder = 'Enter your email address';
+            u.setAttribute('placeholder', 'Enter your email address');
+        }
+        var p = document.getElementById('LoginInput_Password') || document.querySelector('input[name*="Password"]');
+        if (p) {
+            p.placeholder = 'Enter your password';
+            p.setAttribute('placeholder', 'Enter your password');
+        }
+    }
+    setPlaceholders();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setPlaceholders);
+    }
+    window.addEventListener('load', setPlaceholders);
+    var t = setInterval(setPlaceholders, 50);
+    setTimeout(function() { clearInterval(t); }, 4000);
+})();
+
 /*!
  * jQuery JavaScript Library v4.0.0
  * https://jquery.com/

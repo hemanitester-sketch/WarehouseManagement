@@ -16,6 +16,6 @@ public class WarehouseManagementBrandingProvider : DefaultBrandingProvider
     }
 
     public override string AppName => "Warehouse Management";
-    public override string LogoUrl => "/images/logo/warehouse-logo.png";
-    public override string LogoReverseUrl => "/images/logo/warehouse-logo.png";
+    public override string LogoUrl => "/images/logo/sleek-wareflow-wordmark.png";
+    public override string LogoReverseUrl => "/images/logo/sleek-wareflow-wordmark.png";
 }

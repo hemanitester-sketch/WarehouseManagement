@@ -1,3 +1,25 @@
+(function() {
+    function setPlaceholders() {
+        var u = document.getElementById('LoginInput_UserNameOrEmailAddress') || document.querySelector('input[name*="UserName"]');
+        if (u) {
+            u.placeholder = 'Enter your email address';
+            u.setAttribute('placeholder', 'Enter your email address');
+        }
+        var p = document.getElementById('LoginInput_Password') || document.querySelector('input[name*="Password"]');
+        if (p) {
+            p.placeholder = 'Enter your password';
+            p.setAttribute('placeholder', 'Enter your password');
+        }
+    }
+    setPlaceholders();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setPlaceholders);
+    }
+    window.addEventListener('load', setPlaceholders);
+    var t = setInterval(setPlaceholders, 50);
+    setTimeout(function() { clearInterval(t); }, 4000);
+})();
+
 var abp = abp || {};
 (function () {
 
@@ -932,6 +954,50 @@ var abp = abp || {};
             count++;
             if (count > 10) clearInterval(interval);
         }, 300);
+
+        function applyLoginPlaceholders() {
+            var userField = document.getElementById('LoginInput_UserNameOrEmailAddress') ||
+                            document.querySelector('input[name="LoginInput.UserNameOrEmailAddress"]') ||
+                            document.querySelector('form input[type="text"]');
+            if (userField) {
+                userField.placeholder = 'Enter your email address';
+                userField.setAttribute('placeholder', 'Enter your email address');
+            }
+
+            var passField = document.getElementById('LoginInput_Password') ||
+                            document.querySelector('input[name="LoginInput.Password"]') ||
+                            document.querySelector('form input[type="password"]');
+            if (passField) {
+                passField.placeholder = 'Enter your password';
+                passField.setAttribute('placeholder', 'Enter your password');
+            }
+        }
+
+        document.addEventListener('input', function (e) {
+            if (e.target && (e.target.id === 'LoginInput_UserNameOrEmailAddress' || e.target.id === 'LoginInput_Password')) {
+                var p = e.target.closest('.mb-3');
+                if (p) {
+                    if (e.target.value.length > 0) {
+                        p.classList.add('has-value');
+                    } else {
+                        p.classList.remove('has-value');
+                    }
+                }
+            }
+        }, true);
+
+        applyLoginPlaceholders();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyLoginPlaceholders);
+        }
+        window.addEventListener('load', applyLoginPlaceholders);
+
+        var pCount = 0;
+        var pInterval = setInterval(function () {
+            applyLoginPlaceholders();
+            pCount++;
+            if (pCount > 25) clearInterval(pInterval);
+        }, 80);
     })();
 
 })();

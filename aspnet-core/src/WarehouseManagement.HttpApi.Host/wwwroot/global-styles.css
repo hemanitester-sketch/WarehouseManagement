@@ -16,77 +16,158 @@
 }
 
 /* Base Body on Account / Auth Pages */
+html,
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body.abp-account-layout,
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  background: radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.15) 0%, transparent 45%),
-              radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
-              linear-gradient(135deg, #090d16 0%, #0f172a 50%, #131d33 100%) !important;
+  background-color: #f8fafc !important;
+  background-image: url('/images/soft-blue-abstract-tech-background.png') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
   min-height: 100vh;
   color: var(--wms-text-main);
-  background-attachment: fixed !important;
+}
+
+/* Ensure outer wrappers stay transparent & full-width */
+.lpx-scroll-container,
+#lpx-wrapper,
+.lpx-content-container,
+.lpx-content {
+  width: 100% !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.abp-account-layout .lpx-content {
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2.5rem 1rem !important;
+}
+
+.abp-account-layout .container,
+body > .container {
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  padding: 0 15px !important;
+  background: transparent !important;
+}
+
+.abp-account-layout .row {
+  margin: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.abp-account-layout .col-md-8.col-lg-5,
+.col-md-8.col-lg-5 {
+  width: 100% !important;
+  max-width: 480px !important;
+  flex: 0 0 100% !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
 }
 
 /* Brand Title & Logo */
-.lpx-logo-container {
-  text-align: center !important;
-  margin-top: 0.75rem !important;
+.lpx-brand-logo.lpx-login-logo,
+.lpx-brand-logo,
+.lpx-logo-container,
+.account-brand,
+.lpx-brand-logo.lpx-login-logo.mb-3 {
+  width: 235px !important;
+  height: 72px !important;
+  margin: 0 auto 0.5rem auto !important;
   margin-bottom: 0.5rem !important;
-  padding: 0 !important;
-}
-
-.lpx-brand-logo {
-  width: 110px !important;
-  height: 110px !important;
-  margin: 0 auto !important;
-  background-image: url('/images/logo/warehouse-logo.png') !important;
+  background-image: url('/images/logo/sleek-wareflow-wordmark.png') !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
-  background-position: center !important;
+  background-position: center center !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   display: block !important;
   position: relative;
 }
 
+.account-brand img,
+.lpx-brand-logo img,
+.lpx-logo-container img {
+  max-width: 235px !important;
+  max-height: 72px !important;
+  height: auto !important;
+  object-fit: contain !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
 .lpx-brand-logo::after {
   content: none !important;
 }
 
-/* Hide text below logo since the logo image already contains the brand title */
+/* Hide text below or next to logo since the wordmark already contains the brand text */
 .lpx-brand-name,
-.lpx-login-name {
+.lpx-login-name,
+.account-brand-name,
+.account-brand span,
+.account-brand h1,
+.account-brand h2 {
   display: none !important;
 }
 
-/* Top App Name in Auth Page */
-.account-brand + div, 
-body > .container,
-.account-container {
-  max-width: 480px;
-  margin: 0 auto;
-}
-
 /* Main Login Card */
-.col-md-8.col-lg-5 > .card.mt-3, .account-card, .lpx-login-card {
+.abp-account-layout .card.mt-3,
+.col-md-8.col-lg-5 > .card.mt-3,
+.account-card,
+.lpx-login-card {
+  width: 100% !important;
+  max-width: 480px !important;
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 1.25rem !important;
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
-  overflow: hidden;
-  margin-bottom: 1.25rem !important;
+  border: 1px solid #edf2f7 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 40px -12px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(226, 232, 240, 0.6) !important;
+  overflow: hidden !important;
+  margin: 0 auto 1.5rem auto !important;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Move Register link, Remember me & Forgot password below the Login button */
+/* Card Body Layout */
+.abp-account-layout .card.mt-3 .card-body,
 .col-md-8.col-lg-5 > .card.mt-3 .card-body {
   display: flex !important;
   flex-direction: column !important;
-  padding: 2rem 2.25rem !important;
+  padding: 2rem 2rem 1.6rem 2rem !important;
+  width: 100% !important;
 }
 
+/* Title & Subtitle: "Login" + "Welcome back! Please enter your details to continue." */
 .col-md-8.col-lg-5 > .card.mt-3 .card-body > h4 {
   order: 1 !important;
-  margin-bottom: 0.75rem !important;
+  font-weight: 700 !important;
+  font-size: 1.45rem !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em !important;
+  margin-bottom: 1.15rem !important;
+  line-height: 1.25 !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > h4::after {
+  content: "Welcome back! Please enter your details to continue." !important;
+  display: block !important;
+  font-size: 0.835rem !important;
+  font-weight: 400 !important;
+  color: #64748b !important;
+  margin-top: 0.45rem !important;
+  letter-spacing: normal !important;
 }
 
 .col-md-8.col-lg-5 > .card.mt-3 .card-body > form {
@@ -94,62 +175,335 @@ body > .container,
   margin-top: 0 !important;
   display: flex !important;
   flex-direction: column !important;
+  width: 100% !important;
 }
 
-/* Inside form: 1. Username, 2. Password, 3. Login Button, 4. Remember me & Forgot password */
+/* Form Labels */
+.form-label, label {
+  font-size: 0.835rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-bottom: 0.45rem !important;
+  white-space: nowrap !important;
+  display: block !important;
+}
+
+/* Form Inputs: 1. Username, 2. Password */
 .col-md-8.col-lg-5 > .card.mt-3 form > .mb-3:nth-of-type(1) {
   order: 1 !important;
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.9rem !important;
+  position: relative !important;
+  width: 100% !important;
 }
 
 .col-md-8.col-lg-5 > .card.mt-3 form > .mb-3:nth-of-type(2) {
   order: 2 !important;
-  margin-bottom: 0 !important;
+  margin-bottom: 0.2rem !important;
+  position: relative !important;
+  width: 100% !important;
 }
 
-/* Exactly 1rem margin above Login button */
-.col-md-8.col-lg-5 > .card.mt-3 form > .d-grid {
+.form-control {
+  height: 44px !important;
+  font-size: 0.85rem !important;
+  border-radius: 9px !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.55rem 0.9rem !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* Explicit placeholder styles for Chrome/Firefox/Safari without comma-separated vendor lists */
+input::placeholder {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+  line-height: normal !important;
+}
+
+.form-control::placeholder {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+  line-height: normal !important;
+}
+
+::-webkit-input-placeholder {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+}
+
+::-moz-placeholder {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+}
+
+.form-control:focus {
+  background-color: #ffffff !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+  outline: none !important;
+}
+
+/* Left Person Icon in Username / Email Field */
+#LoginInput_UserNameOrEmailAddress,
+input[name="LoginInput.UserNameOrEmailAddress"],
+input[type="text"].form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 14px center !important;
+  background-size: 16px 16px !important;
+  padding-left: 42px !important;
+}
+
+/* Left Padlock Icon in Password Field */
+#LoginInput_Password,
+input[name="LoginInput.Password"],
+input[type="password"].form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 14px center !important;
+  background-size: 16px 16px !important;
+  padding-left: 42px !important;
+}
+
+/* Password Toggle Eye Button */
+.input-group {
+  position: relative !important;
+}
+
+.input-group .form-control {
+  border-radius: 10px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.input-group .btn {
+  border-radius: 0 10px 10px 0 !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-left: none !important;
+  color: #94a3b8 !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: color 0.15s ease;
+}
+
+.input-group .btn:hover {
+  color: #475569 !important;
+  background: #ffffff !important;
+}
+
+.input-group .btn:focus {
+  box-shadow: none !important;
+}
+
+/* Remember me & Forgot password row */
+.col-md-8.col-lg-5 > .card.mt-3 form > .row {
   order: 3 !important;
-  margin-top: 1rem !important;
+  margin-top: 0.4rem !important;
+  margin-bottom: 1rem !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form > .row > .col:first-child,
+.col-md-8.col-lg-5 > .card.mt-3 form > .row > div:first-child {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  width: auto !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form > .row > .col:last-child,
+.col-md-8.col-lg-5 > .card.mt-3 form > .row > div:last-child,
+.col-md-8.col-lg-5 > .card.mt-3 form > .row > .text-end {
+  flex: 0 0 auto !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  width: auto !important;
+}
+
+.form-check,
+.custom-checkbox,
+.custom-control.form-check,
+.col-md-8.col-lg-5 > .card.mt-3 form .form-check {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  min-height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 8px !important;
+}
+
+.form-check-input,
+.custom-control-input,
+.col-md-8.col-lg-5 > .card.mt-3 form .form-check-input,
+.col-md-8.col-lg-5 > .card.mt-3 form input#LoginInput_RememberMe {
+  float: none !important;
+  position: static !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  border-radius: 4px !important;
+  border: 1px solid #cbd5e1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.form-check-input:checked,
+.col-md-8.col-lg-5 > .card.mt-3 form .form-check-input:checked {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.form-check-label,
+.custom-control-label,
+.col-md-8.col-lg-5 > .card.mt-3 form .form-check-label,
+.col-md-8.col-lg-5 > .card.mt-3 form label[for="LoginInput_RememberMe"] {
+  font-size: 0.835rem !important;
+  font-weight: 400 !important;
+  color: #64748b !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+/* Forgot password link */
+.col-md-8.col-lg-5 > .card.mt-3 form a[href*="ForgotPassword"],
+.col-md-8.col-lg-5 > .card.mt-3 form .col-auto a {
+  color: #2563eb !important;
+  font-size: 0.835rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 form a[href*="ForgotPassword"]:hover,
+.col-md-8.col-lg-5 > .card.mt-3 form .col-auto a:hover {
+  color: #1d4ed8 !important;
+  text-decoration: underline !important;
+}
+
+/* Login Button with Right Arrow: "→ Login" */
+.col-md-8.col-lg-5 > .card.mt-3 form > .d-grid {
+  order: 4 !important;
+  margin-top: 0 !important;
   padding-top: 0 !important;
 }
 
-.col-md-8.col-lg-5 > .card.mt-3 form button[type="submit"],
-.col-md-8.col-lg-5 > .card.mt-3 form button.mt-3,
-.col-md-8.col-lg-5 > .card.mt-3 form .btn-primary {
+.btn-primary, button[type="submit"] {
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  border: none !important;
+  border-radius: 10px !important;
+  height: 48px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.2px !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.45) !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
   margin-top: 0 !important;
-}
-
-.col-md-8.col-lg-5 > .card.mt-3 form > .row {
-  order: 4 !important;
-  margin-top: 0.85rem !important;
-  margin-bottom: 0 !important;
+  display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer;
 }
 
-.col-md-8.col-lg-5 > .card.mt-3 form .custom-checkbox,
-.col-md-8.col-lg-5 > .card.mt-3 form .form-check-input {
-  margin-bottom: 0 !important;
+.btn-primary:hover, button[type="submit"]:hover {
+  background-color: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 22px -4px rgba(37, 99, 235, 0.55) !important;
 }
 
+.btn-primary:active, button[type="submit"]:active {
+  transform: translateY(0) !important;
+}
+
+/* Right Arrow Icon before Login text */
+.col-md-8.col-lg-5 > .card.mt-3 form button[type="submit"]::before,
+button[type="submit"].btn-primary::before {
+  content: "\2192" !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  display: inline-block !important;
+  line-height: 1 !important;
+  transition: transform 0.2s ease;
+}
+
+button[type="submit"]:hover::before {
+  transform: translateX(3px) !important;
+}
+
+/* OR Divider on form */
+.col-md-8.col-lg-5 > .card.mt-3 form::after {
+  content: "OR" !important;
+  order: 5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  color: #94a3b8 !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  margin-top: 1.15rem !important;
+  margin-bottom: 0.35rem !important;
+  background: linear-gradient(to right, #e2e8f0 0%, #e2e8f0 calc(50% - 22px), transparent calc(50% - 22px), transparent calc(50% + 22px), #e2e8f0 calc(50% + 22px), #e2e8f0 100%) no-repeat center / 100% 1px !important;
+}
+
+/* New User Register */
 .col-md-8.col-lg-5 > .card.mt-3 .card-body > strong {
   order: 3 !important;
-  margin-top: 1rem !important;
+  margin-top: 0.85rem !important;
   text-align: center !important;
   display: block !important;
-  font-weight: 500 !important;
-  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  font-size: 0.835rem !important;
   color: #64748b !important;
+}
+
+.col-md-8.col-lg-5 > .card.mt-3 .card-body > strong::before {
+  content: none !important;
+  display: none !important;
 }
 
 .col-md-8.col-lg-5 > .card.mt-3 .card-body > strong a {
   color: #2563eb !important;
   font-weight: 600 !important;
-  margin-left: 0.25rem;
+  margin-left: 0.35rem !important;
   text-decoration: none !important;
+  display: inline !important;
 }
 
 .col-md-8.col-lg-5 > .card.mt-3 .card-body > strong a:hover {
+  color: #1d4ed8 !important;
   text-decoration: underline !important;
 }
 
@@ -160,121 +514,7 @@ body > .container,
   display: none !important;
 }
 
-.card-body {
-  padding: 2.25rem 2rem !important;
-}
-
-/* Form Headers */
-.card h2, .card h3, .card h4, .card-title {
-  font-weight: 700 !important;
-  color: #0f172a !important;
-  letter-spacing: -0.3px;
-  margin-bottom: 0.5rem !important;
-}
-
-/* Sub-text / New User / Register */
-.card p, .card .text-muted, .card small {
-  color: #64748b !important;
-  font-size: 0.9rem !important;
-}
-
-/* Form Labels */
-.form-label, label {
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  color: #334155 !important;
-  margin-bottom: 0.4rem !important;
-}
-
-/* Form Inputs */
-.form-control, .input-group-text {
-  font-size: 0.95rem !important;
-  border-radius: 0.65rem !important;
-  border: 1px solid #cbd5e1 !important;
-  padding: 0.65rem 0.95rem !important;
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-.form-control:focus {
-  background-color: #ffffff !important;
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-  outline: none !important;
-}
-
-/* Input group password toggle */
-.input-group .btn {
-  border-radius: 0 0.65rem 0.65rem 0 !important;
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
-  border-left: none !important;
-  color: #475569 !important;
-}
-
-.input-group .form-control {
-  border-radius: 0.65rem 0 0 0.65rem !important;
-}
-
-/* Primary Button (Login Button) */
-.btn-primary, button[type="submit"] {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  border: none !important;
-  border-radius: 0.75rem !important;
-  padding: 0.75rem 1.5rem !important;
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  letter-spacing: 0.3px !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
-  transition: all 0.2s ease !important;
-  width: 100%;
-  margin-top: 0 !important;
-}
-
-.btn-primary:hover, button[type="submit"]:hover {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45) !important;
-}
-
-.btn-primary:active, button[type="submit"]:active {
-  transform: translateY(0) !important;
-}
-
-/* Checkboxes */
-.form-check-input {
-  border-radius: 0.35rem !important;
-  border-color: #cbd5e1 !important;
-  cursor: pointer;
-}
-
-.form-check-input:checked {
-  background-color: #2563eb !important;
-  border-color: #2563eb !important;
-}
-
-.form-check-label {
-  font-size: 0.875rem !important;
-  color: #475569 !important;
-  cursor: pointer;
-}
-
-/* Links */
-a {
-  color: #2563eb !important;
-  text-decoration: none !important;
-  font-weight: 500 !important;
-  transition: color 0.15s ease;
-}
-
-a:hover {
-  color: #1d4ed8 !important;
-  text-decoration: underline !important;
-}
-
-/* Tenant Switch Button (Hidden for now) */
+/* Tenant Switch Button (Hidden) */
 #AbpTenantSwitchLink,
 .tenant-switch-wrapper,
 div:has(> #AbpTenantSwitchLink),
@@ -286,8 +526,17 @@ div:has(> div > #AbpTenantSwitchLink),
 
 /* Logo styling */
 :root .lpx-brand-logo {
-  --lpx-logo: url('/images/logo/leptonx/logo-light.png');
-  --lpx-logo-icon: url('/images/logo/leptonx/logo-light-thumbnail.png');
+  --lpx-logo: url('/images/logo/sleek-wareflow-wordmark.png');
+  --lpx-logo-icon: url('/images/logo/sleek-wareflow-wordmark.png');
+}
+
+/* Keep sidebar logo static - NO zoom in/out on hover */
+.lpx-sidebar .lpx-brand-logo,
+.lpx-sidebar-container .lpx-brand-logo,
+.lpx-brand-logo:hover,
+a.lpx-brand-logo:hover {
+  transform: none !important;
+  transition: none !important;
 }
 
 /* ==========================================================================
@@ -302,73 +551,39 @@ body,
   --lpx-brand-rgb: 37, 99, 235 !important;
 }
 
+/* Remove 72px extra top margin on sidebar */
+.lpx-sidebar-container .lpx-sidebar,
+.lpx-sidebar.lpx-scroll-container,
+.lpx-sidebar,
+#lpx-wrapper .lpx-sidebar,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container {
+  margin-top: 0 !important;
+}
+
 /* Menu icons & text on hover, active, selected, and expanded */
 .lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-icon,
 .lpx-nav-menu .lpx-menu-item-link:hover .dd-icon,
-.lpx-nav-menu .lpx-menu-item-link.selected .lpx-menu-item-icon,
-.lpx-nav-menu .lpx-menu-item-link.selected .dd-icon,
-.lpx-nav-menu .lpx-menu-item-link.expanded .lpx-menu-item-icon,
-.lpx-nav-menu .lpx-menu-item-link.expanded .dd-icon,
-.lpx-menu-item:hover .lpx-menu-item-icon,
-.lpx-menu-item:hover .dd-icon,
-.lpx-menu-item.selected .lpx-menu-item-icon,
-.lpx-menu-item.selected .dd-icon,
-.lpx-menu-item.expanded .lpx-menu-item-icon,
-.lpx-menu-item.expanded .dd-icon,
-.lpx-inner-menu-item .lpx-menu-item-link.selected .lpx-menu-item-icon,
-.lpx-inner-menu-item .lpx-menu-item-link:hover .lpx-menu-item-icon,
-.lpx-menu-item-link:hover > i,
-.lpx-menu-item-link.selected > i,
-.lpx-menu-item-link.active > i,
-.lpx-menu-item-link.active .lpx-menu-item-icon,
-.lpx-menu-item.active .lpx-menu-item-icon {
+.lpx-nav-menu .lpx-menu-item.selected > .lpx-menu-item-link .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item.selected > .lpx-menu-item-link .dd-icon,
+.lpx-nav-menu .lpx-menu-item.active > .lpx-menu-item-link .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item.active > .lpx-menu-item-link .dd-icon,
+.lpx-nav-menu .lpx-menu-item.expanded > .lpx-menu-item-link .lpx-menu-item-icon,
+.lpx-nav-menu .lpx-menu-item.expanded > .lpx-menu-item-link .dd-icon {
   color: #2563eb !important;
-  opacity: 1 !important;
 }
 
-/* Any SVG or icon fills in sidebar */
-.lpx-menu-item:hover svg,
-.lpx-menu-item.selected svg,
-.lpx-menu-item-link:hover svg,
-.lpx-menu-item-link.selected svg,
-.lpx-nav-menu .lpx-menu-item-link.selected svg path,
-.lpx-nav-menu .lpx-menu-item-link:hover svg path {
-  fill: #2563eb !important;
-  stroke: #2563eb !important;
+.lpx-nav-menu .lpx-menu-item-link:hover .lpx-menu-item-text,
+.lpx-nav-menu .lpx-menu-item.selected > .lpx-menu-item-link .lpx-menu-item-text,
+.lpx-nav-menu .lpx-menu-item.active > .lpx-menu-item-link .lpx-menu-item-text,
+.lpx-nav-menu .lpx-menu-item.expanded > .lpx-menu-item-link .lpx-menu-item-text {
+  color: #2563eb !important;
 }
 
-/* Active / Hover borders or indicators */
-.lpx-breadcrumb-dropdown-item:hover::before,
-.lpx-breadcrumb-dropdown-item.active::before {
-  background-color: #2563eb !important;
-}
-.bg-brand {
-  background: #2563eb !important;
-}
-.bg-brand-gradient {
-  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%) !important;
+.lpx-nav-menu .lpx-menu-item.selected > .lpx-menu-item-link,
+.lpx-nav-menu .lpx-menu-item.active > .lpx-menu-item-link {
+  background-color: rgba(37, 99, 235, 0.1) !important;
 }
 
-/* ==========================================================================
-   Hide topbar header module title & breadcrumb across all modules
-   ========================================================================== */
-.lpx-breadcrumb-container,
-.lpx-breadcrumb-wrapper,
-lpx-breadcrumb,
-.lpx-breadcrumb,
-.lpx-breadcrumb-item,
-nav[aria-label="breadcrumb"] {
-  display: none !important;
+.lpx-nav-menu .lpx-menu-item-link:hover {
+  background-color: rgba(37, 99, 235, 0.06) !important;
 }
-
-/* Keep topbar content (admin profile & avatar) aligned to far right */
-.lpx-topbar {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-}
-
-.lpx-topbar-content {
-  margin-left: auto !important;
-}
-

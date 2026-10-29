@@ -14,7 +14,7 @@
       <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateWarehouseModal()">
         <i class="fas fa-plus pe-1"></i>
         <span>Add Warehouse</span>
-      </button> 
+      </button>
     </div>
   </div>
 
@@ -74,27 +74,68 @@
     </div>
   </div>
 
-  <!-- Search & Filter Bar (Compact & Harmonized with other modules) -->
+  <!-- Quick Filter Pills / Status Tabs -->
+  <div class="d-flex align-items-center gap-1 mb-2.5 overflow-x-auto pb-1 flex-nowrap">
+    <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'all'"
+      (click)="selectedStatusTab = 'all'; applyFilter()">
+      All Facilities ({{ warehouses.length }})
+    </button>
+    <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'operational'"
+      (click)="selectedStatusTab = 'operational'; applyFilter()">
+      <span class="d-inline-block rounded-circle bg-success me-1" style="width: 6px; height: 6px;"></span>
+      Operational ({{ countOperational() }})
+    </button>
+    <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'DistributionCenter'"
+      (click)="selectedStatusTab = 'DistributionCenter'; applyFilter()">
+      <i class="fas fa-warehouse me-1 text-primary"></i> Distribution Centers
+    </button>
+    <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'RetailBackroom'"
+      (click)="selectedStatusTab = 'RetailBackroom'; applyFilter()">
+      <i class="fas fa-store me-1 text-info"></i> Retail Backrooms
+    </button>
+    <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'FulfillmentCenter'"
+      (click)="selectedStatusTab = 'FulfillmentCenter'; applyFilter()">
+      <i class="fas fa-truck-loading me-1 text-warning"></i> Fulfillment Centers
+    </button>
+  </div>
+
+  <!-- Search & Filter Bar + View Mode Toggle -->
   <div class="wms-card p-2 px-3 mb-3">
     <div class="row g-2 align-items-center">
-      <div class="col-12 col-md-6 col-lg-5">
+      <div class="col-12 col-md-5 col-lg-4">
         <div class="wms-search-input">
           <i class="fas fa-search"></i>
           <input type="text" class="form-control form-control-sm" placeholder="Search by warehouse code, name, city..."
             [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" />
         </div>
       </div>
-      <div class="col-12 col-md-4 col-lg-3">
+      <div class="col-6 col-md-3 col-lg-3">
         <select class="form-select form-select-sm" [(ngModel)]="selectedTypeFilter" (ngModelChange)="applyFilter()">
-          <option [ngValue]="null">All Warehouse Types</option>
+          <option [ngValue]="null">All Facility Types</option>
           <option *ngFor="let t of warehouseTypes" [ngValue]="t.value">{{ t.key }}</option>
         </select>
       </div>
-      <div class="col-12 col-md-2 col-lg-4 text-md-end">
-        <span class="text-muted small">
-          Showing <strong>{{ filteredWarehouses.length }}</strong> of {{ warehouses.length }} warehouses
-          <span *ngIf="isLoading && warehouses.length > 0" class="spinner-border spinner-border-sm text-primary ms-1"
-            role="status" title="Syncing..."></span>
+      <div class="col-6 col-md-4 col-lg-2">
+        <select class="form-select form-select-sm" [(ngModel)]="sortBy" (ngModelChange)="applyFilter()">
+          <option value="name">Sort: Name (A-Z)</option>
+          <option value="code">Sort: Code</option>
+          <option value="areaDesc">Sort: Area (High to Low)</option>
+          <option value="areaAsc">Sort: Area (Low to High)</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg-3 d-flex justify-content-lg-end align-items-center gap-2">
+        <div class="view-toggle-group">
+          <button type="button" class="view-toggle-btn" [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'"
+            title="Card / Grid View">
+            <i class="fas fa-th-large"></i> Cards
+          </button>
+          <button type="button" class="view-toggle-btn" [class.active]="viewMode === 'table'"
+            (click)="viewMode = 'table'" title="Table / List View">
+            <i class="fas fa-list"></i> Table
+          </button>
+        </div>
+        <span class="text-muted small" style="font-size: 0.72rem;">
+          <strong>{{ filteredWarehouses.length }}</strong> / {{ warehouses.length }}
         </span>
       </div>
     </div>
@@ -135,12 +176,12 @@
     <button class="btn btn-wms-primary btn-sm mt-2" (click)="openCreateWarehouseModal()">Create First Warehouse</button>
   </div>
 
-  <!-- Warehouse Cards Grid (Instantly visible if cached or loaded) -->
-  <div *ngIf="filteredWarehouses.length > 0" class="row g-4">
-    <div *ngFor="let wh of filteredWarehouses" class="col-12 col-xl-6">
-      <div class="wh-facility-card">
-        <!-- Top Status Bar: Badges Left, Status Right -->
-        <div class="wh-card-top">
+  <!-- VIEW 1: Warehouse Cards Grid -->
+  <div *ngIf="filteredWarehouses.length > 0 && viewMode === 'grid'" class="row g-3">
+    <div *ngFor="let wh of paginatedWarehouses; trackBy: trackById" class="col-12 col-xl-6">
+      <div class="wh-facility-card p-3">
+        <!-- Top Status Bar: Badges Left, Status & Edit Right -->
+        <div class="wh-card-top mb-2 pb-2">
           <div class="wh-card-badges">
             <span class="wh-code-badge">{{ wh.code }}</span>
             <span class="wh-type-tag">
@@ -153,46 +194,186 @@
           </div>
         </div>
 
-        <!-- Facility Title (Full Width) -->
-        <h4 class="wh-title" [title]="wh.name">{{ wh.name }}</h4>
+        <!-- Facility Title & Regional Hub -->
+        <div class="d-flex justify-content-between align-items-baseline mb-1">
+          <h4 class="wh-title mb-0" [title]="wh.name" style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">{{
+            wh.name }}</h4>
+          <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.65rem;">{{ wh.country ||
+            'India' }}</span>
+        </div>
 
-        <!-- Single-Line Address & Phone Row (Full Width - Never wraps awkwardly in half) -->
-        <div class="wh-address-phone-row">
+        <!-- Single-Line Address & Phone Row -->
+        <div class="wh-address-phone-row mb-2">
           <div class="wh-address-line" [title]="wh.address + ', ' + wh.city + ', ' + wh.state + ' ' + wh.postalCode">
             <i class="fas fa-map-marker-alt"></i>
-            <span>{{ wh.address }}, {{ wh.city }}, {{ wh.state }} {{ wh.postalCode }}</span>
+            <span style="font-size: 0.73rem;">{{ wh.address }}, {{ wh.city }}, {{ wh.state }} {{ wh.postalCode }}</span>
           </div>
-          <div class="wh-phone-pill" [title]="wh.contactPhone || 'No contact registered'">
+          <a *ngIf="wh.contactPhone" [href]="'tel:' + wh.contactPhone" class="wh-phone-pill text-decoration-none"
+            [title]="wh.contactPhone">
             <i class="fas fa-phone-alt"></i>
-            <span>{{ wh.contactPhone || 'No contact registered' }}</span>
-          </div>
+            <span>{{ wh.contactPhone }}</span>
+          </a>
+          <span *ngIf="!wh.contactPhone" class="wh-phone-pill text-muted">
+            <i class="fas fa-phone-slash"></i>
+            <span>No Phone</span>
+          </span>
         </div>
 
-        <!-- Bottom Row: Specs on Left, Action Button on Right -->
-        <div class="wh-card-bottom-row">
-          <div class="wh-specs-group">
-            <div class="wh-stat-box">
-              <span class="stat-label">Total Floor Area</span>
-              <div class="stat-val">{{ wh.totalAreaSqFt | number }} sq.ft</div>
-            </div>
-            <div class="wh-stat-box">
-              <span class="stat-label">Facility Manager</span>
-              <div class="stat-val" [title]="wh.contactPerson || 'Facility Head'">
-                {{ wh.contactPerson || 'Facility Head' }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="wh-card-bottom-row">
-
-          <button type="button" class="btn-manage-facility" (click)="inspectWarehouse(wh)">
-            <span class="d-flex align-items-center gap-2">
-              <i class="fas fa-sitemap"></i>
-              <span>Manage Zones & Bins</span>
+        <!-- Estimated Storage Capacity Meter -->
+        <div class="wh-capacity-section mb-2.5">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="wh-cap-label">
+              <i class="fas fa-chart-pie me-1 text-primary"></i>Estimated Storage Utilization
             </span>
-            <i class="fas fa-arrow-right"></i>
+            <span class="wh-cap-val">{{ getCapacityPercent(wh) }}% Capacity</span>
+          </div>
+          <div class="progress" style="height: 4px; background-color: #e2e8f0; border-radius: 999px;">
+            <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(wh)"
+              style="background-color: #2563eb; border-radius: 999px;"></div>
+          </div>
+        </div>
+
+        <!-- Specs Row: Floor Area on Left, Facility Manager on Right -->
+        <div class="wh-card-bottom-row pt-2 mb-2 border-0">
+          <div class="wh-specs-group">
+            <div class="wh-stat-box py-1.5 px-2">
+              <span class="stat-label">Total Floor Area</span>
+              <div class="stat-val" style="font-size: 0.8rem;">{{ wh.totalAreaSqFt | number }} sq.ft</div>
+            </div>
+            <div class="wh-stat-box py-1.5 px-2">
+              <span class="stat-label">Facility Manager</span>
+              <div class="stat-val" [title]="wh.managerName || wh.contactPerson || 'Facility Head'"
+                style="font-size: 0.8rem;">
+                <i class="fas fa-user-tie text-primary me-1" *ngIf="wh.managerName"></i>
+                {{ wh.managerName || wh.contactPerson || 'Facility Head' }}
+              </div>
+              <small *ngIf="wh.managerDesignation" class="text-muted d-block text-truncate"
+                style="font-size: 0.65rem; max-width: 140px;">
+                {{ wh.managerDesignation }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Functional Actions Row -->
+        <div class="d-flex align-items-center gap-2 mt-auto pt-2 border-top">
+          <button type="button" class="btn-manage-facility" (click)="inspectWarehouse(wh)">
+            <i class="fas fa-sitemap"></i>
+            <span>Manage Zones & Bins</span>
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
+          <button type="button" class="btn-edit-facility" (click)="openEditWarehouseModal(wh)"
+            title="Edit Facility Details">
+            <i class="fas fa-edit"></i>
+            <span>Edit</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: Enterprise Table View (Zero Horizontal Scroll, Category Style) -->
+  <div *ngIf="filteredWarehouses.length > 0 && viewMode === 'table'" class="card categories-table-card overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 categories-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3" style="width: 12%;">Code</th>
+            <th style="width: 20%;">Facility & Location</th>
+            <th style="width: 14%;">Type</th>
+            <th style="width: 18%;">Manager & Contact</th>
+            <th style="width: 11%;">Floor Area</th>
+            <th style="width: 12%;">Status</th>
+            <th class="text-end pe-3" style="width: 13%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let wh of paginatedWarehouses; trackBy: trackById">
+            <td class="ps-3">
+              <span class="cat-code-text">{{ wh.code }}</span>
+            </td>
+            <td>
+              <span class="cat-name-text d-block text-truncate" [title]="wh.name">{{ wh.name }}</span>
+              <span class="cat-desc-text d-block text-truncate" [title]="wh.address + ', ' + wh.city + ', ' + wh.state">
+                <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 0.65rem;"></i>{{ wh.address }}, {{
+                wh.city }}
+              </span>
+            </td>
+            <td>
+              <span class="wh-type-tag">
+                {{ getTypeLabel(wh.type) }}
+              </span>
+            </td>
+            <td>
+              <span class="cat-name-text d-block text-truncate"
+                [title]="wh.managerName || wh.contactPerson || 'Facility Head'">
+                <i class="fas fa-user-tie text-primary me-1" *ngIf="wh.managerName"></i>
+                {{ wh.managerName || wh.contactPerson || 'Facility Head' }}
+              </span>
+              <span class="cat-desc-text text-muted d-block text-truncate">
+                <i class="fas fa-phone-alt text-success me-1" style="font-size: 0.65rem;"></i>{{ wh.contactPhone || '—'
+                }}
+              </span>
+            </td>
+            <td>
+              <span class="fw-bold text-dark">{{ wh.totalAreaSqFt | number }}</span>
+              <span class="text-muted small ms-1" style="font-size: 0.68rem;">sq.ft</span>
+            </td>
+            <td>
+              <span class="cat-status-badge" [ngClass]="wh.isActive ? 'active' : 'inactive'">
+                {{ wh.isActive ? 'Operational' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="text-end pe-3">
+              <div class="d-inline-flex gap-1">
+                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" (click)="inspectWarehouse(wh)"
+                  title="Manage Zones & Bins" style="font-size: 0.72rem; height: 26px;">
+                  <i class="fas fa-sitemap"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2"
+                  (click)="openEditWarehouseModal(wh)" title="Edit Warehouse" style="font-size: 0.72rem; height: 26px;">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Pagination Footer (50 Limit default) -->
+    <div class="wh-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small" style="font-size: 0.73rem;">
+          Showing <strong>{{ paginationStart }}</strong> -
+          <strong>{{ paginationEnd }}</strong>
+          of <strong>{{ filteredWarehouses.length }}</strong> facilities
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="text-muted small" style="font-size: 0.7rem;">Per page:</span>
+          <select class="form-select form-select-sm py-0 px-2" style="font-size: 0.72rem; height: 26px; width: 68px;"
+            [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" [disabled]="currentPage === 1"
+          (click)="prevPage()" style="font-size: 0.72rem; height: 26px;">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="px-2 text-muted small fw-semibold" style="font-size: 0.72rem;">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" [disabled]="currentPage >= totalPages"
+          (click)="nextPage()" style="font-size: 0.72rem; height: 26px;">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -200,53 +381,99 @@
   <!-- Warehouse Zones & Bins Inspection Modal / Workspace -->
   <div *ngIf="selectedWarehouse" class="modal fade show d-block" tabindex="-1"
     style="background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(6px); z-index: 1050;">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered wms-workspace-modal-dialog">
       <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
 
-        <!-- Header -->
+        <!-- Modern WMS Facility Workspace Header -->
         <div class="wms-inspection-header d-flex justify-content-between align-items-center">
-          <div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <h5 class="font-weight-bold text-white mb-0">{{ selectedWarehouse.name }}</h5>
-              <span class="badge bg-primary font-monospace">{{ selectedWarehouse.code }}</span>
-              <span class="badge bg-secondary">{{ getTypeLabel(selectedWarehouse.type) }}</span>
+          <div class="d-flex align-items-center gap-3">
+            <div class="wms-header-icon-box">
+              <i class="fas fa-warehouse"></i>
             </div>
-            <p class="small text-white-50 mb-0 mt-1">
-              <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ selectedWarehouse.city }}, {{
-              selectedWarehouse.state }} &bull; Total Area: {{ selectedWarehouse.totalAreaSqFt | number }} sq.ft
-            </p>
+            <div>
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                <h5 class="facility-title mb-0">{{ selectedWarehouse.name }}</h5>
+                <span class="facility-code-pill">{{ selectedWarehouse.code }}</span>
+                <span class="facility-type-pill">{{ getTypeLabel(selectedWarehouse.type) }}</span>
+                <span class="facility-status-pill">
+                  <i class="fas fa-check-circle me-1"></i>Operational
+                </span>
+              </div>
+              <div class="facility-meta-line d-flex align-items-center gap-2 flex-wrap">
+                <span>
+                  <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ selectedWarehouse.city }}, {{
+                  selectedWarehouse.state }}
+                </span>
+                <span>&bull;</span>
+                <span>
+                  <i class="fas fa-ruler-combined text-primary me-1"></i>{{ selectedWarehouse.totalAreaSqFt | number }}
+                  sq.ft
+                </span>
+                <span *ngIf="selectedWarehouse.contactPerson">&bull;</span>
+                <span *ngIf="selectedWarehouse.contactPerson">
+                  <i class="fas fa-user-tie text-secondary me-1"></i>{{ selectedWarehouse.contactPerson }}
+                </span>
+              </div>
+            </div>
           </div>
-          <button type="button" class="btn-close btn-close-white" (click)="closeInspection()"></button>
+          <button type="button" class="btn-close" (click)="closeInspection()"></button>
         </div>
 
-        <!-- Tab Navigation Bar -->
-        <div class="border-bottom px-4 pt-2 pb-2">
+        <!-- Facility Metrics Quick Strip -->
+        <div class="wms-inspection-metric-bar d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="metric-item">
+              <i class="fas fa-th-large text-primary"></i>
+              <span>Zones: <strong>{{ selectedWarehouseZones.length }}</strong></span>
+            </div>
+            <div class="metric-item">
+              <i class="fas fa-barcode text-success"></i>
+              <span>Bins: <strong>{{ selectedWarehouseLocations.length }}</strong></span>
+            </div>
+            <div class="metric-item">
+              <i class="fas fa-snowflake text-info"></i>
+              <span>Cold Chain: <strong>{{ coldZonesCount }}</strong></span>
+            </div>
+            <div class="metric-item">
+              <i class="fas fa-box text-secondary"></i>
+              <span>Ambient: <strong>{{ ambientZonesCount }}</strong></span>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-muted small">Storage Utilization:</span>
+            <div class="progress" style="width: 100px; height: 6px; background-color: #e2e8f0; border-radius: 999px;">
+              <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(selectedWarehouse)"
+                style="background-color: #2563eb; border-radius: 999px;"></div>
+            </div>
+            <span class="fw-bold small text-dark">{{ getCapacityPercent(selectedWarehouse) }}%</span>
+          </div>
+        </div>
+
+        <!-- Modern Tabs Navigation Bar -->
+        <div class="wms-modal-tabs-bar">
           <ul class="nav nav-pills wms-modal-tabs">
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'zones'" (click)="activeDetailTab = 'zones'">
-                <i class="fas fa-th-large me-2"></i>Storage Zones
-                <span class="badge ms-2"
-                  [ngClass]="activeDetailTab === 'zones' ? 'bg-white text-primary' : 'bg-secondary'">{{
-                  selectedWarehouseZones.length }}</span>
+                <i class="fas fa-th-large me-1.5"></i>Storage Zones
+                <span class="badge ms-1.5">{{ selectedWarehouseZones.length }}</span>
               </button>
             </li>
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'bins'" (click)="activeDetailTab = 'bins'">
-                <i class="fas fa-barcode me-2"></i>Barcode Bins & Shelves
-                <span class="badge ms-2"
-                  [ngClass]="activeDetailTab === 'bins' ? 'bg-white text-primary' : 'bg-secondary'">{{
-                  selectedWarehouseLocations.length }}</span>
+                <i class="fas fa-barcode me-1.5"></i>Barcode Bins & Shelves
+                <span class="badge ms-1.5">{{ selectedWarehouseLocations.length }}</span>
               </button>
             </li>
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'guide'" (click)="activeDetailTab = 'guide'">
-                <i class="fas fa-sitemap me-2"></i>Facility Hierarchy Guide
+                <i class="fas fa-sitemap me-1.5"></i>Facility Hierarchy Guide
               </button>
             </li>
           </ul>
         </div>
 
-        <div class="modal-body p-4 bg-white" style="min-height: 400px;">
+        <div class="modal-body p-4 bg-white wms-workspace-modal-body">
 
           <!-- Loading State for Modal -->
           <div *ngIf="isLoadingDetails || isQuickSettingUp" class="text-center py-5">
@@ -258,12 +485,25 @@
 
           <!-- TAB 1: Storage Zones -->
           <div *ngIf="!isLoadingDetails && !isQuickSettingUp && activeDetailTab === 'zones'">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-              <div>
-                <h6 class="font-weight-bold text-dark mb-0">Configured Storage Zones</h6>
-                <span class="text-muted small">Distinct chambers, cold chain rooms, and pallet racking zones inside this
-                  facility</span>
+            <!-- Controls row: Search, Filter, Add Zone -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 500px;">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                  <input type="text" class="form-control border-start-0 ps-0"
+                    placeholder="Search zone by code, name, storage type..." [(ngModel)]="zoneSearchQuery">
+                </div>
+                <select class="form-select form-select-sm" style="width: 160px;" [(ngModel)]="selectedZoneTypeFilter">
+                  <option value="all">All Storage Types</option>
+                  <option value="cold">❄️ Cold Chain</option>
+                  <option value="ambient">📦 Ambient Dry</option>
+                  <option [value]="0">Bulk Reserve</option>
+                  <option [value]="1">Pallet Racks</option>
+                  <option [value]="2">Cold Storage</option>
+                  <option [value]="3">Hazardous</option>
+                </select>
               </div>
+
               <div class="d-flex gap-2">
                 <button *ngIf="selectedWarehouseZones.length === 0"
                   class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
@@ -281,56 +521,76 @@
             </div>
 
             <!-- Empty Zones State -->
-            <div *ngIf="selectedWarehouseZones.length === 0" class="p-5 text-center border rounded-3 bg-light">
+            <div *ngIf="filteredZones.length === 0" class="p-5 text-center border rounded-3 bg-light">
               <i class="fas fa-th-large text-muted fa-3x mb-3"></i>
-              <h5 class="text-dark font-weight-bold">No Storage Zones Configured Yet</h5>
-              <p class="text-muted mx-auto" style="max-width: 520px; font-size: 0.9rem;">
-                Warehouses require designated storage zones (such as <strong>Ambient Dry Storage</strong> and
-                <strong>Cold Storage Chamber</strong>). Please create a Zone first before mapping storage bins and inventory items.
+              <h6 class="text-dark font-weight-bold">
+                {{ selectedWarehouseZones.length === 0 ? 'No Storage Zones Configured Yet' : 'No zones match your
+                filter' }}
+              </h6>
+              <p class="text-muted small mx-auto" style="max-width: 480px;">
+                {{ selectedWarehouseZones.length === 0 ? 'Storage zones define physical rooms (such as Ambient Dry
+                Storage and Cold Storage Chambers). Create a zone to begin mapping barcode bins.' : 'Try adjusting your
+                search query or storage type filter.' }}
               </p>
-              <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
-                <button class="btn btn-primary d-flex align-items-center gap-2" (click)="quickSetupDefaultZones()">
-                  <i class="fas fa-magic"></i>
-                  <span>✨ 1-Click Quick Setup (Ambient + Cold Chain)</span>
+              <div *ngIf="selectedWarehouseZones.length === 0"
+                class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                <button class="btn btn-wms-primary btn-sm" (click)="quickSetupDefaultZones()">
+                  <i class="fas fa-magic me-1"></i> 1-Click Quick Setup (Ambient + Cold Chain)
                 </button>
-                <button class="btn btn-outline-secondary" (click)="openCreateZoneModal()">
+                <button class="btn btn-outline-secondary btn-sm" (click)="openCreateZoneModal()">
                   <i class="fas fa-plus me-1"></i> Add Custom Zone
                 </button>
               </div>
             </div>
 
-            <!-- Zones Grid -->
-            <div *ngIf="selectedWarehouseZones.length > 0" class="row g-3">
-              <div *ngFor="let zone of selectedWarehouseZones" class="col-12 col-md-6 col-lg-4">
-                <div class="wms-zone-card shadow-sm">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-dark font-monospace">{{ zone.code }}</span>
-                    <span class="wms-badge"
-                      [ngClass]="zone.temperatureMinCelsius !== null ? 'wms-badge-info' : 'wms-badge-primary'">
-                      {{ zone.temperatureMinCelsius !== null ? '❄️ Cold Chain' : 'Ambient' }}
+            <!-- Upgraded Zone Cards Grid -->
+            <div *ngIf="filteredZones.length > 0" class="row g-3">
+              <div *ngFor="let zone of filteredZones" class="col-12 col-md-6 col-lg-4">
+                <div class="wms-zone-card">
+                  <!-- Header row: Code tag on left, Storage type pill on right -->
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="zone-code-tag">{{ zone.code }}</span>
+                    <span class="zone-type-badge"
+                      [ngClass]="zone.temperatureMinCelsius !== null || zone.storageType === 2 ? 'cold' : (zone.storageType === 3 ? 'hazmat' : 'ambient')">
+                      {{ zone.temperatureMinCelsius !== null || zone.storageType === 2 ? '❄️ Cold Chain' :
+                      (zone.storageType === 3 ? '⚠️ Hazardous' : '📦 Ambient') }}
                     </span>
                   </div>
-                  <h6 class="font-weight-bold text-dark mb-1">{{ zone.name }}</h6>
-                  <div class="text-muted small mb-3">{{ getStorageTypeLabel(zone.storageType) }}</div>
 
-                  <div class="p-2 rounded border mb-3">
-                    <div class="d-flex justify-content-between small text-muted">
-                      <span>Mapped Bins:</span>
+                  <h6 class="zone-name">{{ zone.name }}</h6>
+                  <span class="zone-storage-type">{{ getStorageTypeLabel(zone.storageType) }}</span>
+
+                  <!-- Metric box inside card -->
+                  <div class="zone-metric-box">
+                    <div class="metric-row">
+                      <span class="text-muted">Mapped Bins:</span>
                       <strong class="text-dark">{{ getBinsCountForZone(zone.id) }} locations</strong>
                     </div>
-                    <div *ngIf="zone.temperatureMinCelsius !== null"
-                      class="d-flex justify-content-between small text-info mt-1">
-                      <span>Temperature:</span>
-                      <strong>{{ zone.temperatureMinCelsius }}°C to {{ zone.temperatureMaxCelsius }}°C</strong>
+                    <div class="metric-row" *ngIf="zone.temperatureMinCelsius !== null">
+                      <span class="text-muted">Temperature:</span>
+                      <strong class="text-info">{{ zone.temperatureMinCelsius }}°C to {{ zone.temperatureMaxCelsius
+                        }}°C</strong>
+                    </div>
+                    <div class="metric-row" *ngIf="zone.temperatureMinCelsius === null">
+                      <span class="text-muted">Environment:</span>
+                      <strong class="text-secondary">Dry / Ambient (15°C - 25°C)</strong>
                     </div>
                   </div>
 
-                  <button type="button"
-                    class="btn btn-sm btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
-                    (click)="activeDetailTab = 'bins'; selectedZoneFilter = zone.id || 'all'">
-                    <i class="fas fa-barcode"></i>
-                    <span>View Bins in this Zone</span>
-                  </button>
+                  <!-- Actions footer row -->
+                  <div class="zone-actions">
+                    <button type="button" class="btn btn-view-bins"
+                      (click)="activeDetailTab = 'bins'; selectedZoneFilter = zone.id || 'all'">
+                      <i class="fas fa-barcode me-1"></i>View Bins
+                    </button>
+                    <button type="button" class="btn btn-add-bin-quick" (click)="openCreateLocationInZone(zone)"
+                      title="Add Bin directly inside this zone">
+                      <i class="fas fa-plus me-1"></i>Add Bin
+                    </button>
+                    <button type="button" class="btn btn-delete-zone" (click)="deleteZone(zone)" title="Delete Zone">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -338,34 +598,32 @@
 
           <!-- TAB 2: Barcode Bins & Shelves -->
           <div *ngIf="!isLoadingDetails && !isQuickSettingUp && activeDetailTab === 'bins'">
-            <!-- When 0 Zones exist, show warning -->
             <div *ngIf="selectedWarehouseZones.length === 0" class="alert alert-warning p-4 border-warning">
               <div class="d-flex gap-3 align-items-center">
                 <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
                 <div>
                   <h6 class="font-weight-bold mb-1">Storage Zone Required First!</h6>
                   <p class="mb-2 small">
-                    Bin locations (Aisle-Rack-Shelf-Bin) must belong to a Storage Zone. This
-                    facility currently has no configured zones. Please create a Zone first or use Quick Setup.
+                    Bin locations (Aisle-Rack-Shelf-Bin) must belong to a Storage Zone. This facility currently has no
+                    configured zones.
                   </p>
-                  <button class="btn btn-sm btn-primary" (click)="activeDetailTab = 'zones'">
+                  <button class="btn btn-sm btn-wms-primary" (click)="activeDetailTab = 'zones'">
                     <i class="fas fa-arrow-left me-1"></i> Go to Zones & Create First Zone
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- When Zones DO exist -->
             <div *ngIf="selectedWarehouseZones.length > 0">
               <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div>
-                  <h6 class="font-weight-bold text-dark mb-0">Barcode Storage Locations & Shelves</h6>
+                  <h6 class="font-weight-bold text-dark mb-0">Scannable Storage Bins & Shelves</h6>
                   <span class="text-muted small">4-coordinate locations (Aisle-Rack-Shelf-Bin) for automated FEFO
-                    picking</span>
+                    putaway and picking</span>
                 </div>
                 <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
                   (click)="openCreateLocationModal()">
-                  <i class="fas fa-barcode"></i>
+                  <i class="fas fa-plus"></i>
                   <span>Add Bin Location</span>
                 </button>
               </div>
@@ -374,13 +632,15 @@
               <div class="row g-2 mb-3">
                 <div class="col-12 col-md-5">
                   <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Filter by barcode, aisle, rack..."
-                      [(ngModel)]="binSearchQuery" />
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0"
+                      placeholder="Filter by barcode, aisle, rack, shelf..." [(ngModel)]="binSearchQuery"
+                      (ngModelChange)="binCurrentPage = 1">
                   </div>
                 </div>
                 <div class="col-12 col-md-4">
-                  <select class="form-select form-select-sm" [(ngModel)]="selectedZoneFilter">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedZoneFilter"
+                    (ngModelChange)="binCurrentPage = 1">
                     <option value="all">All Storage Zones ({{ selectedWarehouseLocations.length }})</option>
                     <option *ngFor="let z of selectedWarehouseZones" [value]="z.id">
                       {{ z.code }} - {{ z.name }} ({{ getBinsCountForZone(z.id) }})
@@ -394,151 +654,235 @@
               </div>
 
               <!-- Empty Bins State -->
-              <div *ngIf="selectedWarehouseLocations.length === 0" class="p-5 text-center border rounded-3 bg-light">
+              <div *ngIf="filteredLocations.length === 0" class="p-5 text-center border rounded-3 bg-light">
                 <i class="fas fa-barcode text-muted fa-3x mb-3"></i>
-                <h6 class="text-dark font-weight-bold">No Bin Locations Created Yet</h6>
+                <h6 class="text-dark font-weight-bold">No Bin Locations Found</h6>
                 <p class="text-muted small mx-auto" style="max-width: 450px;">
-                  Storage zones are ready! You can now define racks, shelves, and scannable barcode bins within each zone.
+                  {{ selectedWarehouseLocations.length === 0 ? 'Storage zones are ready! You can now define racks,
+                  shelves, and scannable barcode bins.' : 'No bins match your search filter in this zone.' }}
                 </p>
-                <button class="btn btn-sm btn-wms-primary" (click)="openCreateLocationModal()">
+                <button *ngIf="selectedWarehouseLocations.length === 0" class="btn btn-sm btn-wms-primary"
+                  (click)="openCreateLocationModal()">
                   <i class="fas fa-plus me-1"></i> Add First Bin Location
                 </button>
               </div>
 
               <!-- Bins Table -->
-              <div *ngIf="selectedWarehouseLocations.length > 0" class="table-responsive border bg-white wms-grid-card">
-                <table class="wms-table">
-                  <thead>
-                    <tr>
-                      <th>Barcode</th>
-                      <th>Zone</th>
-                      <th>Coordinates (A-R-S-B)</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Capacity</th>
-                      <th>Pick Face</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let loc of filteredLocations">
-                      <td>
-                        <span class="font-monospace font-weight-bold text-primary">
-                          <i class="fas fa-barcode me-1"></i>{{ loc.barcode }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="badge bg-light text-dark border">
-                          {{ getZoneByLocation(loc)?.code || 'Zone' }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="text-dark font-weight-bold">
-                          {{ loc.aisle }}-{{ loc.rack }}-{{ loc.shelf }}-{{ loc.bin }}
-                        </span>
-                      </td>
-                      <td>{{ getLocationTypeLabel(loc.locationType) }}</td>
-                      <td>
-                        <span class="wms-badge" [ngClass]="getLocationStatusBadge(loc.status)">
-                          {{ getLocationStatusLabel(loc.status) }}
-                        </span>
-                      </td>
-                      <td>{{ loc.maxWeightKg }} kg</td>
-                      <td>
-                        <span *ngIf="loc.isPickFace" class="text-success small"><i class="fas fa-check"></i> Yes</span>
-                        <span *ngIf="!loc.isPickFace" class="text-muted small">Reserve</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div *ngIf="filteredLocations.length > 0" class="card border overflow-hidden" style="border-radius: 8px;">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0 wms-table" style="font-size: 0.78rem;">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="ps-3" style="width: 250px;">Scannable Barcode</th>
+                        <th style="width: 140px;">Zone</th>
+                        <th style="width: 150px;">Coordinates (A-R-S-B)</th>
+                        <th style="width: 120px;">Type</th>
+                        <th style="width: 100px;">Status</th>
+                        <th style="width: 100px;">Max Weight</th>
+                        <th style="width: 90px;">Pick Face</th>
+                        <th class="text-end pe-3" style="width: 80px;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let loc of paginatedLocations">
+                        <td class="ps-3">
+                          <div class="d-flex align-items-center gap-1.5">
+                            <span class="font-monospace text-primary fw-bold" style="font-size: 0.75rem;">
+                              <i class="fas fa-barcode me-1 text-secondary"></i>{{ loc.barcode }}
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-muted ms-1"
+                              (click)="copyBarcodeToClipboard(loc.barcode)" title="Copy Barcode">
+                              <i class="far fa-copy"></i>
+                            </button>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.7rem;">
+                            {{ getZoneByLocation(loc)?.code || 'Zone' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.7rem;">
+                            {{ loc.aisle }} &bull; {{ loc.rack }} &bull; {{ loc.shelf }} &bull; {{ loc.bin }}
+                          </span>
+                        </td>
+                        <td>{{ getLocationTypeLabel(loc.locationType) }}</td>
+                        <td>
+                          <span class="wms-badge" [ngClass]="getLocationStatusBadge(loc.status)">
+                            {{ getLocationStatusLabel(loc.status) }}
+                          </span>
+                        </td>
+                        <td>{{ loc.maxWeightKg }} kg</td>
+                        <td>
+                          <span *ngIf="loc.isPickFace" class="text-success small fw-semibold"><i
+                              class="fas fa-check-circle me-1"></i>Yes</span>
+                          <span *ngIf="!loc.isPickFace" class="text-muted small">Reserve</span>
+                        </td>
+                        <td class="text-end pe-3">
+                          <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1.5"
+                            (click)="deleteLocation(loc)" title="Delete Bin" style="font-size: 0.7rem; height: 26px;">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Bins Pagination -->
+                <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center"
+                  *ngIf="filteredLocations.length > binPageSize">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="pagination-info">
+                      Showing <strong>{{ binPaginationStart }}</strong> - <strong>{{ binPaginationEnd }}</strong> of
+                      <strong>{{ filteredLocations.length }}</strong> bins
+                    </span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-pagination" [disabled]="binCurrentPage === 1"
+                      (click)="binPrevPage()">
+                      <i class="fas fa-chevron-left me-1"></i> Prev
+                    </button>
+                    <span class="pagination-page-indicator">Page {{ binCurrentPage }} of {{ binTotalPages }}</span>
+                    <button type="button" class="btn btn-pagination" [disabled]="binCurrentPage >= binTotalPages"
+                      (click)="binNextPage()">
+                      Next <i class="fas fa-chevron-right ms-1"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- TAB 3: Hierarchy Guide -->
           <div *ngIf="activeDetailTab === 'guide'">
-            <h6 class="font-weight-bold text-dark mb-1">Facility Network Architecture</h6>
-            <p class="text-muted small mb-4">Understanding how physical warehouses translate into digital barcodes,
-              inventory lots, and picking routes.</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6 class="font-weight-bold text-dark mb-0">Facility Network Architecture</h6>
+                <span class="text-muted small">How physical storage facilities translate into scannable barcodes,
+                  inventory batches, and FEFO picking routes.</span>
+              </div>
+            </div>
 
             <div class="row g-3">
               <div class="col-12 col-md-3">
                 <div class="wms-hierarchy-step">
-                  <div class="badge bg-primary mb-2">Step 1</div>
-                  <h6 class="font-weight-bold text-dark">🏢 Warehouse Facility</h6>
-                  <p class="small text-muted mb-0">
-                    The overall physical campus or building (e.g. {{ selectedWarehouse.name }}). Holds address,
-                    capacity, and city hub details.
+                  <span class="step-badge step-1">Step 1</span>
+                  <h6 class="step-title">🏢 Warehouse Facility</h6>
+                  <p class="step-desc">
+                    The overall central distribution hub or fulfillment center (e.g., <strong>{{ selectedWarehouse.name
+                      }}</strong>). Holds geographic address, square footage, and regional compliance.
                   </p>
                 </div>
               </div>
               <div class="col-12 col-md-3">
                 <div class="wms-hierarchy-step">
-                  <div class="badge bg-info text-dark mb-2">Step 2</div>
-                  <h6 class="font-weight-bold text-dark">📦 Storage Zones</h6>
-                  <p class="small text-muted mb-0">
-                    Physical chambers inside the building. E.g., Cold Chain (2°C - 8°C), Ambient Pallet Reserve,
-                    Mezzanine, or Quarantine.
+                  <span class="step-badge step-2">Step 2</span>
+                  <h6 class="step-title">📦 Storage Zones</h6>
+                  <p class="step-desc">
+                    Designated temperature or security chambers inside the facility. E.g., Cold Chain (2°C - 8°C),
+                    Ambient Pallet Storage, Hazardous chemicals, or Quarantine.
                   </p>
                 </div>
               </div>
               <div class="col-12 col-md-3">
                 <div class="wms-hierarchy-step">
-                  <div class="badge bg-success mb-2">Step 3</div>
-                  <h6 class="font-weight-bold text-dark">🏷️ Barcode Bins</h6>
-                  <p class="small text-muted mb-0">
-                    4-coordinate scannable slots (Aisle, Rack, Shelf, Bin). Putaway workers scan this code on mobile
-                    handheld scanners.
+                  <span class="step-badge step-3">Step 3</span>
+                  <h6 class="step-title">🏷️ Barcode Bins</h6>
+                  <p class="step-desc">
+                    4-coordinate physical bin locations (Aisle-Rack-Shelf-Bin). Workers scan this barcode with hand-held
+                    mobile terminals during putaway and picking.
                   </p>
                 </div>
               </div>
               <div class="col-12 col-md-3">
                 <div class="wms-hierarchy-step">
-                  <div class="badge bg-warning text-dark mb-2">Step 4</div>
-                  <h6 class="font-weight-bold text-dark">📊 Stock Inventory</h6>
-                  <p class="small text-muted mb-0">
-                    Specific product SKUs, batches, expiry dates, and quantities stored directly into these scannable
-                    bins.
+                  <span class="step-badge step-4">Step 4</span>
+                  <h6 class="step-title">📊 Stock Inventory</h6>
+                  <p class="step-desc">
+                    Individual product SKUs, manufacturing lots, expiry dates, and serialized units assigned directly to
+                    each scannable bin location for live tracking.
                   </p>
                 </div>
+              </div>
+            </div>
+
+            <!-- Interactive Barcode Breakdown Box (Solid Advanced Feature) -->
+            <div class="barcode-visualizer-box">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-barcode text-primary fa-lg"></i>
+                <h6 class="font-weight-bold text-dark mb-0">Standard WMS Barcode Composition Structure</h6>
+              </div>
+              <p class="text-muted small mt-1 mb-2">
+                Every scannable bin follows an automated 7-segment deterministic naming convention for instantaneous
+                mobile scanning:
+              </p>
+              <div class="barcode-chip-group">
+                <span class="barcode-chip chip-prefix" title="Location Identifier">LOC</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-facility" title="Facility Code">{{ selectedWarehouse.code }}</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-zone" title="Zone Code">{{ selectedWarehouseZones[0]?.code || 'ZN-AMB'
+                  }}</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-aisle" title="Aisle Number">A01</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-rack" title="Rack Number">R01</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-shelf" title="Shelf Level">S1</span>
+                <span class="text-muted fw-bold">&ndash;</span>
+                <span class="barcode-chip chip-bin" title="Bin Slot">B01</span>
               </div>
             </div>
           </div>
 
         </div>
 
-        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <span class="text-muted small">
-            Status: <span class="badge bg-success">Operational</span> &bull; Facility: <strong>{{ selectedWarehouse.code
-              }}</strong>
-          </span>
-          <button type="button" class="btn btn-wms-cancel" (click)="closeInspection()">Close Workspace</button>
+        <!-- Workspace Footer -->
+        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center bg-light border-top"
+          style="padding: 0.75rem 1.6rem;">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.72rem;">
+              <i class="fas fa-check-circle me-1"></i>Operational
+            </span>
+            <span class="text-muted small" style="font-size: 0.73rem;">
+              Facility Code: <strong class="text-dark font-monospace">{{ selectedWarehouse.code }}</strong> &bull; Total
+              Area: <strong>{{ selectedWarehouse.totalAreaSqFt | number }} sq.ft</strong>
+            </span>
+          </div>
+          <button type="button" class="btn btn-category-cancel btn-sm" (click)="closeInspection()">Close
+            Workspace</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Create Warehouse -->
-  <div *ngIf="isCreateWarehouseModalOpen" class="modal fade show d-block" tabindex="-1"
-    style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(6px); z-index: 1060;">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+  <!-- Modal: Register / Edit Warehouse (Right Slide-Over Drawer) -->
+  <div *ngIf="isCreateWarehouseModalOpen" class="modal fade show d-block wh-drawer-modal" tabindex="-1">
+    <div class="modal-dialog wh-drawer-dialog">
+      <div class="modal-content wh-drawer-content">
 
-        <!-- Header (Indigo Gradient - NO BLACK) -->
-        <div class="wms-modal-header d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <div class="wms-modal-icon-badge">
-              <i class="fas fa-warehouse text-white"></i>
+        <!-- Header -->
+        <div class="modal-header wh-drawer-header text-white d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <div
+              class="wh-drawer-icon-box bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
+              <i class="fas fa-warehouse"></i>
             </div>
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0">Register New Warehouse</h5>
-              <p class="small text-white-50 mb-0 mt-0.5">Configure warehouse identity, storage capacity, and regional
-                address</p>
+              <h5 class="modal-title font-weight-bold text-white mb-0" style="font-size: 0.95rem;">
+                {{ editingWarehouseId ? 'Edit Warehouse Facility' : 'Register New Warehouse' }}
+              </h5>
+              <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
+                {{ editingWarehouseId ? 'Update facility parameters, floor capacity & manager' : 'Configure warehouse
+                identity, floor area & regional address' }}
+              </p>
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="isCreateWarehouseModalOpen = false"></button>
         </div>
 
-        <div class="modal-body px-4 py-3" style="background-color: #ffffff;">
+        <div class="modal-body wh-drawer-body" style="background-color: #ffffff;">
           <!-- Section 1: Identification & Classification -->
           <div class="wms-form-section-title">
             <i class="fas fa-id-card text-primary"></i>
@@ -624,11 +968,35 @@
           </div>
           <div class="row g-2">
             <div class="col-md-6">
-              <label class="wms-compact-label">Facility Manager / Head *</label>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="wms-compact-label mb-0">Facility Manager / Head *</label>
+                <a routerLink="/faculty" class="small text-primary text-decoration-none fw-semibold" target="_blank"
+                  title="Manage Faculty Members" style="font-size: 0.7rem;">
+                  <i class="fas fa-external-link-alt me-1"></i>+ Faculty
+                </a>
+              </div>
               <div class="wms-input-icon-group">
-                <i class="fas fa-user-circle input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Rahul Sharma"
-                  [(ngModel)]="newWarehouse.contactPerson" />
+                <i class="fas fa-user-tie input-icon"></i>
+                <select class="form-select" [(ngModel)]="newWarehouse.managerId"
+                  (ngModelChange)="onManagerSelected($event)">
+                  <option [ngValue]="null">-- Select Faculty / Manager --</option>
+                  <option *ngFor="let fac of facultyLookups" [ngValue]="fac.id">
+                    {{ fac.displayName }}
+                  </option>
+                </select>
+              </div>
+              <div class="mt-1" *ngIf="!newWarehouse.managerId">
+                <input type="text" class="form-control form-control-sm"
+                  placeholder="Or enter name manually (e.g. Rahul Sharma)" [(ngModel)]="newWarehouse.contactPerson" />
+              </div>
+              <div class="mt-1 d-flex align-items-center justify-content-between" *ngIf="newWarehouse.managerId">
+                <small class="text-success fw-semibold" style="font-size: 0.68rem;">
+                  <i class="fas fa-check-circle me-1"></i>Linked: {{ newWarehouse.contactPerson }}
+                </small>
+                <button type="button" class="btn btn-link btn-sm p-0 text-muted" style="font-size: 0.68rem;"
+                  (click)="newWarehouse.managerId = null">
+                  Unlink
+                </button>
               </div>
             </div>
             <div class="col-md-6">
@@ -642,16 +1010,16 @@
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <button type="button" class="btn btn-wms-cancel" (click)="isCreateWarehouseModalOpen = false">
+        <!-- Drawer Footer -->
+        <div class="modal-footer wh-drawer-footer d-flex justify-content-between align-items-center px-4 py-2.5">
+          <button type="button" class="btn btn-category-cancel" (click)="isCreateWarehouseModalOpen = false">
             Cancel
           </button>
-          <button type="button" class="btn btn-wms-submit" 
+          <button type="button" class="btn btn-category-save d-flex align-items-center gap-1.5"
             [disabled]="!newWarehouse.code || !newWarehouse.name || !newWarehouse.address || !newWarehouse.city || !newWarehouse.state || !newWarehouse.postalCode || (newWarehouse.totalAreaSqFt || 0) <= 0"
             (click)="saveWarehouse()">
-            <i class="fas fa-check"></i>
-            <span>Save Warehouse</span>
+
+            <span>{{ editingWarehouseId ? 'Update Facility' : 'Save Warehouse' }}</span>
           </button>
         </div>
       </div>
@@ -721,10 +1089,10 @@
         </div>
 
         <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <button type="button" class="btn btn-wms-cancel" (click)="isCreateZoneModalOpen = false">Cancel</button>
-          <button type="button" class="btn btn-wms-submit" [disabled]="!newZone.code || !newZone.name"
+          <button type="button" class="btn btn-category-cancel" (click)="isCreateZoneModalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-category-save" [disabled]="!newZone.code || !newZone.name"
             (click)="saveZone()">
-            <i class="fas fa-check"></i>
+            <i class="fas fa-check me-1"></i>
             <span>Save Zone</span>
           </button>
         </div>
@@ -807,10 +1175,11 @@
         </div>
 
         <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <button type="button" class="btn btn-wms-cancel" (click)="isCreateLocationModalOpen = false">Cancel</button>
-          <button type="button" class="btn btn-wms-submit" [disabled]="!newLocation.zoneId || !newLocation.barcode"
+          <button type="button" class="btn btn-category-cancel"
+            (click)="isCreateLocationModalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-category-save" [disabled]="!newLocation.zoneId || !newLocation.barcode"
             (click)="saveLocation()">
-            <i class="fas fa-check"></i>
+            <i class="fas fa-check me-1"></i>
             <span>Save Bin Location</span>
           </button>
         </div>

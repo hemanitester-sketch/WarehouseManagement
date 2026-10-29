@@ -29,6 +29,50 @@ export class CategoriesComponent implements OnInit {
   tierFilter: 'all' | 'root' | 'sub' = 'all';
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
 
+  // Pagination State (50 Limit default)
+  currentPage = 1;
+  pageSize = 50;
+
+  get paginatedCategories(): CategoryDto[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredCategories.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredCategories.length / this.pageSize) || 1;
+  }
+
+  get paginationStart(): number {
+    return this.filteredCategories.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredCategories.length);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+  }
+
   // Modal State
   isModalOpen = false;
   editingCategoryId: string | null = null;
@@ -70,6 +114,7 @@ export class CategoriesComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+    this.currentPage = 1;
   }
 
   updateMetrics(): void {
@@ -114,6 +159,7 @@ export class CategoriesComponent implements OnInit {
 
       return matchesSearch && matchesTier && matchesStatus;
     });
+    this.currentPage = 1;
   }
 
   openCreateModal(preselectedParent?: CategoryDto): void {
@@ -195,6 +241,7 @@ export class CategoriesComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+    this.currentPage = 1;
   }
 
   deleteCategory(category: CategoryDto): void {
@@ -222,5 +269,6 @@ export class CategoriesComponent implements OnInit {
         this.toasterService.error(msg, 'Error');
       },
     });
+    this.currentPage = 1;
   }
 }

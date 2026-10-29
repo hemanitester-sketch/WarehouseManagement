@@ -57,6 +57,12 @@ public class WarehouseManagementDbContext :
     public DbSet<WarehouseManagement.Warehouses.WarehouseZone> WarehouseZones { get; set; }
     public DbSet<WarehouseManagement.Warehouses.WarehouseLocation> WarehouseLocations { get; set; }
 
+    // Faculty & Staff
+    public DbSet<WarehouseManagement.Faculty.FacultyMember> FacultyMembers { get; set; }
+
+    // Suppliers & Vendors
+    public DbSet<WarehouseManagement.Suppliers.Supplier> Suppliers { get; set; }
+
     // Products
     public DbSet<WarehouseManagement.Products.Category> Categories { get; set; }
     public DbSet<WarehouseManagement.Products.Product> Products { get; set; }
@@ -114,6 +120,59 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.ContactEmail).HasMaxLength(WarehouseManagement.Warehouses.WarehouseConsts.MaxEmailLength);
 
             b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ManagerId });
+
+            b.HasOne<WarehouseManagement.Faculty.FacultyMember>()
+                .WithMany()
+                .HasForeignKey(x => x.ManagerId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WarehouseManagement.Faculty.FacultyMember>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "FacultyMembers", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.EmployeeCode).IsRequired().HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxEmployeeCodeLength);
+            b.Property(x => x.FullName).IsRequired().HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxFullNameLength);
+            b.Property(x => x.Designation).IsRequired().HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxDesignationLength);
+            b.Property(x => x.Department).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxDepartmentLength);
+            b.Property(x => x.Email).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxEmailLength);
+            b.Property(x => x.PhoneNumber).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxPhoneLength);
+            b.Property(x => x.EmergencyContactName).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxEmergencyContactLength);
+            b.Property(x => x.EmergencyContactPhone).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxPhoneLength);
+            b.Property(x => x.Shift).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxShiftLength);
+            b.Property(x => x.Qualifications).HasMaxLength(WarehouseManagement.Faculty.FacultyConsts.MaxQualificationsLength);
+
+            b.HasIndex(x => new { x.TenantId, x.EmployeeCode }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.AssignedWarehouseId });
+
+            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+                .WithMany()
+                .HasForeignKey(x => x.AssignedWarehouseId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WarehouseManagement.Suppliers.Supplier>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "Suppliers", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxCodeLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxNameLength);
+            b.Property(x => x.ContactPerson).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxContactPersonLength);
+            b.Property(x => x.Email).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxEmailLength);
+            b.Property(x => x.PhoneNumber).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxPhoneLength);
+            b.Property(x => x.TaxNumber).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxTaxNumberLength);
+            b.Property(x => x.Address).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxAddressLength);
+            b.Property(x => x.City).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxCityLength);
+            b.Property(x => x.State).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxStateLength);
+            b.Property(x => x.PostalCode).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxPostalCodeLength);
+            b.Property(x => x.PaymentTerms).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxPaymentTermsLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxNotesLength);
+
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
         });
 
         builder.Entity<WarehouseManagement.Warehouses.WarehouseZone>(b =>

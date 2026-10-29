@@ -4,7 +4,7 @@
     <div>
       <div class="d-flex align-items-center gap-2">
         <h2 class="h4 font-weight-bold text-dark mb-0">Product Categories & Subcategories</h2>
-        <span class="wms-badge wms-badge-purple categories-badge">Multi-Tier Hierarchy</span>
+        <span class="wms-badge wms-badge-primary categories-badge">Multi-Tier Hierarchy</span>
       </div>
       <p class="text-muted small mb-0 mt-0.5 categories-subtitle">
         Organize your warehouse product catalog into top-level parent categories and specialized subcategories.
@@ -150,7 +150,7 @@
               </td>
             </tr>
           } @else {
-            @for (cat of filteredCategories; track cat.id) {
+            @for (cat of paginatedCategories; track cat.id) {
               <tr>
                 <td class="ps-3">
                   <span class="cat-code-text">{{ cat.code }}</span>
@@ -206,6 +206,39 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredCategories.length }}</strong> categories
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Create / Edit Modal (Right-Side Full-Height Drawer) -->
@@ -222,8 +255,8 @@
                 <i class="fas fa-tags"></i>
               </div>
               <div>
-                <h5 class="category-modal-title mb-0">{{ modalTitle }}</h5>
-                <span class="category-modal-subtitle text-muted">Configure hierarchy tier, code, and catalog visibility</span>
+                <h5 class="category-modal-title font-weight-bold mb-0 text-white">{{ modalTitle }}</h5>
+                <span class="category-modal-subtitle text-white-50">Configure hierarchy tier, code, and catalog visibility</span>
               </div>
             </div>
             <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>

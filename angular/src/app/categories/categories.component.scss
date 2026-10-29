@@ -12,7 +12,8 @@
 .categories-subtitle {
   font-size: 0.78rem;
 }
-.font-normal{
+
+.font-normal {
   font-size: 0.7rem !important;
 }
 
@@ -287,14 +288,16 @@
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
 .category-modal-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #edf2f7 !important;
+  background: #759ef8 !important;
+  border-radius: 0 !important;
+  padding: 1rem 1.4rem;
   flex-shrink: 0;
 }
 
@@ -574,4 +577,3 @@
     transform: none;
   }
 }
-

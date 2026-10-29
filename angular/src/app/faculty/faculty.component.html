@@ -1,0 +1,592 @@
+<div class="container-fluid faculty-container">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Faculty & Facility Managers</h2>
+        <span class="wms-badge wms-badge-primary">Personnel Directory</span>
+      </div>
+      <p class="text-muted small mb-0 mt-1">
+        Personnel directory, facility manager assignments, contact details, and shift schedules.
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+        <i class="fas fa-plus pe-1"></i>
+        <span>Register Faculty Member</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-blue-soft text-primary">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="kpi-details">
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ totalFaculty }}</div>
+        <span class="kpi-label">Total Staff</span>
+        <span class="kpi-subtext">Registered Personnel</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-green-soft text-success">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <div class="kpi-details">
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ activeManagers }}</div>
+        <span class="kpi-label">Active Managers</span>
+        <span class="kpi-subtext">Operational & On-duty</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-purple-soft text-purple">
+        <i class="bi bi-building"></i>
+      </div>
+      <div class="kpi-details">
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ assignedFacilities }}</div>
+        <span class="kpi-label">Assigned Facilities</span>
+        <span class="kpi-subtext">Warehouses Mapped</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap bg-orange-soft text-warning">
+        <i class="bi bi-pause-circle"></i>
+      </div>
+      <div class="kpi-details">
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ onLeaveOrInactive }}</div>
+        <span class="kpi-label">Leave / Inactive</span>
+        <span class="kpi-subtext">Off-duty or Suspended</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2 p-md-3">
+      <div class="row g-2 align-items-center">
+        <!-- Search -->
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0 ps-0"
+              placeholder="Search by name, code, role, phone, or email..."
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="applyFilters()"
+            />
+          </div>
+        </div>
+
+        <!-- Warehouse Filter -->
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedWarehouseFilter !== 'all'"
+            [(ngModel)]="selectedWarehouseFilter"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="all">All Warehouses</option>
+            <option value="unassigned">Unassigned Only</option>
+            <option *ngFor="let wh of warehouses" [value]="wh.id">
+              {{ wh.code }} - {{ wh.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Shift Filter -->
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedShiftFilter !== 'all'"
+            [(ngModel)]="selectedShiftFilter"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="all">All Shifts</option>
+            <option value="General">General Shift</option>
+            <option value="Morning">Morning Shift</option>
+            <option value="Evening">Evening Shift</option>
+            <option value="Night">Night Shift</option>
+            <option value="Rotational">Rotational</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-6 col-md-2">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedStatusFilter !== 'all'"
+            [(ngModel)]="selectedStatusFilter"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="leave">On Leave</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="col-6 col-md-2 text-md-end">
+          <button class="btn btn-outline-secondary btn-sm w-100" (click)="resetFilters()">
+            <i class="fas fa-undo-alt me-1"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Faculty Table (Identical to Category Table Style) -->
+  <div class="card categories-table-card overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table categories-table faculty-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3" style="width: 100px;">Code</th>
+            <th style="width: 90px;">Faculty Member</th>
+            <th style="width: 180px;">Role & Department</th>
+            <th style="width: 140px;">Assigned Facility</th>
+            <th style="width: 140px;">Contact Details</th>
+            <th style="width: 150px;">Shift</th>
+            <th style="width: 80px;">Status</th>
+            <th class="text-end pe-3" style="width: 90px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="8" class="text-center py-5">
+                <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                <span class="text-muted">Loading faculty members...</span>
+              </td>
+            </tr>
+          } @else if (filteredMembers.length === 0) {
+            <tr>
+              <td colspan="8" class="text-center py-5">
+                <div class="text-muted mb-2">
+                  <i class="fas fa-user-tie fs-2 text-secondary opacity-50"></i>
+                </div>
+                <p class="mb-2 fw-semibold text-dark">No faculty members found</p>
+                <p class="text-muted small mb-3">
+                  {{ searchQuery || selectedWarehouseFilter !== 'all' || selectedStatusFilter !== 'all' ? 'Try adjusting your search filters.' : 'Get started by registering your first faculty member.' }}
+                </p>
+                <button *ngIf="!searchQuery" class="btn btn-sm btn-wms-primary" (click)="openCreateModal()">
+                  <i class="fas fa-plus me-1"></i> Register Faculty Member
+                </button>
+              </td>
+            </tr>
+          } @else {
+            @for (member of paginatedMembers; track member.id) {
+              <tr>
+                <td class="ps-3">
+                  <span class="cat-code-text">{{ member.employeeCode }}</span>
+                </td>
+                <td>
+                  <span class="cat-name-text d-block text-truncate" [title]="member.fullName">{{ member.fullName }}</span>
+                  @if (member.qualifications) {
+                    <span class="cat-desc-text text-muted text-truncate d-block" [title]="member.qualifications" style="font-size: 0.68rem;">
+                      {{ member.qualifications }}
+                    </span>
+                  }
+                </td>
+                <td>
+                  <span class="cat-name-text d-block text-truncate" [title]="member.designation">{{ member.designation }}</span>
+                  <span class="cat-desc-text text-muted d-block text-truncate" [title]="member.department || 'Warehouse Operations'">
+                    {{ member.department || 'Warehouse Operations' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="cat-tier-sub d-block text-truncate" [title]="member.warehouseName || member.assignedWarehouseName || 'Unassigned'">
+                    {{ member.warehouseName || member.assignedWarehouseName || '— Unassigned' }}
+                  </span>
+                  @if (member.warehouseCode || member.assignedWarehouseCode) {
+                    <span class="cat-desc-text text-muted d-block text-truncate" style="font-size: 0.68rem;">
+                      Code: {{ member.warehouseCode || member.assignedWarehouseCode }}
+                    </span>
+                  }
+                </td>
+                <td>
+                  <span class="cat-code-text d-block text-truncate" [title]="member.phoneNumber || ''">
+                    <i class="fas fa-phone-alt text-success me-1" style="font-size: 0.65rem;"></i>{{ member.phoneNumber || '—' }}
+                  </span>
+                  <span class="cat-desc-text text-muted d-block text-truncate" [title]="member.email || ''">
+                    {{ member.email || '—' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="cat-tier-main d-block text-truncate" [title]="member.shift || 'General'">
+                    {{ member.shift || 'General' }}
+                  </span>
+                  @if (member.joiningDate) {
+                    <span class="cat-desc-text text-muted d-block text-truncate" style="font-size: 0.68rem;">
+                      {{ member.joiningDate | date:'mediumDate' }}
+                    </span>
+                  }
+                </td>
+                <td>
+                  @if (member.isActive) {
+                    <span class="cat-status-badge active">
+                      <i class="fas fa-check-circle"></i> Active
+                    </span>
+                  } @else {
+                    <span class="cat-status-badge inactive">
+                      <i class="fas fa-minus-circle"></i> Inactive
+                    </span>
+                  }
+                </td>
+                <td class="text-end pe-3">
+                  <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-edit"
+                      title="Edit Faculty Member"
+                      (click)="openEditModal(member)"
+                    >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-delete"
+                      title="Delete Faculty Member"
+                      (click)="deleteFaculty(member)"
+                    >
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredMembers.length }}</strong> members
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- RIGHT-SIDE FULL-HEIGHT SLIDE-OVER DRAWER   -->
+<!-- ========================================== -->
+<div *ngIf="isModalOpen" class="modal fade show d-block faculty-drawer-modal" tabindex="-1">
+  <div class="modal-dialog faculty-drawer-dialog">
+    <div class="modal-content faculty-modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header faculty-modal-header text-white">
+        <div class="d-flex align-items-center gap-2">
+          <div class="drawer-header-icon bg-white text-primary rounded-circle p-2 d-flex align-items-center justify-content-center">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold text-white mb-0">{{ modalTitle }}</h5>
+            <small class="text-white-50">Manage professional profile, facility mapping & contact credentials</small>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          aria-label="Close"
+          (click)="closeModal()"
+        ></button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="modal-body faculty-modal-body">
+        <form (ngSubmit)="saveFaculty()">
+          <!-- Section 1: Identification & Basic Info -->
+          <div class="drawer-form-section mb-4">
+            <h6 class="section-title text-primary fw-bold text-uppercase pb-2 border-bottom">
+              <i class="fas fa-id-card me-1"></i> 1. Identification & Profile
+            </h6>
+
+            <div class="row g-3">
+              <div class="col-md-5">
+                <label class="form-label fw-semibold small">Employee Code <span class="text-danger">*</span></label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light"><i class="fas fa-hashtag text-muted"></i></span>
+                  <input
+                    type="text"
+                    class="form-control text-uppercase fw-bold"
+                    placeholder="FAC-101"
+                    [(ngModel)]="formModel.employeeCode"
+                    name="employeeCode"
+                    required
+                  />
+                </div>
+                <small class="text-muted" style="font-size: 0.68rem;">Unique staff tracking ID</small>
+              </div>
+
+              <div class="col-md-7">
+                <label class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="e.g. Ramesh Chandra Verma"
+                    [(ngModel)]="formModel.fullName"
+                    name="fullName"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Designation / Role <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  list="designationOptions"
+                  class="form-control form-control-sm"
+                  placeholder="Select or enter role"
+                  [(ngModel)]="formModel.designation"
+                  name="designation"
+                  required
+                />
+                <datalist id="designationOptions">
+                  <option *ngFor="let desig of designationPresets" [value]="desig"></option>
+                </datalist>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Department</label>
+                <input
+                  type="text"
+                  list="deptOptions"
+                  class="form-control form-control-sm"
+                  placeholder="e.g. Operations"
+                  [(ngModel)]="formModel.department"
+                  name="department"
+                />
+                <datalist id="deptOptions">
+                  <option *ngFor="let dept of departmentPresets" [value]="dept"></option>
+                </datalist>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Facility Assignment & Schedule -->
+          <div class="drawer-form-section mb-4">
+            <h6 class="section-title text-primary fw-bold text-uppercase pb-2 border-bottom">
+              <i class="fas fa-building me-1"></i> 2. Facility Assignment & Shift
+            </h6>
+
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label fw-semibold small">Assigned Warehouse / Facility</label>
+                <select
+                  class="form-select form-select-sm"
+                  [(ngModel)]="formModel.warehouseId"
+                  name="warehouseId"
+                >
+                  <option [ngValue]="null">-- Not Assigned (Floating / Unassigned) --</option>
+                  <option *ngFor="let wh of warehouses" [ngValue]="wh.id">
+                    {{ wh.code }} - {{ wh.name }} ({{ wh.city || 'India' }})
+                  </option>
+                </select>
+                <small class="text-muted" style="font-size: 0.68rem;">
+                  Links this faculty member as the responsible manager/staff for the facility.
+                </small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Shift Schedule</label>
+                <select
+                  class="form-select form-select-sm"
+                  [(ngModel)]="formModel.shift"
+                  name="shift"
+                >
+                  <option *ngFor="let s of shiftPresets" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Joining Date</label>
+                <input
+                  type="date"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="formModel.joiningDate"
+                  name="joiningDate"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Contact & Emergency Directory -->
+          <div class="drawer-form-section mb-4">
+            <h6 class="section-title text-primary fw-bold text-uppercase pb-2 border-bottom">
+              <i class="fas fa-phone-square-alt me-1"></i> 3. Contact & Emergency Details
+            </h6>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Official Email Address</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light"><i class="fas fa-envelope text-muted"></i></span>
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="name@warehousemanagement.com"
+                    [(ngModel)]="formModel.email"
+                    name="email"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Primary Phone Number</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light"><i class="fas fa-mobile-alt text-muted"></i></span>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    placeholder="+91 98765 43210"
+                    [(ngModel)]="formModel.phoneNumber"
+                    name="phoneNumber"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Emergency Contact Person</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="e.g. Spouse / Parent / Relative"
+                  [(ngModel)]="formModel.emergencyContactName"
+                  name="emergencyContactName"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Emergency Phone (ICE)</label>
+                <input
+                  type="tel"
+                  class="form-control form-control-sm"
+                  placeholder="+91 91234 56789"
+                  [(ngModel)]="formModel.emergencyContactPhone"
+                  name="emergencyContactPhone"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Qualifications & Administrative Status -->
+          <div class="drawer-form-section mb-3">
+            <h6 class="section-title text-primary fw-bold text-uppercase pb-2 border-bottom">
+              <i class="fas fa-clipboard-check me-1"></i> 4. Qualifications & Operational Status
+            </h6>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Qualifications / Certifications</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="e.g. MBA Logistics, Six Sigma Green Belt"
+                  [(ngModel)]="formModel.qualifications"
+                  name="qualifications"
+                />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label fw-semibold small">Attendance Status</label>
+                <select
+                  class="form-select form-select-sm"
+                  [(ngModel)]="formModel.status"
+                  name="status"
+                >
+                  <option value="Active">Active</option>
+                  <option value="On Leave">On Leave</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div class="col-md-3 d-flex flex-column justify-content-center">
+                <label class="form-label fw-semibold small mb-1">System Active</label>
+                <div class="form-check form-switch mt-1">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="isActiveSwitch"
+                    [(ngModel)]="formModel.isActive"
+                    name="isActive"
+                  />
+                  <label class="form-check-label small" for="isActiveSwitch">
+                    {{ formModel.isActive ? 'Active' : 'Disabled' }}
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label fw-semibold small">Operational Notes / Special Remarks</label>
+                <textarea
+                  class="form-control form-control-sm"
+                  rows="2"
+                  placeholder="Any facility keys held, safety responsibilities, or specific expertise..."
+                  [(ngModel)]="formModel.notes"
+                  name="notes"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
+        <button type="button" class="btn btn-outline-secondary btn-sm px-3" (click)="closeModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-wms-submit btn-sm px-4"
+          [disabled]="isSaving"
+          (click)="saveFaculty()"
+        >
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1" role="status"></span>
+          <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+          <span>{{ isEditing ? 'Update Faculty Member' : 'Register Faculty Member' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

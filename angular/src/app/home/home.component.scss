@@ -1,44 +1,143 @@
 .dashboard-page {
-  padding: 0.5rem 0 1.5rem 0;
+  padding: 0.25rem 0 5rem 0 !important;
+  margin-bottom: 2.5rem !important;
 }
 
-.dashboard-title {
-  font-size: 1.55rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.01em;
+/* Header Row - Strict Single Row Alignment (No Wrapping) */
+.dashboard-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap !important;
+
+  .header-text-block {
+    min-width: 0;
+    flex: 1 1 auto;
+
+    h2 {
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .dashboard-subtitle {
+      font-size: 0.75rem;
+      color: #64748b;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 580px;
+
+      @media (max-width: 1400px) {
+        max-width: 420px;
+      }
+
+      @media (max-width: 1200px) {
+        max-width: 320px;
+      }
+    }
+  }
+
+  .header-actions-block {
+    flex-shrink: 0;
+  }
 }
 
-.dashboard-subtitle {
-  font-size: 0.85rem;
-  color: #64748b;
+.border-slate-100 {
+  border-color: #f1f5f9 !important;
 }
 
-.date-badge {
+.telemetry-pill {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  .pulse-dot {
+    width: 6.5px;
+    height: 6.5px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    display: inline-block;
+    animation: pulse-dot-anim 2s infinite ease-in-out;
+  }
+}
+
+@keyframes pulse-dot-anim {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.facility-dropdown-wrap {
+  .facility-select {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #334155;
+    padding: 0.32rem 1.8rem 0.32rem 0.65rem !important;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 135px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+  }
+}
+
+.shift-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.76rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.sync-btn {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.825rem;
-  color: #334155;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  padding: 0.35rem 0.75rem;
+  transition: all 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
+
+  .spin {
+    animation: fa-spin 1s infinite linear;
+  }
 }
 
-/* KPI Cards */
+/* 1. Spacious 4-Card Operational Pulse Grid */
 .kpi-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 0.85rem 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
   }
 
   .kpi-icon-box {
@@ -48,30 +147,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     flex-shrink: 0;
-    border: 1px solid #dbeafe;
-  }
-
-  .min-w-0 {
-    min-width: 0;
   }
 
   .kpi-label {
-    font-size: 0.775rem;
+    font-size: 0.76rem;
     color: #64748b;
     font-weight: 600;
     margin-bottom: 0.15rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.25;
   }
 
   .kpi-value-row {
     display: flex;
     align-items: baseline;
     gap: 0.3rem;
-    white-space: nowrap;
 
     .kpi-value {
       font-size: 1.35rem;
@@ -82,30 +173,28 @@
     }
 
     .kpi-unit {
-      font-size: 0.725rem;
-      color: #64748b;
+      font-size: 0.72rem;
+      color: #94a3b8;
       font-weight: 500;
     }
   }
 
   .kpi-trend {
-    font-size: 0.725rem;
+    font-size: 0.72rem;
     margin-top: 0.25rem;
     display: flex;
     align-items: center;
     gap: 5px;
-    white-space: nowrap;
-    overflow: hidden;
 
     .trend-pill {
       display: inline-flex;
       align-items: center;
       gap: 3px;
       font-weight: 600;
-      padding: 1px 6px;
+      padding: 1.5px 6px;
       border-radius: 4px;
       font-size: 0.7rem;
-      line-height: 1.3;
+      line-height: 1.25;
       flex-shrink: 0;
     }
 
@@ -122,33 +211,133 @@
     .trend-sub {
       color: #64748b;
       font-weight: 500;
-      font-size: 0.725rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.72rem;
     }
   }
 }
 
-/* Dashboard Standard Card */
+/* 2. Pipeline Banner */
+.pipeline-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+
+  .pipeline-flow-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .pipeline-step-node {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    padding: 0.45rem 0.65rem;
+    position: relative;
+    transition: all 0.15s ease;
+
+    &.step-active {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+
+      .step-icon-wrap {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+      }
+    }
+
+    &.step-done {
+      .step-icon-wrap {
+        background: #ecfdf5;
+        color: #059669;
+        border-color: #a7f3d0;
+      }
+    }
+
+    .step-icon-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: #475569;
+      flex-shrink: 0;
+    }
+
+    .step-count-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+
+      .step-num {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #0f172a;
+        line-height: 1;
+      }
+
+      .step-name {
+        font-weight: 600;
+        font-size: 0.74rem;
+        color: #334155;
+      }
+    }
+
+    .step-desc {
+      font-size: 0.66rem;
+      color: #64748b;
+      line-height: 1.2;
+    }
+
+    .step-connector {
+      margin-left: auto;
+      color: #cbd5e1;
+      font-size: 0.75rem;
+
+      @media (max-width: 992px) {
+        display: none;
+      }
+    }
+  }
+}
+
+/* 3. Dashboard Standard Card */
 .dash-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
   overflow: hidden;
   max-width: 100%;
   box-sizing: border-box;
 
   .dash-card-title {
-    font-size: 0.975rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #0f172a;
+    letter-spacing: -0.01em;
   }
 
   .card-link {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: #2563eb;
     text-decoration: none;
@@ -161,14 +350,14 @@
   }
 }
 
-/* Stock Movement Chart */
+/* Stock Movement Chart & Throughput */
 .chart-container {
-  min-height: 200px;
+  min-height: 180px;
 }
 
 .chart-legend {
   .legend-item {
-    font-size: 0.775rem;
+    font-size: 0.68rem;
     color: #64748b;
     display: inline-flex;
     align-items: center;
@@ -184,18 +373,16 @@
   }
 }
 
-.font-size-12 {
-  font-size: 0.75rem;
+.throughput-summary-strip {
+  .border-slate-100 {
+    border-color: #f1f5f9 !important;
+  }
 }
 
-.fs-xs {
-  font-size: 0.65rem;
-}
-
-/* Donut Chart */
+/* Donut Chart & Warehouse Legend */
 .donut-wrapper {
-  width: 140px;
-  height: 140px;
+  width: 115px;
+  height: 115px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -212,14 +399,14 @@
     pointer-events: none;
 
     .donut-center-val {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #0f172a;
       line-height: 1.1;
     }
 
     .donut-center-lbl {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: #64748b;
       font-weight: 500;
     }
@@ -230,26 +417,88 @@
   min-width: 140px;
 
   .legend-color-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: inline-block;
   }
 
   .legend-wh-name {
-    font-size: 0.825rem;
+    font-size: 0.76rem;
     color: #334155;
     font-weight: 500;
   }
 }
 
-/* Recent Activities Timeline */
+/* Top SKUs Table */
+.top-products-table {
+  thead th {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 7px 9px;
+    letter-spacing: 0.03em;
+  }
+
+  tbody td {
+    font-size: 0.76rem;
+    padding: 8px 9px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .sku-pill {
+    font-size: 0.7rem;
+    background: #f1f5f9;
+    color: #334155;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+  }
+
+  .stock-health-pill {
+    padding: 2px 7px;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.68rem;
+    display: inline-block;
+    line-height: 1.25;
+
+    &.status-optimal {
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    &.status-warning {
+      background-color: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+
+    &.status-danger {
+      background-color: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+  }
+}
+
+/* Activities Timeline */
 .activities-timeline {
   overflow: hidden;
   width: 100%;
 
   .timeline-row {
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.45rem;
     border-bottom: 1px solid #f8fafc;
     width: 100%;
     min-width: 0;
@@ -261,22 +510,22 @@
     }
 
     .timeline-dot-wrapper {
-      padding-top: 4px;
+      padding-top: 3px;
       flex-shrink: 0;
 
       .timeline-dot {
-        width: 9px;
-        height: 9px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         display: inline-block;
       }
     }
 
     .timeline-title {
-      font-size: 0.825rem;
+      font-size: 0.77rem;
       font-weight: 600;
       color: #0f172a;
-      line-height: 1.2;
+      line-height: 1.25;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -284,10 +533,10 @@
     }
 
     .timeline-desc {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #64748b;
-      line-height: 1.3;
-      margin-top: 2px;
+      line-height: 1.25;
+      margin-top: 1px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -302,161 +551,94 @@
     }
 
     .timeline-time {
-      font-size: 0.725rem;
+      font-size: 0.7rem;
       font-weight: 600;
       color: #334155;
       white-space: nowrap;
     }
 
     .timeline-date {
-      font-size: 0.675rem;
+      font-size: 0.65rem;
       color: #94a3b8;
       white-space: nowrap;
     }
   }
 }
 
-/* Top Products Table */
-.top-products-table {
-  thead th {
-    font-size: 0.725rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #64748b;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 8px 10px;
-    letter-spacing: 0.03em;
-  }
-
-  tbody td {
-    font-size: 0.825rem;
-    padding: 9px 10px;
-    border-bottom: 1px solid #f8fafc;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  .product-icon-avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    background: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    color: #475569;
-    flex-shrink: 0;
-  }
-
-  .sku-pill {
-    font-size: 0.725rem;
-    background: #f1f5f9;
-    color: #475569;
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-family: monospace;
-    font-weight: 500;
-  }
-}
-
-/* Orders Overview */
-.orders-overview-list {
-  .order-metric-item {
-    padding: 0.4rem 0.2rem;
-
-    .order-metric-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: #2563eb;
-      flex-shrink: 0;
-    }
-
-    .order-metric-name {
-      font-size: 0.825rem;
-      font-weight: 500;
-      color: #64748b;
-      margin-bottom: 2px;
-    }
-
-    .order-metric-count {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1;
-    }
-
-    .order-trend-pill {
-      font-size: 0.725rem;
-      font-weight: 600;
-
-      &.trend-up {
-        color: #10b981;
-      }
-
-      &.trend-down {
-        color: #ef4444;
-      }
-    }
-  }
-}
-
-/* Quick Actions Grid */
-.quick-actions-grid {
+/* Quick Actions Modern Grid */
+.quick-actions-grid-modern {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
 
-  .quick-action-tile {
+  .quick-action-tile-modern {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 14px 10px;
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    gap: 0.55rem;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.16s ease;
     outline: none;
+    width: 100%;
 
     &:hover {
       background: #eff6ff;
-      border-color: #93c5fd;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
 
-      .quick-action-icon {
-        transform: scale(1.1);
-        color: #1d4ed8;
+      .quick-action-icon-modern {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
       }
 
-      .quick-action-text {
+      .quick-action-title {
         color: #1d4ed8;
       }
     }
 
-    .quick-action-icon {
-      font-size: 1.25rem;
+    .quick-action-icon-modern {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #2563eb;
-      transition: transform 0.2s ease, color 0.2s ease;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      transition: all 0.16s ease;
     }
 
-    .quick-action-text {
-      font-size: 0.785rem;
+    .quick-action-title {
+      font-size: 0.75rem;
       font-weight: 600;
-      color: #334155;
-      text-align: center;
+      color: #0f172a;
       line-height: 1.2;
-      transition: color 0.2s ease;
+    }
+
+    .quick-action-subtitle {
+      font-size: 0.65rem;
+      color: #64748b;
+      line-height: 1.15;
     }
   }
 }
+
+/* Telemetry Box */
+.telemetry-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Utility Micro-Typography */
+.font-size-10 { font-size: 0.625rem !important; }
+.font-size-11 { font-size: 0.6875rem !important; }
+.font-size-12 { font-size: 0.75rem !important; }
+.font-size-13 { font-size: 0.8125rem !important; }

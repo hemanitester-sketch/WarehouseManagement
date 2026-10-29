@@ -31,6 +31,8 @@ public class Warehouse : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public string? ContactEmail { get; set; }
 
+    public Guid? ManagerId { get; set; }
+
     public double TotalAreaSqFt { get; set; }
 
     public bool IsActive { get; set; }
@@ -54,7 +56,8 @@ public class Warehouse : FullAuditedAggregateRoot<Guid>, IMultiTenant
         string? contactPhone = null,
         string? contactEmail = null,
         double totalAreaSqFt = 0,
-        bool isActive = true)
+        bool isActive = true,
+        Guid? managerId = null)
         : base(id)
     {
         TenantId = tenantId;
@@ -71,6 +74,7 @@ public class Warehouse : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ContactEmail = contactEmail;
         TotalAreaSqFt = totalAreaSqFt;
         IsActive = isActive;
+        ManagerId = managerId;
     }
 
     public void SetCode(string code)

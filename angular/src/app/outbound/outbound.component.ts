@@ -90,6 +90,50 @@ export class OutboundComponent implements OnInit {
   statusOptions = outboundOrderStatusOptions;
   priorityOptions = orderPriorityOptions;
 
+  // Pagination State (50 Limit default)
+  currentPage = 1;
+  pageSize = 50;
+
+  get paginatedOrders(): OutboundOrderDto[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.orders.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.orders.length / this.pageSize) || 1;
+  }
+
+  get paginationStart(): number {
+    return this.orders.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.orders.length);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+  }
+
   // KPI Calculations
   get totalOrdersCount(): number {
     return this.orders.length;
@@ -150,6 +194,7 @@ export class OutboundComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.orders = res.items || [];
+        this.currentPage = 1;
         this.isLoading = false;
         this.cdr.detectChanges();
       },

@@ -1,3 +1,4 @@
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 /* You can add global styles to this file, and also import other style files */
 
 @keyframes donut-spin {
@@ -76,6 +77,14 @@ select,
       color: #ffffff !important;
       -webkit-text-fill-color: #ffffff !important;
     }
+  }
+
+  &.filter-active {
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+    font-weight: 600 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1) !important;
   }
 }
 
@@ -172,7 +181,7 @@ body {
 
   &.wms-badge-primary {
     background-color: var(--wms-primary-light);
-    color: var(--wms-primary);
+    color: #2563eb;
   }
   &.wms-badge-success {
     background-color: var(--wms-success-bg);
@@ -198,20 +207,21 @@ body {
 
 /* WMS Buttons */
 .btn-wms-primary {
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-  color: white;
-  border: none;
+  background: #2563eb !important;
+  border: 1px solid #2563eb !important;
+  color: #ffffff !important;
   font-weight: 600;
-  border-radius: var(--wms-radius-sm);
-  padding: 0.55rem 1.15rem;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  border-radius: 6px;
+  padding: 0.38rem 0.85rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-    color: white;
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: #ffffff !important;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
   }
 }
 
@@ -633,92 +643,473 @@ body {
   }
 }
 
-/* WMS Modal Tabs & Inspection Workspace */
-.wms-modal-tabs {
-  gap: 0.5rem;
-  
-  .nav-link {
-    color: #64748b;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 0.55rem 1.15rem;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
+/* ==========================================================================
+   WMS Inspection Workspace & Zone/Bin Manager
+   ========================================================================== */
+.wms-workspace-modal-dialog {
+  max-width: 1240px !important;
+  width: 95vw !important;
+  height: calc(100vh - 2.5rem) !important;
+  max-height: calc(100vh - 2.5rem) !important;
+  margin: 1.25rem auto !important;
+  display: flex !important;
+  flex-direction: column !important;
 
-    &:hover {
-      color: #1e293b;
-      background-color: #f1f5f9;
-    }
+  .modal-content {
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+  }
 
-    &.active {
-      color: #ffffff;
-      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-    }
+  .wms-inspection-header {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .wms-inspection-metric-bar {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .wms-modal-tabs-bar {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .modal-body,
+  .wms-workspace-modal-body {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .modal-footer,
+  .wms-modal-footer {
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 5 !important;
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .wms-workspace-modal-dialog {
+    width: 98vw !important;
+    height: calc(100vh - 1rem) !important;
+    max-height: calc(100vh - 1rem) !important;
+    margin: 0.5rem auto !important;
   }
 }
 
 .wms-inspection-header {
-  background: linear-gradient(135deg, rgb(70, 142, 229) 0%, rgb(95, 136, 202) 100%);
-  color: #ffffff;
-  padding: 1.25rem 1.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-}
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 1.15rem 1.6rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
 
-.wms-zone-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.2rem;
-  transition: all 0.2s ease;
-  height: 100%;
+  .wms-header-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    border: 1px solid #dbeafe;
+    flex-shrink: 0;
+  }
 
-  &:hover {
-    border-color: #cbd5e1;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+  .facility-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
+
+  .facility-code-pill {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: monospace;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+  }
+
+  .facility-type-pill {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+  }
+
+  .facility-status-pill {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+  }
+
+  .facility-meta-line {
+    font-size: 0.75rem;
+    color: #64748b;
   }
 }
 
-.wms-hierarchy-step {
+/* Facility Metrics Strip inside Workspace */
+.wms-inspection-metric-bar {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.6rem 1.6rem;
+  font-size: 0.75rem;
+
+  .metric-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #64748b;
+
+    strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    i {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+/* Modal Tabs Navigation */
+.wms-modal-tabs-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.45rem 1.6rem;
+
+  .wms-modal-tabs {
+    gap: 0.4rem;
+    
+    .nav-link {
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 0.42rem 0.95rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      background: transparent;
+
+      &:hover:not(.active) {
+        color: #0f172a;
+        background-color: #f1f5f9;
+      }
+
+      &.active {
+        color: #ffffff !important;
+        background: #2563eb !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+        font-weight: 600;
+
+        .badge {
+          background-color: rgba(255, 255, 255, 0.28) !important;
+          color: #ffffff !important;
+        }
+      }
+
+      .badge {
+        font-size: 0.68rem;
+        background-color: #e2e8f0;
+        color: #475569;
+        padding: 0.18rem 0.45rem;
+        border-radius: 9999px;
+      }
+    }
+  }
+}
+
+/* Zone Card Aesthetics */
+.wms-zone-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  padding: 1rem 1.1rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
-  position: relative;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    border-color: #93c5fd !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px -4px rgba(37, 99, 235, 0.12) !important;
+  }
+
+  .zone-code-tag {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: monospace;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+  }
+
+  .zone-type-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    line-height: 1.2;
+
+    &.cold {
+      background-color: #ecfeff;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+    }
+
+    &.ambient {
+      background-color: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    &.hazmat {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fed7aa;
+    }
+  }
+
+  .zone-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 0.15rem;
+  }
+
+  .zone-storage-type {
+    font-size: 0.72rem;
+    color: #64748b;
+  }
+
+  .zone-metric-box {
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 7px;
+    padding: 0.55rem 0.75rem;
+    margin: 0.75rem 0;
+    font-size: 0.74rem;
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      &:not(:last-child) {
+        margin-bottom: 0.35rem;
+      }
+    }
+  }
+
+  .zone-actions {
+    margin-top: auto;
+    padding-top: 0.6rem;
+    display: flex;
+    gap: 0.4rem;
+
+    .btn-view-bins {
+      flex: 1;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+      }
+    }
+
+    .btn-add-bin-quick {
+      background: #ffffff;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: #f8fafc;
+        color: #0f172a;
+        border-color: #cbd5e1;
+      }
+    }
+
+    .btn-delete-zone {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      transition: all 0.15s ease;
+
+      &:hover {
+        color: #ef4444;
+        background: #fef2f2;
+        border-color: #fecaca;
+      }
+    }
+  }
+}
+
+/* Facility Hierarchy Flow Cards */
+.wms-hierarchy-step {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.1rem;
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+  }
+
+  .step-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 0.55rem;
+
+    &.step-1 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    &.step-2 { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+    &.step-3 { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    &.step-4 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  }
+
+  .step-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+  }
+
+  .step-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.45;
+  }
+}
+
+/* Barcode Segment Visualizer */
+.barcode-visualizer-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+
+  .barcode-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .barcode-chip {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+
+    &.chip-prefix { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
+    &.chip-facility { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+    &.chip-zone { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+    &.chip-aisle { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    &.chip-rack { background: #fef9c3; color: #854d0e; border-color: #fef08a; }
+    &.chip-shelf { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    &.chip-bin { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+  }
 }
 
 /* Premium Modal Header & Form Input Styles (Compact & Sleek) */
 .wms-modal-header {
-  background: linear-gradient(135deg, rgb(70, 142, 229) 0%, rgb(95, 136, 202) 100%);
-  color: #ffffff;
-  padding: 0.8rem 1.4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  padding: 0.9rem 1.4rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
 
   &.wms-header-zone {
-    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
   }
 
   &.wms-header-bin {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
   }
 
   .wms-modal-icon-badge {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2) !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.05rem;
     flex-shrink: 0;
   }
 
   .modal-title {
     font-size: 1.05rem;
+    color: #ffffff !important;
   }
 }
 
@@ -769,8 +1160,8 @@ body {
     transition: all 0.2s ease;
 
     &:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 2.5px rgba(79, 70, 229, 0.12);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2.5px rgba(37, 99, 235, 0.15);
       outline: none;
     }
 
@@ -789,56 +1180,68 @@ body {
   display: block;
 }
 
-/* Premium Modal Footer (Overrides ABP muddy cement-gray bg-light) */
+/* Premium Modal Footer (Clean Executive Theme Matching Categories) */
 .wms-modal-footer {
   background-color: #f8fafc !important;
   border-top: 1px solid #e2e8f0 !important;
   padding: 0.75rem 1.4rem !important;
 
-  .btn-wms-cancel {
-    background-color: #ffffff;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-    font-weight: 600;
-    font-size: 0.82rem;
-    padding: 0.38rem 1.1rem;
-    border-radius: 7px;
-    transition: all 0.2s ease;
+  .btn-wms-cancel,
+  .btn-category-cancel {
+    background-color: #ffffff !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    padding: 0.42rem 1.15rem !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
 
     &:hover {
-      background-color: #f1f5f9;
-      color: #1e293b;
-      border-color: #94a3b8;
+      background-color: #f1f5f9 !important;
+      color: #1e293b !important;
+      border-color: #94a3b8 !important;
     }
   }
 
-  .btn-wms-submit {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  .btn-wms-submit,
+  .btn-category-save {
+    background: #2563eb !important;
     color: #ffffff !important;
-    border: none;
-    font-weight: 600;
-    font-size: 0.82rem;
-    padding: 0.42rem 1.25rem;
-    border-radius: 7px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.22);
-    transition: all 0.2s ease;
+    border: 1px solid #2563eb !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    padding: 0.42rem 1.25rem !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28) !important;
+    transition: all 0.2s ease !important;
+
+    i, span {
+      color: #ffffff !important;
+    }
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-      box-shadow: 0 5px 15px rgba(79, 70, 229, 0.32);
+      background: #1d4ed8 !important;
+      border-color: #1d4ed8 !important;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38) !important;
+      color: #ffffff !important;
       transform: translateY(-1px);
     }
 
     &:disabled {
-      background: #e0e7ff !important;
-      color: #6366f1 !important;
-      border: 1px solid #c7d2fe !important;
-      opacity: 0.85;
-      cursor: not-allowed;
-      box-shadow: none;
+      background: #93c5fd !important;
+      border-color: #93c5fd !important;
+      color: #ffffff !important;
+      opacity: 0.85 !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+
+      i, span {
+        color: #ffffff !important;
+      }
     }
   }
 }
@@ -880,6 +1283,66 @@ body,
 .lpx-sidebar-container {
   border-right: 1px solid #e2e8f0 !important;
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+
+/* ==========================================================================
+   Compact Modern Sidebar Width (250px instead of 280px default)
+   ========================================================================== */
+$lpx-custom-sidebar-w: 250px;
+
+.lpx-sidebar-container {
+  min-width: $lpx-custom-sidebar-w !important;
+  max-width: $lpx-custom-sidebar-w !important;
+  width: $lpx-custom-sidebar-w !important;
+}
+
+.lpx-sidebar,
+.lpx-sidebar-container .lpx-sidebar,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav,
+.lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
+#lpx-wrapper .lpx-sidebar,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+  min-width: $lpx-custom-sidebar-w !important;
+  max-width: $lpx-custom-sidebar-w !important;
+  width: $lpx-custom-sidebar-w !important;
+}
+
+.lpx-sidebar .lpx-logo-container,
+#lpx-wrapper .lpx-logo-container,
+#lpx-wrapper .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container {
+  width: $lpx-custom-sidebar-w !important;
+  max-width: $lpx-custom-sidebar-w !important;
+}
+
+.lpx-sidebar .lpx-logo-container .menu-collapse-icon {
+  left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
+}
+
+/* Adjust main content & footbar to match compact sidebar width */
+@media only screen and (min-width: 1200px) {
+  .lpx-content-container {
+    margin-left: $lpx-custom-sidebar-w !important;
+  }
+
+  .lpx-footbar-container {
+    left: $lpx-custom-sidebar-w !important;
+  }
+}
+
+/* Menu item label width adjustment */
+.lpx-nav-menu .lpx-menu-item-link .lpx-menu-item-text {
+  width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+  
+}
+
+.lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
+  width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
+}
+
+.lpx-nav-menu .lpx-menu-item-link {
+  padding: 6px 10px !important;
 }
 
 /* Remove 72px extra top margin on sidebar */
@@ -1062,12 +1525,13 @@ a.lpx-brand-logo:hover,
   }
 }
 
-/* Sidebar navigation menu starting padding (pt-2) */
+/* Sidebar navigation menu starting & bottom padding (ensures bottom submenus are never cut off) */
 .lpx-nav-menu,
 .lpx-sidebar .lpx-nav-menu,
 .lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
 #lpx-wrapper .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
   padding-top: 0.5rem !important;
+  padding-bottom: 5.5rem !important; /* Generous bottom spacing for full visibility */
 }
 
 /* Top-level menu links */
@@ -1076,22 +1540,35 @@ a.lpx-brand-logo:hover,
   background-color: transparent !important;
   border-radius: 6px;
   margin: 1px 8px;
-  padding: 5px 10px !important;
-  height: 36px !important;
-  line-height: 26px !important;
+  padding: 6px 10px !important;
+  min-height: 36px !important;
+  height: auto !important;
+  line-height: 1.35 !important;
   width: calc(100% - 16px) !important;
+  display: flex !important;
+  align-items: center !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
   .lpx-menu-item-text {
     color: #334155 !important;
     font-weight: 500 !important;
-    font-size: 0.835rem !important; /* Slightly smaller, refined font */
+    font-size: 0.815rem !important; /* Slightly smaller, refined font */
     letter-spacing: -0.01em;
+    line-height: 1.35 !important;
+    overflow: visible !important;
   }
 
   .lpx-menu-item-icon {
     color: #64748b !important;
-    font-size: 0.875rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    opacity: 0.88;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px !important;
+    margin-right: 6px;
+    transition: all 0.2s ease;
   }
 
   .dd-icon {
@@ -1132,27 +1609,37 @@ a.lpx-brand-logo:hover,
   }
 }
 
-/* Inner Submenu items (e.g. Products & Catalog -> Categories, Products) */
+/* Inner Submenu items (e.g. Products & Catalog -> Categories, Products, Administration) */
 .lpx-nav-menu .lpx-inner-menu {
   background-color: #f8fafc !important;
   border-left: 2px solid #e2e8f0 !important;
-  margin: 3px 8px 5px 24px !important;
-  padding: 3px 0 !important;
+  margin: 3px 8px 6px 18px !important;
+  padding: 4px 0 6px 0 !important;
   border-radius: 0 6px 6px 0;
 
+  .lpx-inner-menu {
+    margin: 2px 4px 4px 8px !important;
+    border-left: 1px dashed #cbd5e1 !important;
+  }
+
   .lpx-inner-menu-item .lpx-menu-item-link {
-    height: 31px !important;
-    line-height: 31px !important;
-    padding-left: 12px !important;
-    margin: 1px 6px !important;
-    width: calc(100% - 12px) !important;
+    min-height: 33px !important;
+    height: auto !important;
+    line-height: 1.35 !important;
+    padding: 6px 10px !important;
+    margin: 2px 4px !important;
+    width: calc(100% - 8px) !important;
     border-radius: 5px;
     background-color: transparent !important;
+    display: flex !important;
+    align-items: center !important;
 
     .lpx-menu-item-text {
       color: #64748b !important;
       font-size: 0.795rem !important; /* Compact sub-item font */
       font-weight: 500 !important;
+      line-height: 1.35 !important;
+      overflow: visible !important;
     }
 
     .lpx-menu-item-icon {
@@ -1404,6 +1891,7 @@ nav[aria-label="breadcrumb"] {
   .container-fluid.inbound-container,
   .container-fluid.outbound-container,
   .container-fluid.categories-container,
+  .container-fluid.faculty-container,
   > router-outlet + * > .container-fluid,
   > ng-component > .container-fluid,
   > * > .container-fluid {
@@ -1421,8 +1909,68 @@ nav[aria-label="breadcrumb"] {
   .inbound-container,
   .outbound-container,
   .categories-container,
+  .faculty-container,
   .dashboard-page {
     padding: 0.5rem 0 1.5rem 0 !important;
+  }
+}
+
+/* ==========================================================================
+   Universal WMS Table Pagination Footer (Default 50 Limit)
+   ========================================================================== */
+.wms-table-pagination {
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  font-size: 0.73rem;
+  color: #64748b;
+
+  .pagination-info {
+    font-size: 0.73rem;
+    color: #64748b;
+
+    strong {
+      color: #0f172a;
+    }
+  }
+
+  .pagination-size-select {
+    font-size: 0.72rem;
+    height: 26px;
+    width: 68px;
+    padding: 0 0.5rem;
+    border-color: #cbd5e1;
+    border-radius: 5px;
+  }
+
+  .btn-pagination {
+    font-size: 0.72rem;
+    height: 26px;
+    padding: 0 0.55rem;
+    border-radius: 5px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-weight: 600;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .pagination-page-indicator {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #475569;
+    padding: 0 0.5rem;
   }
 }
 

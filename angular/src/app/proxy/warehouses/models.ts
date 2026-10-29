@@ -13,6 +13,7 @@ export interface CreateUpdateWarehouseDto {
   state?: string | null;
   postalCode?: string | null;
   country?: string | null;
+  managerId?: string | null;
   contactPerson?: string | null;
   contactPhone?: string | null;
   contactEmail?: string | null;
@@ -81,6 +82,9 @@ export interface WarehouseDto extends FullAuditedEntityDto<string> {
   state?: string | null;
   postalCode?: string | null;
   country?: string | null;
+  managerId?: string | null;
+  managerName?: string | null;
+  managerDesignation?: string | null;
   contactPerson?: string | null;
   contactPhone?: string | null;
   contactEmail?: string | null;

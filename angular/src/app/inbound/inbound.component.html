@@ -103,15 +103,15 @@
             <th style="width: 100px;">Facility</th>
             <th>Supplier</th>
             <th style="width: 130px;">Expected Arrival</th>
-            <th class="text-center" style="width: 80px;">Lines</th>
-            <th class="text-end" style="width: 110px;">Expected Qty</th>
+            <th class="text-center" style="width: 70px;">Lines</th>
+            <th class="text-end" style="width: 120px;">Expected Qty</th>
             <th class="text-end" style="width: 110px;">Received Qty</th>
             <th class="text-center" style="width: 130px;">Status</th>
             <th class="text-end pe-3" style="width: 80px;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let ord of orders">
+          <tr *ngFor="let ord of paginatedOrders">
             <td class="ps-3">
               <span class="inbound-cell-text font-monospace d-block text-primary">{{ ord.orderNumber }}</span>
             </td>
@@ -153,6 +153,39 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ orders.length }}</strong> inbound orders
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -342,29 +375,29 @@
     </div>
   </div>
 
-  <!-- Modal 3: Create Inbound PO (New PO Modal - 100% Zero-Black Enterprise Design) -->
-  <div *ngIf="isCreateOrderModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content wms-modal-content">
-        <!-- Header: Vibrant Indigo/Purple Gradient (NO BLACK!) -->
-        <div class="wms-modal-header-po d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-3">
-            <div class="wms-modal-icon-badge">
+  <!-- Modal 3: Create Inbound PO (Right Slide-Over Drawer) -->
+  <div *ngIf="isCreateOrderModalOpen" class="modal fade show d-block inbound-drawer-modal" tabindex="-1">
+    <div class="modal-dialog inbound-drawer-dialog">
+      <div class="modal-content inbound-drawer-content">
+        <!-- Header: Clean Royal Blue Theme matching Warehouse & Faculty Drawers -->
+        <div class="modal-header inbound-drawer-header text-white d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <div class="inbound-drawer-icon-box bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
               <i class="fas fa-cart-plus"></i>
             </div>
             <div>
-              <h5 class="modal-title mb-0">Create Inbound Purchase Order</h5>
-              <p class="small text-white-50 mb-0 mt-1">Record new supplier shipment and replenishment order</p>
+              <h5 class="modal-title font-weight-bold mb-0 text-white">Create Inbound Purchase Order</h5>
+              <p class="small text-white-50 mb-0">Record new supplier shipment and replenishment order</p>
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="isCreateOrderModalOpen = false"></button>
         </div>
 
-        <div class="wms-modal-body">
+        <div class="modal-body inbound-drawer-body">
           <!-- PO Information Header Section -->
           <span class="wms-form-section-title">Purchase Order Details</span>
           <div class="row g-2 mb-3">
-            <div class="col-md-4">
+            <div class="col-6">
               <label class="wms-compact-label">PO Number *</label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-hashtag input-icon"></i>
@@ -372,7 +405,7 @@
               </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-6">
               <label class="wms-compact-label">Destination Facility *</label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-warehouse input-icon"></i>
@@ -383,7 +416,31 @@
               </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-6">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="wms-compact-label mb-0">Supplier / Vendor *</label>
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-primary text-decoration-none fw-semibold"
+                  style="font-size: 0.725rem;"
+                  (click)="navigateToSuppliers()"
+                  title="Open Suppliers Directory to register a new vendor"
+                >
+                  <i class="bi bi-plus-circle me-1"></i>+ Register Supplier
+                </button>
+              </div>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-truck input-icon"></i>
+                <select class="form-select" [(ngModel)]="newOrder.supplierName">
+                  <option value="" disabled selected>-- Select Registered Vendor --</option>
+                  <option *ngFor="let s of suppliers" [value]="s.name">
+                    {{ s.name }} ({{ s.code }})<span *ngIf="s.city"> — {{ s.city }}</span>
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-6">
               <label class="wms-compact-label">Expected Arrival Date *</label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-calendar-alt input-icon"></i>
@@ -391,15 +448,7 @@
               </div>
             </div>
 
-            <div class="col-md-4">
-              <label class="wms-compact-label">Supplier / Vendor Name *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-truck input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Cipla Pharma Ltd" [(ngModel)]="newOrder.supplierName" />
-              </div>
-            </div>
-
-            <div class="col-md-4">
+            <div class="col-6">
               <label class="wms-compact-label">Supplier Invoice #</label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-file-invoice input-icon"></i>
@@ -407,7 +456,7 @@
               </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-6">
               <label class="wms-compact-label">Order Notes / Remarks</label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-sticky-note input-icon"></i>
@@ -420,7 +469,7 @@
           <span class="wms-form-section-title">Add Line Items to Order</span>
           <div class="po-items-section mb-3">
             <div class="row g-2 align-items-end">
-              <div class="col-md-5">
+              <div class="col-5">
                 <label class="wms-compact-label">Select SKU / Product *</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-box input-icon"></i>
@@ -433,15 +482,15 @@
                 </div>
               </div>
 
-              <div class="col-md-3">
+              <div class="col-2">
                 <label class="wms-compact-label">Quantity *</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-calculator input-icon"></i>
-                  <input type="number" class="form-control" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
+                  <input type="number" class="form-control text-center" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
                 </div>
               </div>
 
-              <div class="col-md-2">
+              <div class="col-3">
                 <label class="wms-compact-label">Unit Price (₹)</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-rupee-sign input-icon"></i>
@@ -449,10 +498,10 @@
                 </div>
               </div>
 
-              <div class="col-md-2">
-                <button type="button" class="btn btn-wms-primary btn-add-line w-100" (click)="addLineToOrder()">
-                  <i class="fas fa-plus-circle"></i>
-                  <span>Add Line</span>
+              <div class="col-2">
+                <button type="button" class="btn btn-wms-primary btn-add-line w-100" (click)="addLineToOrder()" title="Add Line Item">
+                  <i class="fas fa-plus me-1"></i>
+                  <span>Add</span>
                 </button>
               </div>
             </div>
@@ -530,12 +579,12 @@
           </div>
         </div>
 
-        <!-- Footer: Clean Gray/White (NO BLACK!) -->
-        <div class="wms-modal-footer d-flex justify-content-between align-items-center">
-          <button type="button" class="btn-wms-cancel" (click)="isCreateOrderModalOpen = false">
+        <!-- Footer: Clean Gray/White (Matching Categories & Faculty) -->
+        <div class="modal-footer inbound-drawer-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-category-cancel" (click)="isCreateOrderModalOpen = false">
             <i class="fas fa-times me-1"></i> Cancel
           </button>
-          <button type="button" class="btn-wms-submit" (click)="saveOrder()" [disabled]="isSaving || (!newOrder.lines || newOrder.lines.length === 0)">
+          <button type="button" class="btn btn-category-save" (click)="saveOrder()" [disabled]="isSaving || (!newOrder.lines || newOrder.lines.length === 0)">
             <i class="fas fa-check-circle me-1" *ngIf="!isSaving"></i>
             <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
             <span>Create Purchase Order</span>

@@ -30,6 +30,50 @@ export class ProductsComponent implements OnInit {
   searchQuery = '';
   selectedCategoryFilter: string | number | null = null;
 
+  // Pagination State (50 Limit default)
+  currentPage = 1;
+  pageSize = 50;
+
+  get paginatedProducts(): ProductDto[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredProducts.length / this.pageSize) || 1;
+  }
+
+  get paginationStart(): number {
+    return this.filteredProducts.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredProducts.length);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+  }
+
   isCreateModalOpen = false;
   editingProductId: string | null = null;
 
@@ -115,6 +159,7 @@ export class ProductsComponent implements OnInit {
 
       return matchesSearch && matchesCat;
     });
+    this.currentPage = 1;
   }
 
   getCategoryLabel(cat: ProductCategory | undefined): string {

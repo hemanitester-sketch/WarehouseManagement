@@ -1,31 +1,33 @@
 <div class="container-fluid inventory-container">
   <!-- Header -->
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-    <div>
+  <div class="inventory-header-row mb-3">
+    <div class="header-text-block">
       <div class="d-flex align-items-center gap-2">
         <h2 class="h4 font-weight-bold text-dark mb-0">Live Inventory & Stock Balances</h2>
-        <span class="wms-badge wms-badge-success inventory-badge">Real-Time Balances</span>
+        <span class="wms-badge wms-badge-primary inventory-badge">Real-Time Balances</span>
       </div>
       <p class="text-muted small mb-0 mt-0.5 inventory-subtitle">
         Track stock balances across warehouse bins with On-Hand, Allocated, and Available quantities, FEFO lot tracking, and audit trails.
       </p>
     </div>
-    <div class="btn-group shadow-sm">
+    <div class="inventory-toggle-group">
       <button 
         type="button"
-        class="btn btn-sm" 
-        [ngClass]="activeTab === 'stock' ? 'btn-wms-primary' : 'btn-wms-outline'" 
+        class="toggle-btn" 
+        [class.active]="activeTab === 'stock'" 
         (click)="switchTab('stock')"
       >
-        <i class="fas fa-boxes me-1"></i> Stock Ledger
+        <i class="fas fa-boxes"></i>
+        <span>Stock Ledger</span>
       </button>
       <button 
         type="button"
-        class="btn btn-sm" 
-        [ngClass]="activeTab === 'transactions' ? 'btn-wms-primary' : 'btn-wms-outline'" 
+        class="toggle-btn" 
+        [class.active]="activeTab === 'transactions'" 
         (click)="switchTab('transactions')"
       >
-        <i class="fas fa-history me-1"></i> Audit Transactions
+        <i class="fas fa-history"></i>
+        <span>Audit Transactions</span>
       </button>
     </div>
   </div>
@@ -138,7 +140,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of filteredItems">
+          <tr *ngFor="let item of paginatedItems">
             <td class="ps-3">
               <span class="inventory-cell-text d-block">{{ item.productSku }}</span>
               <small class="inventory-cell-subtext">{{ item.productName }}</small>
@@ -196,6 +198,39 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredItems.length }}</strong> inventory records
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Audit Transactions Tab -->
@@ -205,10 +240,10 @@
         <thead class="table-light">
           <tr>
             <th class="ps-3" style="width: 140px;">Time</th>
-            <th style="width: 140px;">Type</th>
+            <th style="width: 160px;">Type</th>
             <th style="width: 150px;">Ref Number</th>
             <th style="width: 100px;">Quantity</th>
-            <th style="width: 130px;">Lot / Batch</th>
+            <th style="width: 150px;">Lot / Batch</th>
             <th class="pe-3">Notes</th>
           </tr>
         </thead>

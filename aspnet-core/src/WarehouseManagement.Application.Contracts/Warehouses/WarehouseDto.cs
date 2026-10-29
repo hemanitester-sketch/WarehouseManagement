@@ -27,6 +27,12 @@ public class WarehouseDto : FullAuditedEntityDto<Guid>
 
     public string? ContactEmail { get; set; }
 
+    public Guid? ManagerId { get; set; }
+
+    public string? ManagerName { get; set; }
+
+    public string? ManagerDesignation { get; set; }
+
     public double TotalAreaSqFt { get; set; }
 
     public bool IsActive { get; set; }

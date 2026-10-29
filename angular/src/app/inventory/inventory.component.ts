@@ -39,6 +39,50 @@ export class InventoryComponent implements OnInit {
   selectedWarehouseFilter: string = '';
   activeTab: 'stock' | 'transactions' = 'stock';
 
+  // Pagination State (50 Limit default)
+  currentPage = 1;
+  pageSize = 50;
+
+  get paginatedItems(): InventoryItemDto[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredItems.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredItems.length / this.pageSize) || 1;
+  }
+
+  get paginationStart(): number {
+    return this.filteredItems.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredItems.length);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+  }
+
   // Modals
   isAdjustModalOpen = false;
   isTransferModalOpen = false;
@@ -139,6 +183,7 @@ export class InventoryComponent implements OnInit {
 
       return matchesSearch;
     });
+    this.currentPage = 1;
   }
 
   getStatusBadge(status: InventoryStatus | undefined): string {

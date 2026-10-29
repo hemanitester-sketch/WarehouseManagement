@@ -1,30 +1,56 @@
 @if (hasLoggedIn) {
   <div class="dashboard-page">
-    <!-- Top Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-      <div>
-        <h2 class="h4 font-weight-bold text-dark mb-0">Dashboard</h2>        
-      </div>
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <!-- @if (isRealDataConnected) {
-          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1 font-size-12">
-            <i class="fas fa-database text-success fs-xs"></i>
-            <span>Live DB Connected ({{ totalDonutUnits | number }} Units)</span>
+    <!-- Top Command Center Header (Strict 1-Row Layout) -->
+    <div class="dashboard-header-row mb-3 pb-2 border-bottom border-slate-100">
+      <div class="header-text-block min-w-0">
+        <div class="d-flex align-items-center gap-2 flex-nowrap">
+          <h2 class="h4 font-weight-bold text-dark mb-0 text-nowrap">Operations Command Center</h2>
+          <span class="wms-badge wms-badge-primary text-nowrap">Multi-Facility Live</span>
+          <span class="telemetry-pill d-none d-xl-inline-flex align-items-center gap-1.5 text-nowrap">
+            <span class="pulse-dot"></span>
+            <span>Telemetry Active</span>
           </span>
-        } -->
-        <button class="btn btn-sm btn-white border shadow-xs d-flex align-items-center gap-1 text-muted" (click)="fetchRealDashboardData()" [disabled]="isLoadingRealData" title="Refresh Live Data">
-          <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingRealData"></i>
-          <span class="d-none d-sm-inline">{{ isLoadingRealData ? 'Syncing...' : 'Sync' }}</span>
+        </div>
+        <p class="text-muted small mb-0 mt-0.5 dashboard-subtitle text-truncate">
+          Real-time visibility across facility nodes, inventory velocity, order fulfillment pipelines, and dock operations.
+        </p>
+      </div>
+
+      <div class="header-actions-block d-flex align-items-center gap-2 flex-shrink-0">
+        <!-- Facility Node Filter -->
+        <div class="facility-dropdown-wrap">
+          <select 
+            class="form-select form-select-sm facility-select" 
+            [(ngModel)]="selectedWarehouseFilter" 
+            (ngModelChange)="onFacilityFilterChange()"
+          >
+            @for (wh of warehousesList; track wh) {
+              <option [value]="wh">{{ wh }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Shift Badge -->
+        <div class="shift-badge d-none d-lg-flex align-items-center gap-1.5 text-nowrap">
+          <i class="bi bi-clock text-muted"></i>
+          <span>Shift A</span>
+        </div>
+
+        <!-- Refresh Telemetry Button -->
+        <button 
+          class="btn btn-sm sync-btn d-flex align-items-center gap-1.5 text-nowrap" 
+          (click)="fetchRealDashboardData()" 
+          [disabled]="isLoadingRealData" 
+          title="Refresh Live Data"
+        >
+          <i class="bi bi-arrow-clockwise" [class.spin]="isLoadingRealData"></i>
+          <span class="d-none d-sm-inline">{{ isLoadingRealData ? 'Syncing...' : 'Sync Telemetry' }}</span>
         </button>
-        <!-- <div class="date-badge">
-          <i class="far fa-calendar-alt me-2 text-muted"></i>
-          <span>{{ currentDateFormatted || 'Today' }}</span>
-        </div> -->
       </div>
     </div>
 
-    <!-- 1. Top KPI Metric Cards (4 cards) -->
-    <div class="row g-3 mb-4">
+    <!-- 1. Enterprise Operational Pulse Cards (4 Clean, Spacious Cards) -->
+    <div class="row g-3 mb-3">
       @for (kpi of kpis; track kpi.title) {
         <div class="col-12 col-sm-6 col-xl-3">
           <div class="kpi-card h-100">
@@ -36,9 +62,9 @@
                 <div class="kpi-label text-truncate" [title]="kpi.title">{{ kpi.title }}</div>
                 <div class="kpi-value-row">
                   <span class="kpi-value">{{ kpi.value }}</span>
-                  <span class="kpi-unit">{{ kpi.unit }}</span>
+                  <span *ngIf="kpi.unit" class="kpi-unit">{{ kpi.unit }}</span>
                 </div>
-                <div class="kpi-trend text-truncate" [class.trend-up]="kpi.isPositive" [class.trend-down]="!kpi.isPositive">
+                <div class="kpi-trend" [class.trend-up]="kpi.isPositive" [class.trend-down]="!kpi.isPositive">
                   <span class="trend-pill">
                     <i [class]="kpi.isPositive ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
                     <span>{{ kpi.trend }}</span>
@@ -52,20 +78,54 @@
       }
     </div>
 
-    <!-- 2. Middle Row: Stock Movement (Chart) + Stock by Warehouse (Donut) + Recent Activities -->
-    <div class="row g-3 mb-4">
-      <!-- Stock Movement Line Chart -->
-      <div class="col-12 col-lg-5">
-        <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fas fa-chart-line text-primary fs-5"></i>
-              <h5 class="dash-card-title mb-0">Stock Movement</h5>
+    <!-- 2. Live Fulfillment & Throughput Pipeline Banner -->
+    <div class="dash-card mb-3 p-2.5 px-3 pipeline-banner">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-diagram-3 text-primary fs-6"></i>
+          <span class="fw-bold text-dark font-size-13">Daily Fulfillment & Throughput Pipeline</span>
+          <span class="badge bg-light text-muted border font-size-11">Dock-to-Dispatch</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 font-size-12">
+          <span class="text-muted"><i class="bi bi-activity text-success me-1"></i>Active Wave Velocity</span>
+          <a routerLink="/outbound" class="card-link text-nowrap">View Orders <i class="bi bi-arrow-right ms-0.5"></i></a>
+        </div>
+      </div>
+
+      <div class="pipeline-flow-track">
+        @for (stage of pipelineStages; track stage.stage; let i = $index) {
+          <div class="pipeline-step-node" [class.step-active]="stage.status === 'active'" [class.step-done]="stage.status === 'completed' || stage.status === 'shipped'">
+            <div class="step-icon-wrap">
+              <i [class]="stage.icon"></i>
             </div>
-            <div class="d-flex align-items-center gap-3">
-              <div class="chart-legend d-flex align-items-center gap-3">
-                <span class="legend-item"><span class="legend-dot bg-primary"></span>On Hand</span>
-                <span class="legend-item"><span class="legend-dot bg-success"></span>Available</span>
+            <div class="step-meta min-w-0">
+              <div class="step-count-row">
+                <span class="step-num">{{ stage.count }}</span>
+                <span class="step-name text-truncate">{{ stage.stage }}</span>
+              </div>
+              <div class="step-desc text-muted text-truncate">{{ stage.label }}</div>
+            </div>
+            <div *ngIf="i < pipelineStages.length - 1" class="step-connector">
+              <i class="bi bi-chevron-right"></i>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- 3. Middle Telemetry Row: Stock Velocity (Chart) + Storage Capacity (Donut) -->
+    <div class="row g-3 mb-3">
+      <!-- Stock Velocity Line & Area Chart -->
+      <div class="col-12 col-lg-7">
+        <div class="dash-card h-100">
+          <div class="dash-card-header mb-2.5">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-graph-up text-primary fs-5"></i>
+                <div>
+                  <h5 class="dash-card-title mb-0">Stock Velocity & Movement Trends</h5>
+                  <span class="text-muted font-size-11">7-Day Real-Time Consumption & Restock Dynamics</span>
+                </div>
               </div>
               <div class="dropdown">
                 <button class="btn btn-sm btn-outline-light text-dark border py-1 px-2 d-flex align-items-center gap-1 font-size-12" type="button">
@@ -74,18 +134,22 @@
                 </button>
               </div>
             </div>
+            <div class="chart-legend d-flex align-items-center gap-3">
+              <span class="legend-item"><span class="legend-dot bg-primary"></span>On-Hand Balance</span>
+              <span class="legend-item"><span class="legend-dot bg-success"></span>Allocatable ATP</span>
+            </div>
           </div>
 
           <!-- SVG Multi-line Area Chart -->
           <div class="chart-container">
-            <svg viewBox="0 0 480 220" class="w-100 h-auto" preserveAspectRatio="xMidYMid meet">
+            <svg viewBox="0 0 480 200" class="w-100 h-auto" preserveAspectRatio="xMidYMid meet">
               <defs>
                 <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
-                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.22" />
+                  <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0" />
                 </linearGradient>
                 <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.22" />
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.20" />
                   <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
                 </linearGradient>
               </defs>
@@ -130,130 +194,159 @@
 
               <!-- X-Axis Labels -->
               @for (date of movementDates; track date; let i = $index) {
-                <text [attr.x]="60 + (i * 66.666)" y="202" fill="#64748b" font-size="11" text-anchor="middle">{{ date }}</text>
+                <text [attr.x]="60 + (i * 66.666)" y="196" fill="#64748b" font-size="11" text-anchor="middle">{{ date }}</text>
               }
             </svg>
           </div>
+
+          <!-- Under-Chart Operational Throughput Summary Strip -->
+          <div class="throughput-summary-strip mt-2.5 pt-2 border-top border-slate-100">
+            <div class="row g-2 text-center">
+              <div class="col-3 border-end">
+                <div class="text-muted font-size-11">7-Day Receipts</div>
+                <div class="fw-bold text-success font-size-13">+{{ inbound7DaysUnits }} Units</div>
+              </div>
+              <div class="col-3 border-end">
+                <div class="text-muted font-size-11">7-Day Dispatched</div>
+                <div class="fw-bold text-danger font-size-13">-{{ outbound7DaysUnits }} Units</div>
+              </div>
+              <div class="col-3 border-end">
+                <div class="text-muted font-size-11">Net Velocity</div>
+                <div class="fw-bold text-primary font-size-13">+{{ netVelocityUnits }} Units</div>
+              </div>
+              <div class="col-3">
+                <div class="text-muted font-size-11">Stock Turnover</div>
+                <div class="fw-bold text-dark font-size-13">{{ turnoverRatio }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Stock by Warehouse Donut Chart -->
-      <div class="col-12 col-lg-4">
-        <div class="dash-card h-100">
-          <div class="dash-card-header mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fas fa-warehouse text-primary fs-5"></i>
-              <h5 class="dash-card-title mb-0">Stock by Warehouse</h5>
+      <!-- Multi-Facility Allocation & Storage Zone Utilization -->
+      <div class="col-12 col-lg-5">
+        <div class="dash-card h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="dash-card-header mb-2.5 d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-building text-primary fs-5"></i>
+                <div>
+                  <h5 class="dash-card-title mb-0">Multi-Facility Stock Distribution</h5>
+                  <span class="text-muted font-size-11">Physical Units Stored by Node</span>
+                </div>
+              </div>
+              <span class="badge bg-light text-muted border font-size-11">{{ totalDonutUnits | number }} Units Total</span>
+            </div>
+
+            <!-- Donut + Legend Side-by-Side (flex-nowrap) -->
+            <div class="d-flex align-items-center justify-content-between gap-3 py-2 flex-nowrap">
+              <!-- Donut SVG -->
+              <div class="position-relative donut-wrapper flex-shrink-0">
+                <svg viewBox="0 0 160 160" width="115" height="115" class="donut-svg">
+                  @for (item of warehouseStock; track item.name; let i = $index) {
+                    <circle cx="80" cy="80" r="56" fill="transparent" [attr.stroke]="item.color" stroke-width="22"
+                      [attr.stroke-dasharray]="getDonutDashArray(item.percent)"
+                      [attr.stroke-dashoffset]="getDonutDashOffset(i)">
+                      <title>{{ item.name }}: {{ item.units | number }} units ({{ item.percent }}%)</title>
+                    </circle>
+                  }
+                </svg>
+                <div class="donut-center-text text-center">
+                  <div class="donut-center-val">{{ totalDonutUnits | number }}</div>
+                  <div class="donut-center-lbl">Units</div>
+                </div>
+              </div>
+
+              <!-- Legend List on Right -->
+              <div class="warehouse-legend-list flex-grow-1 min-w-0">
+                @for (item of warehouseStock; track item.name) {
+                  <div class="d-flex justify-content-between align-items-center mb-1.5 gap-2">
+                    <div class="d-flex align-items-center gap-1.5 min-w-0">
+                      <span class="legend-color-dot flex-shrink-0" [style.background-color]="item.color"></span>
+                      <span class="legend-wh-name text-truncate font-size-12" [title]="item.name">{{ item.name }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-auto font-size-12">
+                      <span class="fw-bold text-dark">{{ item.units | number }}</span>
+                      <span class="text-muted font-size-11">({{ item.percent }}%)</span>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
 
-          <div class="d-flex align-items-center justify-content-center gap-4 py-2 flex-wrap">
-            <!-- Donut SVG -->
-            <div class="position-relative donut-wrapper">
-              <svg viewBox="0 0 160 160" width="150" height="150" class="donut-svg">
-                @for (item of warehouseStock; track item.name; let i = $index) {
-                  <circle cx="80" cy="80" r="56" fill="transparent" [attr.stroke]="item.color" stroke-width="24"
-                    [attr.stroke-dasharray]="getDonutDashArray(item.percent)"
-                    [attr.stroke-dashoffset]="getDonutDashOffset(i)">
-                    <title>{{ item.name }}: {{ item.units | number }} units ({{ item.percent }}%)</title>
-                  </circle>
-                }
-              </svg>
-              <!-- Center Text inside Donut hole -->
-              <div class="donut-center-text text-center">
-                <div class="donut-center-val">{{ totalDonutUnits | number }}</div>
-                <div class="donut-center-lbl">Total Units</div>
-              </div>
+          <!-- Storage Zone Capacity Progress Bars -->
+          <div class="storage-capacity-block mt-3 pt-2.5 border-top border-slate-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-dark font-size-12"><i class="bi bi-grid-3x3 text-muted me-1"></i>Warehouse Zone Capacity</span>
+              <span class="text-muted font-size-11">Occupancy Load</span>
             </div>
-
-            <!-- Legend List on Right -->
-            <div class="warehouse-legend-list flex-grow-1 min-w-0" style="min-width: 0;">
-              @for (item of warehouseStock; track item.name) {
-                <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
-                  <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
-                    <span class="legend-color-dot flex-shrink-0" [style.background-color]="item.color"></span>
-                    <span class="legend-wh-name text-truncate" [title]="item.name">{{ item.name }}</span>
+            <div class="storage-zones-list d-flex flex-column gap-2">
+              @for (zone of storageZones; track zone.name) {
+                <div>
+                  <div class="d-flex justify-content-between font-size-11 mb-1">
+                    <span class="text-secondary">{{ zone.name }}</span>
+                    <span class="fw-semibold text-dark">{{ zone.usedPct }}% ({{ zone.totalBins }})</span>
                   </div>
-                  <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
-                    <span class="fw-bold text-dark">{{ item.units | number }}</span>
-                    <span class="text-muted font-size-12">{{ item.percent }}%</span>
+                  <div class="progress" style="height: 6px; background-color: #f1f5f9; border-radius: 9999px;">
+                    <div 
+                      class="progress-bar" 
+                      [style.width.%]="zone.usedPct"
+                      [ngClass]="zone.usedPct > 70 ? 'bg-primary' : (zone.usedPct > 40 ? 'bg-info' : 'bg-success')"
+                    ></div>
                   </div>
                 </div>
               }
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Activities Timeline -->
-      <div class="col-12 col-lg-3">
-        <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
-              <i class="far fa-clock text-primary fs-5 flex-shrink-0"></i>
-              <h5 class="dash-card-title mb-0 text-truncate">Recent Activities</h5>
-            </div>
-            <a routerLink="/inventory" class="card-link flex-shrink-0 text-nowrap ms-2">View All <i class="fas fa-arrow-right ms-1"></i></a>
-          </div>
-
-          <div class="activities-timeline">
-            @for (act of activities; track act.title + act.time) {
-              <div class="timeline-row d-flex align-items-start gap-2 mb-3">
-                <div class="timeline-dot-wrapper flex-shrink-0">
-                  <span class="timeline-dot" [style.background-color]="act.dotColor"></span>
-                </div>
-                <div class="flex-grow-1 min-w-0" style="min-width: 0; overflow: hidden;">
-                  <div class="timeline-title text-truncate" [title]="act.title">{{ act.title }}</div>
-                  <div class="timeline-desc text-muted text-truncate" [title]="act.description">{{ act.description }}</div>
-                </div>
-                <div class="timeline-timestamp text-end flex-shrink-0 ms-auto ps-2">
-                  <div class="timeline-time">{{ act.time }}</div>
-                  <div class="timeline-date text-muted">{{ act.date }}</div>
-                </div>
-              </div>
-            }
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 3. Bottom Row: Top Products Table + Orders Overview + Quick Actions -->
+    <!-- 4. Bottom Operational Row: Top SKUs + Audit Stream + Command Shortcuts -->
     <div class="row g-3">
-      <!-- Top Products Table -->
+      <!-- Top SKUs & Inventory Health Status -->
       <div class="col-12 col-lg-5">
         <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2.5">
             <div class="d-flex align-items-center gap-2">
-              <i class="fas fa-cubes text-primary fs-5"></i>
-              <h5 class="dash-card-title mb-0">Top Products by Stock</h5>
+              <i class="bi bi-box-seam text-primary fs-5"></i>
+              <div>
+                <h5 class="dash-card-title mb-0">Top Active SKUs & Stock Health</h5>
+                <span class="text-muted font-size-11">Highest on-hand stock items and thresholds</span>
+              </div>
             </div>
-            <a routerLink="/products" class="card-link">View All <i class="fas fa-arrow-right ms-1"></i></a>
+            <a routerLink="/products" class="card-link font-size-12">View Catalog <i class="bi bi-arrow-right ms-0.5"></i></a>
           </div>
 
           <div class="table-responsive">
             <table class="table top-products-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th scope="col" style="width: 35px;">#</th>
-                  <th scope="col">Product</th>
+                  <th scope="col" style="width: 30px;">#</th>
+                  <th scope="col">Product & Category</th>
                   <th scope="col">SKU</th>
-                  <th scope="col" class="text-end">On Hand</th>
+                  <th scope="col" class="text-end">On-Hand</th>
+                  <th scope="col" class="text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
                 @for (prod of topProducts; track prod.id) {
                   <tr>
-                    <td class="text-muted">{{ prod.id }}</td>
+                    <td class="text-muted font-size-12">{{ prod.id }}</td>
                     <td>
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="product-icon-avatar">
-                          <i [class]="prod.icon"></i>
-                        </div>
-                        <span class="fw-semibold text-dark text-truncate" style="max-width: 180px;" [title]="prod.name">{{ prod.name }}</span>
+                      <div class="min-w-0">
+                        <div class="fw-semibold text-dark text-truncate font-size-12" style="max-width: 170px;" [title]="prod.name">{{ prod.name }}</div>
+                        <div class="text-muted font-size-11 text-truncate" style="max-width: 170px;">{{ prod.category || 'General Goods' }}</div>
                       </div>
                     </td>
-                    <td><span class="sku-pill">{{ prod.sku }}</span></td>
-                    <td class="text-end fw-bold text-dark">{{ prod.onHand | number }}</td>
+                    <td><span class="sku-pill font-size-11">{{ prod.sku }}</span></td>
+                    <td class="text-end fw-bold text-dark font-size-12">{{ prod.onHand | number }}</td>
+                    <td class="text-center">
+                      <span class="stock-health-pill font-size-11" [ngClass]="prod.statusClass || 'status-optimal'">
+                        {{ prod.statusText || 'Optimal' }}
+                      </span>
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -262,32 +355,33 @@
         </div>
       </div>
 
-      <!-- Orders Overview List -->
-      <div class="col-12 col-lg-3">
+      <!-- Live Operational Audit Stream -->
+      <div class="col-12 col-lg-4">
         <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <i class="far fa-list-alt text-primary fs-5"></i>
-              <h5 class="dash-card-title mb-0">Orders Overview</h5>
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2.5">
+            <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
+              <i class="bi bi-clock-history text-primary fs-5 flex-shrink-0"></i>
+              <div>
+                <h5 class="dash-card-title mb-0 text-truncate">Live Audit Stream</h5>
+                <span class="text-muted font-size-11">Real-time ledger events & PO/SO moves</span>
+              </div>
             </div>
-            <a routerLink="/inbound" class="card-link">View All <i class="fas fa-arrow-right ms-1"></i></a>
+            <a routerLink="/inventory" class="card-link flex-shrink-0 text-nowrap font-size-12 ms-2">Full Ledger <i class="bi bi-arrow-right ms-0.5"></i></a>
           </div>
 
-          <div class="orders-overview-list d-flex flex-column gap-3">
-            @for (item of orderMetrics; track item.title) {
-              <div class="order-metric-item d-flex align-items-center gap-3">
-                <div class="order-metric-icon" [style.background-color]="item.iconBg">
-                  <i [class]="item.icon"></i>
+          <div class="activities-timeline">
+            @for (act of activities; track act.title + act.time) {
+              <div class="timeline-row d-flex align-items-start gap-2 mb-2.5">
+                <div class="timeline-dot-wrapper flex-shrink-0">
+                  <span class="timeline-dot" [style.background-color]="act.dotColor"></span>
                 </div>
-                <div class="flex-grow-1">
-                  <div class="order-metric-name">{{ item.title }}</div>
-                  <div class="d-flex align-items-baseline gap-2">
-                    <span class="order-metric-count">{{ item.count }}</span>
-                    <span class="order-trend-pill" [class.trend-up]="item.trendType === 'up'" [class.trend-down]="item.trendType === 'down'">
-                      <i [class]="item.trendType === 'up' ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                      {{ item.trend }}
-                    </span>
-                  </div>
+                <div class="flex-grow-1 min-w-0" style="min-width: 0; overflow: hidden;">
+                  <div class="timeline-title text-truncate font-size-12" [title]="act.title">{{ act.title }}</div>
+                  <div class="timeline-desc text-muted text-truncate font-size-11" [title]="act.description">{{ act.description }}</div>
+                </div>
+                <div class="timeline-timestamp text-end flex-shrink-0 ms-auto ps-2">
+                  <div class="timeline-time font-size-11">{{ act.time }}</div>
+                  <div class="timeline-date text-muted font-size-10">{{ act.date }}</div>
                 </div>
               </div>
             }
@@ -295,25 +389,49 @@
         </div>
       </div>
 
-      <!-- Quick Actions Grid -->
-      <div class="col-12 col-lg-4">
-        <div class="dash-card h-100">
-          <div class="dash-card-header mb-3">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fas fa-bolt text-primary fs-5"></i>
-              <h5 class="dash-card-title mb-0">Quick Actions</h5>
+      <!-- Quick Command Shortcuts & System Telemetry Desk -->
+      <div class="col-12 col-lg-3">
+        <div class="dash-card h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="dash-card-header mb-2.5">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-lightning-charge text-primary fs-5"></i>
+                <div>
+                  <h5 class="dash-card-title mb-0">Command Desk</h5>
+                  <span class="text-muted font-size-11">Quick Dispatch & Scan Actions</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-actions-grid-modern">
+              @for (act of quickActions; track act.label) {
+                <button type="button" class="quick-action-tile-modern" (click)="navigateTo(act.route)">
+                  <div class="quick-action-icon-modern">
+                    <i [class]="act.icon"></i>
+                  </div>
+                  <div class="text-start min-w-0">
+                    <div class="quick-action-title text-truncate">{{ act.label }}</div>
+                    <div class="quick-action-subtitle text-truncate">{{ act.desc }}</div>
+                  </div>
+                </button>
+              }
             </div>
           </div>
 
-          <div class="quick-actions-grid">
-            @for (act of quickActions; track act.label) {
-              <button type="button" class="quick-action-tile" (click)="navigateTo(act.route)">
-                <div class="quick-action-icon">
-                  <i [class]="act.icon"></i>
-                </div>
-                <span class="quick-action-text">{{ act.label }}</span>
-              </button>
-            }
+          <!-- Enterprise System Telemetry Badge Box -->
+          <div class="telemetry-box mt-3 p-2.5 rounded-3 bg-light border border-slate-100">
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
+              <span><i class="bi bi-database text-success me-1"></i>Database Cluster:</span>
+              <span class="fw-semibold text-dark">PostgreSQL 16 Live</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
+              <span><i class="bi bi-broadcast text-primary me-1"></i>Telemetry Latency:</span>
+              <span class="fw-semibold text-success">&lt; 28 ms</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted">
+              <span><i class="bi bi-upc-scan text-secondary me-1"></i>Barcode Engine:</span>
+              <span class="fw-semibold text-dark">GS1 / Code128</span>
+            </div>
           </div>
         </div>
       </div>

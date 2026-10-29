@@ -4,13 +4,99 @@
   padding: 0.5rem 0 1.5rem 0;
 }
 
+/* Header Row - Single Row Alignment (No Wrapping) */
+.inventory-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
+
+  .header-text-block {
+    min-width: 0;
+    flex: 1 1 auto;
+
+    h2 {
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+
+    .inventory-subtitle {
+      font-size: 0.75rem;
+      color: #64748b;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 680px;
+
+      @media (max-width: 1200px) {
+        max-width: 460px;
+      }
+    }
+  }
+
+  .inventory-toggle-group {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 3px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+
+    .toggle-btn {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      padding: 0.35rem 0.85rem !important;
+      border-radius: 6px !important;
+      border: 1px solid transparent !important;
+      color: #475569 !important;
+      background: transparent !important;
+      transition: all 0.18s ease !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      line-height: 1.25;
+
+      i {
+        font-size: 0.75rem;
+        color: #64748b;
+        transition: color 0.15s ease;
+      }
+
+      &:hover:not(.active) {
+        color: #1e293b !important;
+        background-color: #e2e8f0 !important;
+
+        i {
+          color: #334155;
+        }
+      }
+
+      &.active {
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+
+        i {
+          color: #ffffff !important;
+        }
+      }
+    }
+  }
+}
+
 .inventory-badge {
   font-size: 0.7rem;
   padding: 0.2rem 0.6rem;
-}
-
-.inventory-subtitle {
-  font-size: 0.78rem;
 }
 
 /* KPI Cards (Compact) */
@@ -233,7 +319,7 @@
 }
 
 .wms-modal-header-adjust {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
 }
 
 .wms-modal-body {

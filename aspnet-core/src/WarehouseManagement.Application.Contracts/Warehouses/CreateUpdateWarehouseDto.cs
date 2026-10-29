@@ -34,6 +34,8 @@ public class CreateUpdateWarehouseDto
     [StringLength(WarehouseConsts.MaxCountryLength)]
     public string? Country { get; set; } = "India";
 
+    public System.Guid? ManagerId { get; set; }
+
     [Required(ErrorMessage = "Facility manager is required.")]
     [StringLength(WarehouseConsts.MaxContactNameLength)]
     public string ContactPerson { get; set; } = null!;

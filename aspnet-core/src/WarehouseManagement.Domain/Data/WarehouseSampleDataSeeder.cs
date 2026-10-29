@@ -20,6 +20,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
     private readonly IRepository<WarehouseManagement.Inventory.InventoryTransaction, Guid> _transactionRepository;
     private readonly IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> _inboundOrderRepository;
     private readonly IRepository<WarehouseManagement.Outbound.OutboundOrder, Guid> _outboundOrderRepository;
+    private readonly IRepository<WarehouseManagement.Suppliers.Supplier, Guid> _supplierRepository;
     private readonly IGuidGenerator _guidGenerator;
 
     public WarehouseSampleDataSeeder(
@@ -32,6 +33,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         IRepository<WarehouseManagement.Inventory.InventoryTransaction, Guid> transactionRepository,
         IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> inboundOrderRepository,
         IRepository<WarehouseManagement.Outbound.OutboundOrder, Guid> outboundOrderRepository,
+        IRepository<WarehouseManagement.Suppliers.Supplier, Guid> supplierRepository,
         IGuidGenerator guidGenerator)
     {
         _warehouseRepository = warehouseRepository;
@@ -43,6 +45,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         _transactionRepository = transactionRepository;
         _inboundOrderRepository = inboundOrderRepository;
         _outboundOrderRepository = outboundOrderRepository;
+        _supplierRepository = supplierRepository;
         _guidGenerator = guidGenerator;
     }
 
@@ -288,6 +291,110 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
             await _categoryRepository.InsertAsync(accessories, autoSave: true);
             await _categoryRepository.InsertAsync(tablets, autoSave: true);
             await _categoryRepository.InsertAsync(menswear, autoSave: true);
+        }
+
+        if (await _supplierRepository.GetCountAsync() == 0)
+        {
+            var s1 = new WarehouseManagement.Suppliers.Supplier(
+                _guidGenerator.Create(),
+                "SUP-CIPLA",
+                "Cipla Healthcare Ltd",
+                contactPerson: "Dr. Rajesh Sharma",
+                email: "procurement@cipla.com",
+                phoneNumber: "+91 98200 11223",
+                taxNumber: "27AABCC1234F1Z5",
+                address: "Plot 42, MIDC Industrial Area, Andheri East",
+                city: "Mumbai",
+                state: "Maharashtra",
+                postalCode: "400093",
+                paymentTerms: "Net 30",
+                isActive: true,
+                rating: 5,
+                notes: "Primary pharmaceutical API & finished formulations supplier with GMP certification.",
+                tenantId: context.TenantId
+            );
+
+            var s2 = new WarehouseManagement.Suppliers.Supplier(
+                _guidGenerator.Create(),
+                "SUP-SUN",
+                "Sun Pharma Distributors",
+                contactPerson: "Vikram Mehta",
+                email: "orders@sunpharma.in",
+                phoneNumber: "+91 98450 33445",
+                taxNumber: "29AABCS5678G1Z2",
+                address: "18/B, Electronic City Phase 2",
+                city: "Bengaluru",
+                state: "Karnataka",
+                postalCode: "560100",
+                paymentTerms: "Net 45",
+                isActive: true,
+                rating: 5,
+                notes: "Authorized distribution partner for south zone fulfillment hubs.",
+                tenantId: context.TenantId
+            );
+
+            var s3 = new WarehouseManagement.Suppliers.Supplier(
+                _guidGenerator.Create(),
+                "SUP-DRREDDY",
+                "Dr. Reddy's Laboratories",
+                contactPerson: "Ananya Rao",
+                email: "supplychain@drreddys.com",
+                phoneNumber: "+91 94400 55667",
+                taxNumber: "36AABCD9012H1Z9",
+                address: "7-1-27, Ameerpet, Cyber Gateway",
+                city: "Hyderabad",
+                state: "Telangana",
+                postalCode: "500016",
+                paymentTerms: "Net 30",
+                isActive: true,
+                rating: 5,
+                notes: "Direct contract manufacturer for bulk tablets and cold chain biologics.",
+                tenantId: context.TenantId
+            );
+
+            var s4 = new WarehouseManagement.Suppliers.Supplier(
+                _guidGenerator.Create(),
+                "SUP-LUPIN",
+                "Lupin Diagnostics & Logistics",
+                contactPerson: "Suresh Patel",
+                email: "contact@lupinlogistics.in",
+                phoneNumber: "+91 98790 77889",
+                taxNumber: "24AABCL3456J1Z1",
+                address: "Sector 28, GIDC Industrial Estate",
+                city: "Ahmedabad",
+                state: "Gujarat",
+                postalCode: "382028",
+                paymentTerms: "Immediate",
+                isActive: true,
+                rating: 4,
+                notes: "Supplies diagnostic reagents and warehouse packaging consumables.",
+                tenantId: context.TenantId
+            );
+
+            var s5 = new WarehouseManagement.Suppliers.Supplier(
+                _guidGenerator.Create(),
+                "SUP-APEX",
+                "Apex Cold Chain Logistics",
+                contactPerson: "Rakesh Nair",
+                email: "vendor@apexcoldchain.com",
+                phoneNumber: "+91 99880 22110",
+                taxNumber: "07AABCA7890K1Z3",
+                address: "Plot 104, Okhla Phase 3",
+                city: "Delhi",
+                state: "Delhi",
+                postalCode: "110020",
+                paymentTerms: "Net 15",
+                isActive: true,
+                rating: 5,
+                notes: "Specialized cold chain transit and temperature-controlled storage logistics provider.",
+                tenantId: context.TenantId
+            );
+
+            await _supplierRepository.InsertAsync(s1, autoSave: true);
+            await _supplierRepository.InsertAsync(s2, autoSave: true);
+            await _supplierRepository.InsertAsync(s3, autoSave: true);
+            await _supplierRepository.InsertAsync(s4, autoSave: true);
+            await _supplierRepository.InsertAsync(s5, autoSave: true);
         }
     }
 }

@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using WarehouseManagement.Faculty;
 using WarehouseManagement.Permissions;
 
 namespace WarehouseManagement.Warehouses;
@@ -18,9 +20,14 @@ public class WarehouseAppService :
         CreateUpdateWarehouseDto>,
     IWarehouseAppService
 {
-    public WarehouseAppService(IRepository<Warehouse, Guid> repository)
+    private readonly IRepository<FacultyMember, Guid> _facultyRepository;
+
+    public WarehouseAppService(
+        IRepository<Warehouse, Guid> repository,
+        IRepository<FacultyMember, Guid> facultyRepository)
         : base(repository)
     {
+        _facultyRepository = facultyRepository;
         GetPolicyName = null;
         GetListPolicyName = null;
         CreatePolicyName = null;
@@ -70,14 +77,15 @@ public class WarehouseAppService :
             input.ContactPhone,
             input.ContactEmail,
             input.TotalAreaSqFt,
-            input.IsActive
+            input.IsActive,
+            input.ManagerId
         );
 
         // 5. Insert entity into database
         await Repository.InsertAsync(warehouse, autoSave: true);
 
         // 6. Map and return the output DTO
-        return MapToGetOutputDto(warehouse);
+        return await GetAsync(warehouse.Id);
     }
 
     /// <summary>
@@ -121,12 +129,13 @@ public class WarehouseAppService :
         warehouse.ContactEmail = input.ContactEmail;
         warehouse.TotalAreaSqFt = input.TotalAreaSqFt;
         warehouse.IsActive = input.IsActive;
+        warehouse.ManagerId = input.ManagerId;
 
         // 6. Save updates to database
         await Repository.UpdateAsync(warehouse, autoSave: true);
 
         // 7. Map and return updated DTO
-        return MapToGetOutputDto(warehouse);
+        return await GetAsync(warehouse.Id);
     }
 
     private static void ValidateWarehouseInput(CreateUpdateWarehouseDto input)
@@ -187,7 +196,8 @@ public class WarehouseAppService :
             createInput.ContactPhone,
             createInput.ContactEmail,
             createInput.TotalAreaSqFt,
-            createInput.IsActive
+            createInput.IsActive,
+            createInput.ManagerId
         );
 
         return Task.FromResult(entity);
@@ -208,6 +218,7 @@ public class WarehouseAppService :
         entity.ContactEmail = updateInput.ContactEmail;
         entity.TotalAreaSqFt = updateInput.TotalAreaSqFt;
         entity.IsActive = updateInput.IsActive;
+        entity.ManagerId = updateInput.ManagerId;
 
         return Task.CompletedTask;
     }
@@ -228,6 +239,7 @@ public class WarehouseAppService :
             ContactPerson = entity.ContactPerson,
             ContactPhone = entity.ContactPhone,
             ContactEmail = entity.ContactEmail,
+            ManagerId = entity.ManagerId,
             TotalAreaSqFt = entity.TotalAreaSqFt,
             IsActive = entity.IsActive,
             CreationTime = entity.CreationTime,
@@ -237,9 +249,54 @@ public class WarehouseAppService :
         };
     }
 
-    protected override Task<System.Collections.Generic.List<WarehouseDto>> MapToGetListOutputDtosAsync(System.Collections.Generic.List<Warehouse> entities)
+    public override async Task<WarehouseDto> GetAsync(Guid id)
     {
-        var dtos = entities.Select(MapToGetOutputDto).ToList();
-        return Task.FromResult(dtos);
+        var entity = await Repository.GetAsync(id);
+        var dto = MapToGetOutputDto(entity);
+
+        if (entity.ManagerId.HasValue)
+        {
+            var manager = await _facultyRepository.FindAsync(entity.ManagerId.Value);
+            if (manager != null)
+            {
+                dto.ManagerName = manager.FullName;
+                dto.ManagerDesignation = manager.Designation;
+            }
+        }
+
+        return dto;
+    }
+
+    protected override async Task<List<WarehouseDto>> MapToGetListOutputDtosAsync(List<Warehouse> entities)
+    {
+        if (entities.Count == 0)
+        {
+            return new List<WarehouseDto>();
+        }
+
+        var managerIds = entities
+            .Where(w => w.ManagerId.HasValue)
+            .Select(w => w.ManagerId!.Value)
+            .Distinct()
+            .ToList();
+
+        var managers = managerIds.Count > 0
+            ? await _facultyRepository.GetListAsync(m => managerIds.Contains(m.Id))
+            : new List<FacultyMember>();
+
+        var managerMap = managers.ToDictionary(m => m.Id);
+
+        var dtos = entities.Select(w =>
+        {
+            var dto = MapToGetOutputDto(w);
+            if (w.ManagerId.HasValue && managerMap.TryGetValue(w.ManagerId.Value, out var mgr))
+            {
+                dto.ManagerName = mgr.FullName;
+                dto.ManagerDesignation = mgr.Designation;
+            }
+            return dto;
+        }).ToList();
+
+        return dtos;
     }
 }

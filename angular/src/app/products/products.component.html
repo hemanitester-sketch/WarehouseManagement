@@ -4,14 +4,14 @@
     <div>
       <div class="d-flex align-items-center gap-2">
         <h2 class="h4 font-weight-bold text-dark mb-0">Product & SKU Master</h2>
-        <span class="wms-badge wms-badge-purple products-badge-catalog">Multi-Industry Catalog</span>
+        <span class="wms-badge wms-badge-primary products-badge-catalog">Multi-Industry Catalog</span>
       </div>
       <p class="text-muted small mb-0 mt-0.5 products-subtitle">
         Manage item catalog, tracking parameters (Lot/Batch, Expiry, Serial numbers), and cold-chain temperature limits.
       </p>
     </div>
     <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateModal()">
-      <i class="fas fa-plus"></i>
+      <i class="fas fa-plus pe-1"></i>
       <span>Add New SKU</span>
     </button>
   </div>
@@ -129,7 +129,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of filteredProducts">
+          <tr *ngFor="let p of paginatedProducts">
             <td class="ps-3">
               <span class="product-cell-text d-block">{{ p.sku }}</span>
               <small class="product-cell-subtext"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
@@ -184,6 +184,39 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredProducts.length }}</strong> products
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Empty State -->
@@ -193,15 +226,15 @@
     <p class="text-muted small mx-auto empty-state-desc">
       Your catalog is currently empty or no items match your search filter. Register your first SKU to get started.
     </p>
-    <button class="btn btn-wms-primary" (click)="openCreateModal()">
+    <button class="btn btn-wms-primary btn-sm" (click)="openCreateModal()">
       <i class="fas fa-plus me-1"></i> Register New SKU
     </button>
   </div>
 
-  <!-- Modal: Create / Edit Product (ZERO BLACK ELEMENTS, CENTERED, SCROLLABLE) -->
-  <div *ngIf="isCreateModalOpen" class="modal fade show d-block product-modal-backdrop" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow-lg overflow-hidden product-modal-content">
+  <!-- Modal: Create / Edit Product (Right-Side Full-Height Drawer) -->
+  <div *ngIf="isCreateModalOpen" class="modal fade show d-block product-drawer-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closeCreateModal()">
+    <div class="modal-dialog product-drawer-dialog" role="document" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 product-modal-content">
         
         <!-- Header (Purple / Indigo Gradient - NO BLACK) -->
         <div class="wms-modal-header d-flex justify-content-between align-items-center product-modal-header">

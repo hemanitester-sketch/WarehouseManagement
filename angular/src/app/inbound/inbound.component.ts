@@ -14,6 +14,9 @@ import { WarehouseService, WarehouseLocationService } from '../proxy/warehouses'
 import { ProductService } from '../proxy/products';
 import { WarehouseDto, WarehouseLocationDto } from '../proxy/warehouses/models';
 import { ProductDto } from '../proxy/products/models';
+import { SupplierService } from '../proxy/suppliers/supplier.service';
+import { SupplierLookupDto } from '../proxy/suppliers/models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inbound',
@@ -27,13 +30,16 @@ export class InboundComponent implements OnInit {
   private warehouseService = inject(WarehouseService);
   private locationService = inject(WarehouseLocationService);
   private productService = inject(ProductService);
+  private supplierService = inject(SupplierService);
   private toasterService = inject(ToasterService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   orders: InboundOrderDto[] = [];
   warehouses: WarehouseDto[] = [];
   products: ProductDto[] = [];
   locations: WarehouseLocationDto[] = [];
+  suppliers: SupplierLookupDto[] = [];
 
   isLoading = false;
   isSaving = false;
@@ -73,6 +79,50 @@ export class InboundComponent implements OnInit {
 
   statusOptions = inboundOrderStatusOptions;
 
+  // Pagination State (50 Limit default)
+  currentPage = 1;
+  pageSize = 50;
+
+  get paginatedOrders(): InboundOrderDto[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.orders.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.orders.length / this.pageSize) || 1;
+  }
+
+  get paginationStart(): number {
+    return this.orders.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.orders.length);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+  }
+
   // KPIs
   get totalOrdersCount(): number {
     return this.orders.length;
@@ -97,7 +147,21 @@ export class InboundComponent implements OnInit {
   ngOnInit(): void {
     this.loadWarehouses();
     this.loadProducts();
+    this.loadSuppliers();
     this.loadOrders();
+  }
+
+  loadSuppliers(): void {
+    this.supplierService.getLookup().subscribe({
+      next: (res) => {
+        this.suppliers = res.items || [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  navigateToSuppliers(): void {
+    this.router.navigate(['/suppliers']);
   }
 
   loadWarehouses(): void {
@@ -134,6 +198,7 @@ export class InboundComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.orders = res.items || [];
+        this.currentPage = 1;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -229,6 +294,7 @@ export class InboundComponent implements OnInit {
   }
 
   openCreateOrderModal(): void {
+    this.loadSuppliers();
     const todayPlus2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     this.expectedArrivalDateStr = todayPlus2.toISOString().split('T')[0];
 

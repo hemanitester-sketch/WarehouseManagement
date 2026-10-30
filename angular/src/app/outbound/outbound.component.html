@@ -99,7 +99,7 @@
       <table class="table table-hover align-middle mb-0 wms-table outbound-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 140px;">Order #</th>
+            <th class="ps-3" style="width: 190px; min-width: 180px; white-space: nowrap;">Order #</th>
             <th style="width: 170px; min-width: 160px; white-space: nowrap;">Facility</th>
             <th>Customer & Destination</th>
             <th class="text-center" style="width: 100px;">Priority</th>
@@ -113,8 +113,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let ord of paginatedOrders">
-            <td class="ps-3">
-              <span class="outbound-cell-text font-monospace d-block text-primary">{{ ord.orderNumber }}</span>
+            <td class="ps-3" style="width: 190px; min-width: 180px; white-space: nowrap;">
+              <span class="outbound-cell-text font-monospace fw-bold d-block text-primary text-nowrap">{{ ord.orderNumber }}</span>
             </td>
             <td style="width: 170px; min-width: 160px; white-space: nowrap;">
               <span class="outbound-cell-text d-block fw-semibold text-dark text-nowrap">

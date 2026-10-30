@@ -13,7 +13,7 @@
   --lpx-brand: #2563eb !important;
   --lpx-brand-hover: #3b82f6 !important;
   --lpx-logo: url('/assets/images/logo/sleek-wareflow-wordmark.png');
-  --lpx-logo-icon: url('/assets/images/logo/sleek-wareflow-wordmark.png');
+  --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png');
   --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Brand Theme Colors */
@@ -1292,10 +1292,9 @@ body,
 $lpx-custom-sidebar-w: 250px;
 $lpx-collapsed-sidebar-w: 72px;
 
-/* --- 1. FULL EXPANDED DESKTOP (Only >= 1200px and when not manually collapsed) --- */
+/* --- 1. FULL EXPANDED DESKTOP (Only >= 1200px and when not in hover-trigger mode) --- */
 @media only screen and (min-width: 1200px) {
-  #lpx-wrapper:not(.hover-trigger),
-  body:not(.hover-trigger) {
+  #lpx-wrapper:not(.hover-trigger) {
     .lpx-sidebar-container {
       min-width: $lpx-custom-sidebar-w !important;
       max-width: $lpx-custom-sidebar-w !important;
@@ -1318,6 +1317,14 @@ $lpx-collapsed-sidebar-w: 72px;
     .lpx-logo-container {
       width: $lpx-custom-sidebar-w !important;
       max-width: $lpx-custom-sidebar-w !important;
+      padding: 8px 16px !important;
+
+      .lpx-brand-logo {
+        background-image: var(--lpx-logo) !important;
+        max-width: 180px !important;
+        width: 100% !important;
+        height: 42px !important;
+      }
     }
 
     .lpx-sidebar .lpx-logo-container .menu-collapse-icon {
@@ -1351,6 +1358,70 @@ $lpx-collapsed-sidebar-w: 72px;
 /* --- 2. COLLAPSED / ICON-ONLY / ZOOMED RESPONSIVE STATE --- */
 /* A) When screen is zoomed in or on tablet (768px - 1199px): strictly 72px width */
 @media only screen and (min-width: 768px) and (max-width: 1199px) {
+  #lpx-wrapper .lpx-sidebar-container:not(:hover) {
+    min-width: $lpx-collapsed-sidebar-w !important;
+    max-width: $lpx-collapsed-sidebar-w !important;
+    width: $lpx-collapsed-sidebar-w !important;
+    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .lpx-sidebar,
+    .lpx-nav,
+    .lpx-nav-menu {
+      min-width: $lpx-collapsed-sidebar-w !important;
+      max-width: $lpx-collapsed-sidebar-w !important;
+      width: $lpx-collapsed-sidebar-w !important;
+    }
+
+    .lpx-logo-container {
+      min-width: $lpx-collapsed-sidebar-w !important;
+      max-width: $lpx-collapsed-sidebar-w !important;
+      width: $lpx-collapsed-sidebar-w !important;
+      padding: 8px 4px !important;
+      justify-content: center !important;
+
+      .lpx-brand-logo {
+        background-image: var(--lpx-logo-icon) !important;
+        max-width: 38px !important;
+        width: 38px !important;
+        height: 34px !important;
+        margin: 0 auto !important;
+      }
+
+      .menu-collapse-icon {
+        display: none !important;
+      }
+    }
+
+    .lpx-nav-menu .lpx-menu-item-link {
+      padding: 9px 0 !important;
+      justify-content: center !important;
+      text-align: center !important;
+
+      .lpx-menu-item-icon {
+        margin: 0 auto !important;
+        font-size: 1.15rem !important;
+      }
+
+      .lpx-menu-item-text,
+      .dd-icon {
+        display: none !important;
+      }
+    }
+  }
+
+  #lpx-wrapper .lpx-content-container {
+    margin-left: $lpx-collapsed-sidebar-w !important;
+    transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #lpx-wrapper .lpx-footbar-container {
+    left: $lpx-collapsed-sidebar-w !important;
+    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* B) When manually collapsed via toggle button (#lpx-wrapper.hover-trigger): strictly 72px */
+#lpx-wrapper.hover-trigger {
   .lpx-sidebar-container:not(:hover) {
     min-width: $lpx-collapsed-sidebar-w !important;
     max-width: $lpx-collapsed-sidebar-w !important;
@@ -1373,10 +1444,15 @@ $lpx-collapsed-sidebar-w: 72px;
       justify-content: center !important;
 
       .lpx-brand-logo {
+        background-image: var(--lpx-logo-icon) !important;
         max-width: 38px !important;
         width: 38px !important;
         height: 34px !important;
         margin: 0 auto !important;
+      }
+
+      .menu-collapse-icon {
+        display: none !important;
       }
     }
 
@@ -1408,127 +1484,10 @@ $lpx-collapsed-sidebar-w: 72px;
   }
 }
 
-/* B) When manually collapsed on desktop via toggle button (#lpx-wrapper.hover-trigger): strictly 72px */
-@media only screen and (min-width: 1200px) {
-  #lpx-wrapper.hover-trigger,
-  body.hover-trigger,
-  .hover-trigger {
-    .lpx-sidebar-container:not(:hover) {
-      min-width: $lpx-collapsed-sidebar-w !important;
-      max-width: $lpx-collapsed-sidebar-w !important;
-      width: $lpx-collapsed-sidebar-w !important;
-      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-
-      .lpx-sidebar,
-      .lpx-nav,
-      .lpx-nav-menu {
-        min-width: $lpx-collapsed-sidebar-w !important;
-        max-width: $lpx-collapsed-sidebar-w !important;
-        width: $lpx-collapsed-sidebar-w !important;
-      }
-
-      .lpx-logo-container {
-        min-width: $lpx-collapsed-sidebar-w !important;
-        max-width: $lpx-collapsed-sidebar-w !important;
-        width: $lpx-collapsed-sidebar-w !important;
-        padding: 8px 4px !important;
-        justify-content: center !important;
-
-        .lpx-brand-logo {
-          max-width: 38px !important;
-          width: 38px !important;
-          height: 34px !important;
-          margin: 0 auto !important;
-        }
-      }
-
-      .lpx-nav-menu .lpx-menu-item-link {
-        padding: 9px 0 !important;
-        justify-content: center !important;
-        text-align: center !important;
-
-        .lpx-menu-item-icon {
-          margin: 0 auto !important;
-          font-size: 1.15rem !important;
-        }
-
-        .lpx-menu-item-text,
-        .dd-icon {
-          display: none !important;
-        }
-      }
-    }
-
-    .lpx-content-container {
-      margin-left: $lpx-collapsed-sidebar-w !important;
-      transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .lpx-footbar-container {
-      left: $lpx-collapsed-sidebar-w !important;
-      transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-}
-
 /* --- 3. HOVER OVERLAY EXPANSION IN COLLAPSED MODE --- */
 @media only screen and (min-width: 768px) {
-  .hover-trigger .lpx-sidebar-container:hover,
-  .lpx-sidebar-container:hover {
-    @media (max-width: 1199px) {
-      min-width: $lpx-custom-sidebar-w !important;
-      max-width: $lpx-custom-sidebar-w !important;
-      width: $lpx-custom-sidebar-w !important;
-      z-index: 1050 !important;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.14) !important;
-      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-
-      .lpx-sidebar,
-      .lpx-nav,
-      .lpx-nav-menu {
-        min-width: $lpx-custom-sidebar-w !important;
-        max-width: $lpx-custom-sidebar-w !important;
-        width: $lpx-custom-sidebar-w !important;
-      }
-
-      .lpx-logo-container {
-        min-width: $lpx-custom-sidebar-w !important;
-        max-width: $lpx-custom-sidebar-w !important;
-        width: $lpx-custom-sidebar-w !important;
-        padding: 8px 16px !important;
-
-        .lpx-brand-logo {
-          max-width: 180px !important;
-          width: 100% !important;
-          height: 42px !important;
-        }
-
-        .menu-collapse-icon {
-          left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
-          right: auto !important;
-          display: block !important;
-        }
-      }
-
-      .lpx-nav-menu .lpx-menu-item-link {
-        padding: 6px 10px !important;
-        justify-content: flex-start !important;
-        text-align: left !important;
-
-        .lpx-menu-item-text {
-          display: inline-block !important;
-          width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
-        }
-      }
-
-      .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
-        display: inline-block !important;
-        width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
-      }
-    }
-  }
-
-  #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover {
+  #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover,
+  #lpx-wrapper .lpx-sidebar-container:hover {
     min-width: $lpx-custom-sidebar-w !important;
     max-width: $lpx-custom-sidebar-w !important;
     width: $lpx-custom-sidebar-w !important;
@@ -1551,6 +1510,7 @@ $lpx-collapsed-sidebar-w: 72px;
       padding: 8px 16px !important;
 
       .lpx-brand-logo {
+        background-image: var(--lpx-logo) !important;
         max-width: 180px !important;
         width: 100% !important;
         height: 42px !important;
@@ -1567,6 +1527,10 @@ $lpx-collapsed-sidebar-w: 72px;
       padding: 6px 10px !important;
       justify-content: flex-start !important;
       text-align: left !important;
+
+      .lpx-menu-item-icon {
+        margin: 0 8px 0 0 !important;
+      }
 
       .lpx-menu-item-text {
         display: inline-block !important;
@@ -1691,17 +1655,9 @@ lpx-brand-logo .lpx-brand-logo {
   margin: 0 auto !important;
 }
 
-/* Keep logo fixed and static at all times - NO zoom in/out effect on hover/unhover */
-.lpx-brand-logo,
-a.lpx-brand-logo,
-lpx-brand-logo,
-lpx-brand-logo a,
-.lpx-logo-container > a,
-.lpx-brand-logo:hover,
-a.lpx-brand-logo:hover,
-.lpx-sidebar-container .lpx-brand-logo,
-.lpx-sidebar-container:hover .lpx-brand-logo,
-.hover-trigger .lpx-sidebar-container:hover .lpx-brand-logo {
+/* Keep logo fixed and static when expanded or hovered */
+#lpx-wrapper:not(.hover-trigger) .lpx-brand-logo,
+.lpx-sidebar-container:hover .lpx-brand-logo {
   max-width: 180px !important;
   width: 100% !important;
   height: 42px !important;
@@ -1711,11 +1667,8 @@ a.lpx-brand-logo:hover,
   background-position: center !important;
 }
 
-.lpx-sidebar .lpx-logo-container,
-#lpx-wrapper .lpx-logo-container,
-.lpx-sidebar-container .lpx-logo-container,
-.lpx-sidebar-container:hover .lpx-logo-container,
-.hover-trigger .lpx-sidebar-container:hover .lpx-logo-container {
+#lpx-wrapper:not(.hover-trigger) .lpx-logo-container,
+.lpx-sidebar-container:hover .lpx-logo-container {
   padding: 8px 16px !important;
   justify-content: center !important;
   transform: none !important;

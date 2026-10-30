@@ -2855,6 +2855,179 @@ namespace WarehouseManagement.Migrations
                     b.ToTable("AppSuppliers", (string)null);
                 });
 
+            modelBuilder.Entity("WarehouseManagement.Transfers.StockTransfer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CarrierName")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<Guid?>("DestinationLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DestinationWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DispatchedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DriverName")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DriverPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime?>("ReceivedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SourceLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SourceWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<string>("TrackingNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("TransferDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TransferNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("TransferType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VehicleNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DestinationWarehouseId");
+
+                    b.HasIndex("SourceWarehouseId");
+
+                    b.HasIndex("TenantId", "DestinationWarehouseId");
+
+                    b.HasIndex("TenantId", "SourceWarehouseId");
+
+                    b.HasIndex("TenantId", "Status");
+
+                    b.HasIndex("TenantId", "TransferNumber")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "TransferType");
+
+                    b.ToTable("AppStockTransfers", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Transfers.StockTransferItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("DestinationLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LotBatchNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Lpn")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("QuantityRequested")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<decimal>("QuantityTransferred")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("SourceLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StockTransferId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("StockTransferId", "ProductId");
+
+                    b.ToTable("AppStockTransferItems", (string)null);
+                });
+
             modelBuilder.Entity("WarehouseManagement.Warehouses.Warehouse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3478,6 +3651,36 @@ namespace WarehouseManagement.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
+            modelBuilder.Entity("WarehouseManagement.Transfers.StockTransfer", b =>
+                {
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("DestinationWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("SourceWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Transfers.StockTransferItem", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Transfers.StockTransfer", null)
+                        .WithMany("Items")
+                        .HasForeignKey("StockTransferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WarehouseManagement.Warehouses.Warehouse", b =>
                 {
                     b.HasOne("WarehouseManagement.Faculty.FacultyMember", null)
@@ -3562,6 +3765,11 @@ namespace WarehouseManagement.Migrations
             modelBuilder.Entity("WarehouseManagement.Outbound.OutboundOrder", b =>
                 {
                     b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Transfers.StockTransfer", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

@@ -980,9 +980,9 @@
                 <i class="fas fa-user-tie input-icon"></i>
                 <select class="form-select manager-select" [(ngModel)]="newWarehouse.managerId"
                   (ngModelChange)="onManagerSelected($event)">
-                  <option [ngValue]="null">-- Select Facility Manager from Staff Directory --</option>
+                  <option [ngValue]="null">-- Select Facility Manager --</option>
                   <option *ngFor="let fac of facultyLookups" [ngValue]="fac.id">
-                    {{ fac.fullName }} · {{ fac.designation }} ({{ fac.employeeCode }})
+                    {{ fac.fullName }} ({{ fac.designation }})
                   </option>
                 </select>
               </div>

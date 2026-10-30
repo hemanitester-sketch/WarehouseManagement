@@ -79,6 +79,10 @@ public class WarehouseManagementDbContext :
     public DbSet<WarehouseManagement.Outbound.OutboundOrder> OutboundOrders { get; set; }
     public DbSet<WarehouseManagement.Outbound.OutboundOrderLine> OutboundOrderLines { get; set; }
 
+    // Stock Transfers & Movement
+    public DbSet<WarehouseManagement.Transfers.StockTransfer> StockTransfers { get; set; }
+    public DbSet<WarehouseManagement.Transfers.StockTransferItem> StockTransferItems { get; set; }
+
     #endregion
 
     public WarehouseManagementDbContext(DbContextOptions<WarehouseManagementDbContext> options)
@@ -400,6 +404,62 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.UnitPrice).HasPrecision(18, 2);
 
             b.HasIndex(x => new { x.TenantId, x.OutboundOrderId, x.ProductId });
+
+            b.HasOne<WarehouseManagement.Products.Product>()
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Transfers.StockTransfer>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "StockTransfers", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.TransferNumber).IsRequired().HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxTransferNumberLength);
+            b.Property(x => x.CarrierName).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxCarrierNameLength);
+            b.Property(x => x.TrackingNumber).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxTrackingNumberLength);
+            b.Property(x => x.VehicleNumber).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxVehicleNumberLength);
+            b.Property(x => x.DriverName).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxDriverNameLength);
+            b.Property(x => x.DriverPhone).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxDriverPhoneLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Transfers.TransferConsts.MaxNotesLength);
+
+            b.HasIndex(x => new { x.TenantId, x.TransferNumber }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.SourceWarehouseId });
+            b.HasIndex(x => new { x.TenantId, x.DestinationWarehouseId });
+            b.HasIndex(x => new { x.TenantId, x.Status });
+            b.HasIndex(x => new { x.TenantId, x.TransferType });
+
+            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+                .WithMany()
+                .HasForeignKey(x => x.SourceWarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+                .WithMany()
+                .HasForeignKey(x => x.DestinationWarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(x => x.Items)
+                .WithOne()
+                .HasForeignKey(x => x.StockTransferId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Transfers.StockTransferItem>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "StockTransferItems", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.QuantityRequested).HasPrecision(18, 4);
+            b.Property(x => x.QuantityTransferred).HasPrecision(18, 4);
+            b.Property(x => x.LotBatchNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLotBatchNumberLength);
+            b.Property(x => x.SerialNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxSerialNumberLength);
+            b.Property(x => x.Lpn).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLpnLength);
+
+            b.HasIndex(x => new { x.StockTransferId, x.ProductId });
 
             b.HasOne<WarehouseManagement.Products.Product>()
                 .WithMany()

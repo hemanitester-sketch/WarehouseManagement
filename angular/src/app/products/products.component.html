@@ -117,7 +117,7 @@
       <table class="table table-hover align-middle mb-0 wms-table products-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 200px; min-width: 190px; white-space: nowrap;">SKU & Barcode</th>
+            <th class="ps-3" style="width: 230px; min-width: 220px; white-space: nowrap;">SKU & Barcode</th>
             <th>Product Name</th>
             <th style="width: 140px;">Category</th>
             <th style="width: 110px;">Unit Price</th>
@@ -130,7 +130,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let p of paginatedProducts">
-            <td class="ps-3" style="width: 200px; min-width: 190px; white-space: nowrap;">
+            <td class="ps-3" style="width: 230px; min-width: 220px; white-space: nowrap;">
               <span class="product-cell-text d-block font-monospace fw-semibold text-nowrap">{{ p.sku }}</span>
               <small class="product-cell-subtext text-nowrap"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
             </td>

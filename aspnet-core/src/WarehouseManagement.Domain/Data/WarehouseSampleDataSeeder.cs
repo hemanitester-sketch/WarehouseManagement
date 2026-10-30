@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -21,6 +23,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
     private readonly IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> _inboundOrderRepository;
     private readonly IRepository<WarehouseManagement.Outbound.OutboundOrder, Guid> _outboundOrderRepository;
     private readonly IRepository<WarehouseManagement.Suppliers.Supplier, Guid> _supplierRepository;
+    private readonly IRepository<WarehouseManagement.Transfers.StockTransfer, Guid> _transferRepository;
     private readonly IGuidGenerator _guidGenerator;
 
     public WarehouseSampleDataSeeder(
@@ -34,6 +37,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         IRepository<WarehouseManagement.Inbound.InboundOrder, Guid> inboundOrderRepository,
         IRepository<WarehouseManagement.Outbound.OutboundOrder, Guid> outboundOrderRepository,
         IRepository<WarehouseManagement.Suppliers.Supplier, Guid> supplierRepository,
+        IRepository<WarehouseManagement.Transfers.StockTransfer, Guid> transferRepository,
         IGuidGenerator guidGenerator)
     {
         _warehouseRepository = warehouseRepository;
@@ -46,6 +50,7 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
         _inboundOrderRepository = inboundOrderRepository;
         _outboundOrderRepository = outboundOrderRepository;
         _supplierRepository = supplierRepository;
+        _transferRepository = transferRepository;
         _guidGenerator = guidGenerator;
     }
 
@@ -395,6 +400,104 @@ public class WarehouseSampleDataSeeder : IDataSeedContributor, ITransientDepende
             await _supplierRepository.InsertAsync(s3, autoSave: true);
             await _supplierRepository.InsertAsync(s4, autoSave: true);
             await _supplierRepository.InsertAsync(s5, autoSave: true);
+        }
+
+        // Seed Stock Transfers
+        if (await _transferRepository.GetCountAsync() == 0)
+        {
+            var warehouses = await _warehouseRepository.GetListAsync();
+            var products = await _productRepository.GetListAsync();
+            var locations = await _locationRepository.GetListAsync();
+
+            if (warehouses.Count >= 2 && products.Count >= 2)
+            {
+                var wh1 = warehouses[0];
+                var wh2 = warehouses[1];
+                var prod1 = products[0];
+                var prod2 = products[1];
+                var loc1 = locations.FirstOrDefault(x => x.WarehouseId == wh1.Id);
+                var loc2 = locations.FirstOrDefault(x => x.WarehouseId == wh2.Id);
+
+                // 1. Completed Inter-Warehouse Transfer
+                var tr1 = new WarehouseManagement.Transfers.StockTransfer(
+                    _guidGenerator.Create(),
+                    "TR-2026-0001",
+                    WarehouseManagement.Transfers.TransferType.InterWarehouse,
+                    wh1.Id,
+                    wh2.Id,
+                    tenantId: context.TenantId,
+                    sourceLocationId: loc1?.Id,
+                    destinationLocationId: loc2?.Id,
+                    carrierName: "BlueDart Express Freight",
+                    trackingNumber: "BD-EXP-8891230",
+                    vehicleNumber: "MH-04-AZ-8891",
+                    driverName: "Joginder Singh",
+                    driverPhone: "+91 98200 44551",
+                    transferDate: DateTime.UtcNow.AddDays(-3),
+                    notes: "High priority inter-facility stock replenishment for seasonal surge."
+                );
+                tr1.AddItem(prod1.Id, 50, loc1?.Id, loc2?.Id, 50, "LOT-BATCH-2026-A1");
+                tr1.Status = WarehouseManagement.Transfers.TransferStatus.Completed;
+                tr1.DispatchedDate = DateTime.UtcNow.AddDays(-3);
+                tr1.ReceivedDate = DateTime.UtcNow.AddDays(-1);
+
+                // 2. In-Transit Active Transfer Order
+                var tr2 = new WarehouseManagement.Transfers.StockTransfer(
+                    _guidGenerator.Create(),
+                    "TR-2026-0002",
+                    WarehouseManagement.Transfers.TransferType.InterWarehouse,
+                    wh1.Id,
+                    wh2.Id,
+                    tenantId: context.TenantId,
+                    sourceLocationId: loc1?.Id,
+                    destinationLocationId: loc2?.Id,
+                    carrierName: "VRL Logistics Ltd",
+                    trackingNumber: "VRL-TR-442190",
+                    vehicleNumber: "KA-01-EQ-9922",
+                    driverName: "Satish Reddy",
+                    driverPhone: "+91 98450 11223",
+                    transferDate: DateTime.UtcNow.AddDays(-1),
+                    notes: "En route via NH-48. Temperature logs checked at dispatch dock."
+                );
+                tr2.AddItem(prod2.Id, 100, loc1?.Id, loc2?.Id, 100, "LOT-AMOX-882");
+                tr2.Status = WarehouseManagement.Transfers.TransferStatus.InTransit;
+                tr2.DispatchedDate = DateTime.UtcNow.AddHours(-18);
+
+                // 3. Approved Internal Bin-to-Bin Replenishment
+                var tr3 = new WarehouseManagement.Transfers.StockTransfer(
+                    _guidGenerator.Create(),
+                    "TR-2026-0003",
+                    WarehouseManagement.Transfers.TransferType.Replenishment,
+                    wh1.Id,
+                    wh1.Id,
+                    tenantId: context.TenantId,
+                    sourceLocationId: loc1?.Id,
+                    destinationLocationId: loc1?.Id,
+                    notes: "Internal reserve rack to ground level pick-face top up."
+                );
+                tr3.AddItem(prod1.Id, 25, loc1?.Id, loc1?.Id, 25);
+                tr3.Status = WarehouseManagement.Transfers.TransferStatus.Approved;
+
+                // 4. Quarantine Movement
+                var tr4 = new WarehouseManagement.Transfers.StockTransfer(
+                    _guidGenerator.Create(),
+                    "TR-2026-0004",
+                    WarehouseManagement.Transfers.TransferType.Quarantine,
+                    wh1.Id,
+                    wh1.Id,
+                    tenantId: context.TenantId,
+                    sourceLocationId: loc1?.Id,
+                    notes: "Outer carton moisture damage detected during dock inspection. Isolated for QA testing."
+                );
+                tr4.AddItem(prod2.Id, 5, loc1?.Id, null, 5);
+                tr4.Status = WarehouseManagement.Transfers.TransferStatus.Completed;
+                tr4.ReceivedDate = DateTime.UtcNow.AddDays(-2);
+
+                await _transferRepository.InsertAsync(tr1, autoSave: true);
+                await _transferRepository.InsertAsync(tr2, autoSave: true);
+                await _transferRepository.InsertAsync(tr3, autoSave: true);
+                await _transferRepository.InsertAsync(tr4, autoSave: true);
+            }
         }
     }
 }

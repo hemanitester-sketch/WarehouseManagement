@@ -1,0 +1,909 @@
+<div class="transfers-container">
+  <!-- Top Header Row -->
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+    <div class="header-left min-w-0">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Stock Transfers & Internal Movement</h2>
+        <span class="wms-badge wms-badge-primary">Multi-Facility Transit</span>
+        <span class="badge bg-light text-muted border">Gate Pass & Challan System</span>
+      </div>
+      <p class="text-muted small mb-0 mt-0.5 text-truncate">
+        Manage inter-warehouse shipments, reserve rack replenishments, internal bin relocations, and quarantine movements.
+      </p>
+    </div>
+    <div class="header-actions d-flex align-items-center gap-2 mt-2 mt-md-0">
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" (click)="loadTransfers()" [disabled]="isLoading" title="Refresh Transfers">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+        <span>Refresh</span>
+      </button>
+      <button class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+        <i class="bi bi-plus-lg"></i>
+        <span>New Transfer Order</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 Enterprise KPI Cards -->
+  <div class="row g-3 mb-3">
+    <!-- Total Transfers -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card h-100">
+        <div class="metric-icon" style="background-color: #eff6ff; color: #2563eb;">
+          <i class="bi bi-arrow-left-right"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ totalTransfersCount }}</div>
+          <div class="metric-label">Total Movement Orders</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Transit Fleet -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card h-100">
+        <div class="metric-icon" style="background-color: #fef3c7; color: #d97706;">
+          <i class="bi bi-truck"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ inTransitCount }}</div>
+          <div class="metric-label">In-Transit Shipments</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Signoffs -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card h-100">
+        <div class="metric-icon" style="background-color: #e0e7ff; color: #4f46e5;">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ pendingCount }}</div>
+          <div class="metric-label">Pending Approvals / Drafts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed Movements -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card h-100">
+        <div class="metric-icon" style="background-color: #ecfdf5; color: #10b981;">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ completedCount }}</div>
+          <div class="metric-label">Completed & Reconciled</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="filter-card wms-card p-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <!-- Search Input -->
+      <div class="col-12 col-md-3">
+        <div class="wms-search-input">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Search transfer #, carrier, driver..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearch()"
+          />
+        </div>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="col-6 col-md-2">
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="typeFilter"
+          [class.filter-active]="typeFilter !== ''"
+          (ngModelChange)="onSearch()"
+        >
+          <option value="">All Movement Types</option>
+          @for (opt of typeOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="col-6 col-md-2">
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="statusFilter"
+          [class.filter-active]="statusFilter !== ''"
+          (ngModelChange)="onSearch()"
+        >
+          <option value="">All Statuses</option>
+          @for (st of statusOptions; track st.value) {
+            <option [value]="st.value">{{ st.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Source Warehouse Filter -->
+      <div class="col-6 col-md-2">
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="sourceWarehouseFilter"
+          [class.filter-active]="sourceWarehouseFilter !== ''"
+          (ngModelChange)="onSearch()"
+        >
+          <option value="">All Source Hubs</option>
+          @for (wh of warehouses; track wh.id) {
+            <option [value]="wh.id">{{ wh.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Destination Warehouse Filter -->
+      <div class="col-6 col-md-2">
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="destinationWarehouseFilter"
+          [class.filter-active]="destinationWarehouseFilter !== ''"
+          (ngModelChange)="onSearch()"
+        >
+          <option value="">All Dest Hubs</option>
+          @for (wh of warehouses; track wh.id) {
+            <option [value]="wh.id">{{ wh.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Clear Button -->
+      <div class="col-12 col-md-1 text-md-end">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary w-100"
+          (click)="clearFilters()"
+          title="Reset Filters"
+        >
+          <i class="bi bi-x-circle me-1"></i>Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Grid Card -->
+  <div class="wms-card">
+    <div class="table-responsive">
+      <table class="table wms-table wms-table-compact align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="min-width: 140px; width: 145px;">Transfer Order</th>
+            <th style="min-width: 130px; width: 135px;">Type</th>
+            <th style="min-width: 220px;">Route / Facility Movement</th>
+            <th style="min-width: 110px; width: 120px;" class="text-center">Items & Units</th>
+            <th style="min-width: 180px;">Logistics & Carrier</th>
+            <th style="min-width: 105px; width: 110px;">Date</th>
+            <th style="min-width: 110px; width: 115px;" class="text-center">Status</th>
+            <th style="min-width: 160px; width: 170px;" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                Loading transfer orders and movement ledger...
+              </td>
+            </tr>
+          } @else if (filteredTransfers.length === 0) {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2 text-secondary d-block mb-2"></i>
+                No stock transfer movements match the current filters.
+              </td>
+            </tr>
+          } @else {
+            @for (t of paginatedTransfers; track t.id) {
+              <tr>
+                <!-- Transfer Number & Challan -->
+                <td>
+                  <div class="d-flex flex-column gap-0.5">
+                    <span class="fw-bold text-dark font-monospace font-size-13">{{ t.transferNumber }}</span>
+                    @if (t.deliveryChallanNumber) {
+                      <span class="challan-pill font-size-10" title="Delivery Challan">
+                        <i class="bi bi-receipt me-1"></i>{{ t.deliveryChallanNumber }}
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Type -->
+                <td>
+                  <span class="type-pill font-size-11" [ngClass]="getTypeBadgeClass(t.type)">
+                    <i [class]="getTypeIcon(t.type)"></i>
+                    <span>{{ getTypeLabel(t.type) }}</span>
+                  </span>
+                </td>
+
+                <!-- Route / Movement -->
+                <td>
+                  <div class="route-movement-box">
+                    <div class="route-node">
+                      <span class="route-node-label">FROM</span>
+                      <span class="route-node-val text-truncate" [title]="t.sourceWarehouseName || 'Source'">
+                        {{ t.sourceWarehouseName || 'Source Warehouse' }}
+                      </span>
+                    </div>
+                    <i class="bi bi-arrow-right route-arrow text-primary"></i>
+                    <div class="route-node">
+                      <span class="route-node-label">TO</span>
+                      <span class="route-node-val text-truncate" [title]="t.destinationWarehouseName || 'Destination'">
+                        {{ t.destinationWarehouseName || 'Destination Warehouse' }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Items & Units -->
+                <td class="text-center">
+                  <button type="button" class="btn btn-sm btn-light border py-0.5 px-2 font-size-11" (click)="openDetailsModal(t)">
+                    <strong class="text-dark">{{ t.totalUnits }}</strong> units
+                    <span class="text-muted">({{ t.totalItemsCount }} SKU)</span>
+                  </button>
+                </td>
+
+                <!-- Logistics & Carrier -->
+                <td>
+                  @if (t.carrierName || t.vehicleNumber) {
+                    <div class="d-flex flex-column font-size-11">
+                      <div class="fw-semibold text-dark text-truncate" [title]="t.carrierName">
+                        <i class="bi bi-truck text-muted me-1"></i>{{ t.carrierName || 'Internal Fleet' }}
+                      </div>
+                      <div class="text-muted font-size-10 font-monospace">
+                        {{ t.vehicleNumber || '-' }}
+                        @if (t.driverName) {
+                          &bull; {{ t.driverName }}
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <span class="text-muted font-size-11 fst-italic">Local / Direct Putaway</span>
+                  }
+                </td>
+
+                <!-- Date -->
+                <td>
+                  <span class="text-muted font-size-11">{{ t.transferDate | date: 'dd MMM yyyy' }}</span>
+                </td>
+
+                <!-- Status -->
+                <td class="text-center">
+                  <span class="status-pill font-size-11" [ngClass]="getStatusBadgeClass(t.status)">
+                    <i [class]="getStatusIcon(t.status)"></i>
+                    <span>{{ getStatusLabel(t.status) }}</span>
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <!-- If Draft -> Approve button -->
+                    @if (t.status === 0) {
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-outline-success py-1 px-2 font-size-11"
+                        (click)="approveTransfer(t)"
+                        title="Approve Transfer"
+                      >
+                        <i class="bi bi-check-lg"></i> Approve
+                      </button>
+                    }
+
+                    <!-- If Approved -> Dispatch button -->
+                    @if (t.status === 1) {
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-wms-primary py-1 px-2 font-size-11"
+                        (click)="openDispatchModal(t)"
+                        title="Dispatch Shipment"
+                      >
+                        <i class="bi bi-send"></i> Dispatch
+                      </button>
+                    }
+
+                    <!-- If In Transit -> Complete/Receive button -->
+                    @if (t.status === 2) {
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-success py-1 px-2 font-size-11"
+                        (click)="completeTransfer(t)"
+                        title="Receive at Destination & Putaway"
+                      >
+                        <i class="bi bi-box-arrow-in-down"></i> Receive
+                      </button>
+                    }
+
+                    <!-- Challan / Gate Pass print button -->
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-outline-secondary py-1 px-2 font-size-11"
+                      (click)="openChallanModal(t)"
+                      title="View & Print Delivery Challan / Gate Pass"
+                    >
+                      <i class="bi bi-printer"></i> Challan
+                    </button>
+
+                    <!-- Details preview button -->
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-outline-primary py-1 px-1.5 font-size-11"
+                      (click)="openDetailsModal(t)"
+                      title="View Details"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+
+                    <!-- Cancel button (if not completed or cancelled) -->
+                    @if (t.status !== 3 && t.status !== 4) {
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-outline-danger py-1 px-1.5 font-size-11"
+                        (click)="openCancelModal(t)"
+                        title="Cancel Transfer"
+                      >
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="card-footer bg-white border-top py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="text-muted font-size-12">
+        Showing <strong>{{ paginationStart }}</strong> to <strong>{{ paginationEnd }}</strong> of <strong>{{ filteredTransfers.length }}</strong> transfer movements
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <select class="form-select form-select-sm" style="width: 105px;" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+          <option [value]="10">10 per page</option>
+          <option [value]="25">25 per page</option>
+          <option [value]="50">50 per page</option>
+          <option [value]="100">100 per page</option>
+        </select>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link font-size-11">Page {{ currentPage }} of {{ totalPages }}</span>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 1. CREATE NEW TRANSFER ORDER MODAL                                         -->
+<!-- ========================================================================= -->
+@if (isCreateModalOpen) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <!-- Header -->
+        <div class="modal-header bg-primary text-white py-2.5 px-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left-right fs-5"></i>
+            <div>
+              <h5 class="modal-title font-size-14 mb-0 fw-bold">Initiate Stock Transfer Order</h5>
+              <span class="font-size-11 opacity-75">Material movement and transit gate pass</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body p-3">
+          <!-- Top Row: Transfer # & Movement Type -->
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label font-size-11 fw-bold text-muted mb-1">TRANSFER ORDER #</label>
+              <input type="text" class="form-control form-control-sm font-monospace font-weight-bold" [(ngModel)]="transferModel.transferNumber" readonly />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label font-size-11 fw-bold text-muted mb-1">MOVEMENT TYPE *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="transferModel.type" (ngModelChange)="onTypeChange()">
+                @for (opt of typeOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label font-size-11 fw-bold text-muted mb-1">SCHEDULED DATE *</label>
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="transferModel.transferDate" />
+            </div>
+          </div>
+
+          <!-- Route Row: Source & Destination -->
+          <div class="card p-2.5 mb-3 bg-light border">
+            <div class="row g-2">
+              <!-- Source Facility -->
+              <div class="col-12 col-md-6 border-end-md">
+                <div class="fw-bold text-primary font-size-12 mb-1.5 d-flex align-items-center gap-1.5">
+                  <i class="bi bi-geo-alt text-danger"></i> SOURCE FACILITY (ORIGIN)
+                </div>
+                <div class="row g-2">
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label font-size-11 text-muted mb-0.5">Origin Warehouse *</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="transferModel.sourceWarehouseId" (ngModelChange)="onSourceWarehouseChange()">
+                      @for (wh of warehouses; track wh.id) {
+                        <option [value]="wh.id">{{ wh.name }} ({{ wh.code }})</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label font-size-11 text-muted mb-0.5">Available Source Bins</label>
+                    <div class="font-size-11 text-muted pt-1">
+                      {{ sourceLocations.length }} storage locations available
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Destination Facility -->
+              <div class="col-12 col-md-6">
+                <div class="fw-bold text-success font-size-12 mb-1.5 d-flex align-items-center gap-1.5">
+                  <i class="bi bi-box-arrow-in-down-right"></i> DESTINATION FACILITY (TARGET)
+                </div>
+                <div class="row g-2">
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label font-size-11 text-muted mb-0.5">Target Warehouse *</label>
+                    <select
+                      class="form-select form-select-sm"
+                      [(ngModel)]="transferModel.destinationWarehouseId"
+                      (ngModelChange)="onDestinationWarehouseChange()"
+                      [disabled]="transferModel.type === 1 || transferModel.type === 2"
+                    >
+                      @for (wh of warehouses; track wh.id) {
+                        <option [value]="wh.id">{{ wh.name }} ({{ wh.code }})</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="form-label font-size-11 text-muted mb-0.5">Target Receiving Bins</label>
+                    <div class="font-size-11 text-muted pt-1">
+                      {{ destinationLocations.length }} receiving locations available
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Lines Section -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-dark font-size-12">
+              <i class="bi bi-box-seam me-1 text-primary"></i>LINE ITEMS TO TRANSFER ({{ transferModel.items.length }} SKUs &bull; {{ totalUnitsCalculated }} Units)
+            </span>
+            <button type="button" class="btn btn-xs btn-outline-primary py-1 px-2 font-size-11" (click)="addItemRow()">
+              <i class="bi bi-plus-lg me-1"></i>Add Line Item
+            </button>
+          </div>
+
+          <div class="table-responsive border rounded mb-3">
+            <table class="table wms-table wms-table-compact mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th style="min-width: 180px;">Product & SKU *</th>
+                  <th style="min-width: 130px;">From Bin (Optional)</th>
+                  <th style="min-width: 130px;">To Bin (Optional)</th>
+                  <th style="width: 110px;">Quantity *</th>
+                  <th style="width: 100px;">Unit Cost</th>
+                  <th style="min-width: 130px;">Line Notes</th>
+                  <th style="width: 45px;" class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of transferModel.items; track $index; let idx = $index) {
+                  <tr>
+                    <!-- Product -->
+                    <td>
+                      <select class="form-select form-select-sm" [(ngModel)]="item.productId" (ngModelChange)="onProductChange(item)">
+                        @for (p of products; track p.id) {
+                          <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
+                        }
+                      </select>
+                    </td>
+
+                    <!-- Source Bin -->
+                    <td>
+                      <select class="form-select form-select-sm" [(ngModel)]="item.sourceLocationId">
+                        <option value="">Default Location</option>
+                        @for (loc of sourceLocations; track loc.id) {
+                          <option [value]="loc.id">{{ loc.barcode || (loc.aisle + '-' + loc.rack + '-' + loc.shelf + '-' + loc.bin) }}</option>
+                        }
+                      </select>
+                    </td>
+
+                    <!-- Destination Bin -->
+                    <td>
+                      <select class="form-select form-select-sm" [(ngModel)]="item.destinationLocationId">
+                        <option value="">Auto Putaway Bin</option>
+                        @for (loc of destinationLocations; track loc.id) {
+                          <option [value]="loc.id">{{ loc.barcode || (loc.aisle + '-' + loc.rack + '-' + loc.shelf + '-' + loc.bin) }}</option>
+                        }
+                      </select>
+                    </td>
+
+                    <!-- Quantity -->
+                    <td>
+                      <input type="number" class="form-control form-control-sm font-weight-bold" min="1" [(ngModel)]="item.requestedQuantity" />
+                    </td>
+
+                    <!-- Unit Cost -->
+                    <td>
+                      <input type="number" class="form-control form-control-sm" [(ngModel)]="item.unitCost" />
+                    </td>
+
+                    <!-- Line Notes -->
+                    <td>
+                      <input type="text" class="form-control form-control-sm" placeholder="e.g. Rack A-1" [(ngModel)]="item.notes" />
+                    </td>
+
+                    <!-- Remove -->
+                    <td class="text-center">
+                      <button type="button" class="btn btn-xs btn-outline-danger" (click)="removeItemRow(idx)" title="Remove line">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Logistics & Delivery Challan Details -->
+          <div class="card p-2.5 mb-2 bg-light border">
+            <div class="fw-bold text-dark font-size-11 mb-2">
+              <i class="bi bi-truck me-1 text-primary"></i>LOGISTICS, CARRIER & DELIVERY CHALLAN INFO
+            </div>
+            <div class="row g-2">
+              <div class="col-12 col-md-3">
+                <label class="form-label font-size-11 text-muted mb-0.5">Carrier / Fleet Name</label>
+                <input type="text" class="form-control form-control-sm" placeholder="e.g. BlueDart Express" [(ngModel)]="transferModel.carrierName" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label font-size-11 text-muted mb-0.5">Vehicle Number</label>
+                <input type="text" class="form-control form-control-sm font-monospace" placeholder="e.g. MH-04-AZ-8899" [(ngModel)]="transferModel.vehicleNumber" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label font-size-11 text-muted mb-0.5">Driver Name & Phone</label>
+                <input type="text" class="form-control form-control-sm" placeholder="e.g. Ramesh Kumar (+91...)" [(ngModel)]="transferModel.driverName" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label font-size-11 text-muted mb-0.5">Delivery Challan #</label>
+                <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="transferModel.deliveryChallanNumber" />
+              </div>
+              <div class="col-12">
+                <label class="form-label font-size-11 text-muted mb-0.5">Transfer Order Remarks</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Special handling, pallet numbers, or transit notes" [(ngModel)]="transferModel.notes" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-between">
+          <div class="font-size-11 text-muted">
+            Total transfer volume: <strong>{{ totalUnitsCalculated }} physical units</strong>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeCreateModal()">Cancel</button>
+            <button type="button" class="btn btn-sm btn-wms-primary" (click)="saveTransfer()" [disabled]="isSaving">
+              <i class="bi bi-check2-circle me-1"></i>{{ isSaving ? 'Saving...' : 'Create Transfer Order' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- 2. DISPATCH SHIPMENT MODAL                                                -->
+<!-- ========================================================================= -->
+@if (isDispatchModalOpen && selectedTransferForDispatch) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header bg-primary text-white py-2.5 px-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-truck fs-5"></i>
+            <div>
+              <h5 class="modal-title font-size-14 mb-0 fw-bold">Dispatch Transfer Shipment</h5>
+              <span class="font-size-11 opacity-75">{{ selectedTransferForDispatch.transferNumber }}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeDispatchModal()"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="alert alert-info py-2 px-3 font-size-12 mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Assign logistics carrier and vehicle details. This marks the shipment as <strong>In Transit</strong>.
+          </div>
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Carrier / Transporter</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="dispatchModel.carrierName" />
+            </div>
+            <div class="col-6">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Tracking / AWB #</label>
+              <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="dispatchModel.trackingNumber" />
+            </div>
+            <div class="col-6">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Vehicle Number</label>
+              <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="dispatchModel.vehicleNumber" />
+            </div>
+            <div class="col-6">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Driver Name</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="dispatchModel.driverName" />
+            </div>
+            <div class="col-6">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Driver Contact Phone</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="dispatchModel.driverPhone" />
+            </div>
+            <div class="col-12">
+              <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Delivery Challan / Gate Pass #</label>
+              <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="dispatchModel.deliveryChallanNumber" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeDispatchModal()">Cancel</button>
+          <button type="button" class="btn btn-sm btn-wms-primary" (click)="confirmDispatch()" [disabled]="isSaving">
+            <i class="bi bi-send me-1"></i>Confirm Dispatch
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- 3. PRINTABLE DELIVERY CHALLAN / GATE PASS MODAL                          -->
+<!-- ========================================================================= -->
+@if (isChallanModalOpen && selectedTransferForChallan) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <!-- Modal Toolbar -->
+        <div class="modal-header bg-light py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-receipt text-primary fs-5"></i>
+            <span class="fw-bold font-size-13 text-dark">Material Delivery Challan & Gate Pass</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-wms-primary py-1 px-2.5 font-size-12" (click)="printChallan()">
+              <i class="bi bi-printer me-1"></i>Print Challan
+            </button>
+            <button type="button" class="btn-close" (click)="closeChallanModal()"></button>
+          </div>
+        </div>
+
+        <!-- Printable Document Body -->
+        <div class="modal-body p-4 printable-challan" id="printableChallanDoc">
+          <!-- Document Header -->
+          <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+            <div>
+              <h3 class="h5 fw-bold text-dark mb-0 font-monospace">WAREFLOW LOGISTICS HUB</h3>
+              <div class="font-size-11 text-muted">Enterprise Multi-Facility Supply Chain Management</div>
+              <div class="font-size-11 text-muted">GSTIN: 27AABCT8822C1ZR &bull; ISO 9001:2015 Certified</div>
+            </div>
+            <div class="text-end">
+              <div class="badge bg-primary text-white font-size-12 py-1 px-2.5 mb-1">DELIVERY CHALLAN</div>
+              <div class="font-monospace fw-bold font-size-13 text-dark">{{ selectedTransferForChallan.deliveryChallanNumber || selectedTransferForChallan.transferNumber }}</div>
+              <div class="font-size-11 text-muted">Date: {{ selectedTransferForChallan.transferDate | date: 'dd-MMM-yyyy' }}</div>
+            </div>
+          </div>
+
+          <!-- Origin & Destination Grid -->
+          <div class="row g-3 mb-3 pb-3 border-bottom">
+            <div class="col-6 border-end">
+              <div class="font-size-11 fw-bold text-muted text-uppercase mb-1">DISPATCHED FROM (ORIGIN)</div>
+              <div class="fw-bold text-dark font-size-13">{{ selectedTransferForChallan.sourceWarehouseName }}</div>
+              <div class="font-size-11 text-muted">Internal Supply Chain Node</div>
+            </div>
+            <div class="col-6">
+              <div class="font-size-11 fw-bold text-muted text-uppercase mb-1">DELIVER TO (DESTINATION)</div>
+              <div class="fw-bold text-dark font-size-13">{{ selectedTransferForChallan.destinationWarehouseName }}</div>
+              <div class="font-size-11 text-muted">Receiving Dock & Putaway Zone</div>
+            </div>
+          </div>
+
+          <!-- Transporter Details Bar -->
+          <div class="bg-light p-2.5 rounded border mb-3">
+            <div class="row g-2 font-size-11">
+              <div class="col-3">
+                <span class="text-muted d-block font-size-10">CARRIER</span>
+                <span class="fw-bold text-dark">{{ selectedTransferForChallan.carrierName || 'Internal Fleet' }}</span>
+              </div>
+              <div class="col-3">
+                <span class="text-muted d-block font-size-10">VEHICLE NO.</span>
+                <span class="fw-bold text-dark font-monospace">{{ selectedTransferForChallan.vehicleNumber || 'Pending' }}</span>
+              </div>
+              <div class="col-3">
+                <span class="text-muted d-block font-size-10">DRIVER & PHONE</span>
+                <span class="fw-bold text-dark">{{ selectedTransferForChallan.driverName || 'Ramesh Kumar' }}</span>
+              </div>
+              <div class="col-3">
+                <span class="text-muted d-block font-size-10">TRACKING AWB</span>
+                <span class="fw-bold text-dark font-monospace">{{ selectedTransferForChallan.trackingNumber || '-' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Goods Manifest Table -->
+          <table class="table table-bordered table-sm font-size-11 mb-3 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 35px;">#</th>
+                <th>Item Description</th>
+                <th style="width: 140px;">SKU Code</th>
+                <th style="width: 100px;">From Bin</th>
+                <th style="width: 100px;">To Bin</th>
+                <th style="width: 80px;" class="text-end">Qty</th>
+                <th style="width: 90px;" class="text-end">Unit Cost</th>
+                <th style="width: 100px;" class="text-end">Total (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of selectedTransferForChallan.items; track item.id; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td class="fw-semibold text-dark">{{ item.productName }}</td>
+                  <td class="font-monospace">{{ item.productSku }}</td>
+                  <td class="text-muted">{{ item.sourceLocationCode || '-' }}</td>
+                  <td class="text-muted">{{ item.destinationLocationCode || '-' }}</td>
+                  <td class="text-end fw-bold">{{ item.transferredQuantity || item.requestedQuantity }}</td>
+                  <td class="text-end">{{ item.unitCost ? '₹' + item.unitCost : '-' }}</td>
+                  <td class="text-end fw-bold">{{ item.unitCost ? '₹' + ((item.transferredQuantity || item.requestedQuantity) * item.unitCost) : '-' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="5" class="text-end fw-bold">TOTAL MANIFEST:</td>
+                <td class="text-end fw-bold text-primary">{{ selectedTransferForChallan.totalUnits }} Units</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <!-- Gate Signatures -->
+          <div class="row g-3 pt-4 mt-3 border-top text-center font-size-11">
+            <div class="col-4">
+              <div style="height: 45px;"></div>
+              <div class="border-top pt-1 text-muted">Authorized Dispatcher</div>
+            </div>
+            <div class="col-4">
+              <div style="height: 45px;"></div>
+              <div class="border-top pt-1 text-muted">Carrier / Transporter Sign</div>
+            </div>
+            <div class="col-4">
+              <div style="height: 45px;"></div>
+              <div class="border-top pt-1 text-muted">Receiving Warehouse In-charge</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- 4. DETAILS MODAL                                                          -->
+<!-- ========================================================================= -->
+@if (isDetailsModalOpen && selectedTransferDetails) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header bg-light py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle text-primary fs-5"></i>
+            <div>
+              <h5 class="modal-title font-size-13 mb-0 fw-bold">Transfer Order Details</h5>
+              <span class="font-size-11 text-muted">{{ selectedTransferDetails.transferNumber }}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded border">
+            <div>
+              <span class="text-muted font-size-11">Movement Type: </span>
+              <span class="fw-bold font-size-12">{{ getTypeLabel(selectedTransferDetails.type) }}</span>
+            </div>
+            <div>
+              <span class="status-pill font-size-11" [ngClass]="getStatusBadgeClass(selectedTransferDetails.status)">
+                <i [class]="getStatusIcon(selectedTransferDetails.status)"></i>
+                <span>{{ getStatusLabel(selectedTransferDetails.status) }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="table-responsive border rounded mb-2">
+            <table class="table wms-table wms-table-compact mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>From Bin</th>
+                  <th>To Bin</th>
+                  <th class="text-end">Req Qty</th>
+                  <th class="text-end">Transferred</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of selectedTransferDetails.items; track item.id) {
+                  <tr>
+                    <td class="fw-semibold text-dark">{{ item.productName }}</td>
+                    <td class="font-monospace text-muted">{{ item.productSku }}</td>
+                    <td>{{ item.sourceLocationCode || '-' }}</td>
+                    <td>{{ item.destinationLocationCode || '-' }}</td>
+                    <td class="text-end">{{ item.requestedQuantity }}</td>
+                    <td class="text-end fw-bold text-success">{{ item.transferredQuantity }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer py-2 px-3 bg-white border-top">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeDetailsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================================================================= -->
+<!-- 5. CANCEL CONFIRMATION MODAL                                              -->
+<!-- ========================================================================= -->
+@if (isCancelModalOpen && selectedTransferForCancel) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header bg-danger text-white py-2 px-3">
+          <h5 class="modal-title font-size-13 mb-0 fw-bold">Cancel Transfer Order</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
+        </div>
+        <div class="modal-body p-3 font-size-12">
+          <p class="mb-2">Are you sure you want to cancel transfer <strong>{{ selectedTransferForCancel.transferNumber }}</strong>?</p>
+          <label class="form-label font-size-11 text-muted mb-1">Reason for cancellation:</label>
+          <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="cancelReason"></textarea>
+        </div>
+        <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeCancelModal()">Keep Order</button>
+          <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Confirm Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

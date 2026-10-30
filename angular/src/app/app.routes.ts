@@ -35,21 +35,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'transfers',
-    loadComponent: () =>
-      import('./shared/components/module-placeholder.component').then(m => m.ModulePlaceholderComponent),
-    data: {
-      title: 'Stock Transfers & Internal Movement',
-      badge: 'Bin-to-Bin Engine',
-      icon: 'bi bi-arrow-left-right',
-      subtitle: 'Relocate stock across bins, aisles, zones, and quarantine holding areas.',
-      features: [
-        'Bin-to-Bin quick scan relocation with barcode confirmation',
-        'Bulk reserve rack to active picking face replenishment triggers',
-        'Damaged, expired & quarantine holding bin transfer workflows',
-        'Inter-facility warehouse transfer orders with in-transit tracking',
-        'Complete historical audit trail of user transfer transactions',
-      ],
-    },
+    loadChildren: () => import('./transfers/transfers.routes').then(m => m.transfersRoutes),
     canActivate: [AuthGuard],
   },
   {

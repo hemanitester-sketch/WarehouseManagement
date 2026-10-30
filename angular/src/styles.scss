@@ -1292,39 +1292,40 @@ body,
 $lpx-custom-sidebar-w: 250px;
 $lpx-collapsed-sidebar-w: 72px;
 
-/* --- 1. EXPANDED FULL-WIDTH STATE --- */
-#lpx-wrapper:not(.hover-trigger),
-body:not(.hover-trigger) {
-  .lpx-sidebar-container {
-    min-width: $lpx-custom-sidebar-w !important;
-    max-width: $lpx-custom-sidebar-w !important;
-    width: $lpx-custom-sidebar-w !important;
-    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* --- 1. FULL EXPANDED DESKTOP (Only >= 1200px and when not manually collapsed) --- */
+@media only screen and (min-width: 1200px) {
+  #lpx-wrapper:not(.hover-trigger),
+  body:not(.hover-trigger) {
+    .lpx-sidebar-container {
+      min-width: $lpx-custom-sidebar-w !important;
+      max-width: $lpx-custom-sidebar-w !important;
+      width: $lpx-custom-sidebar-w !important;
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-  .lpx-sidebar,
-  .lpx-sidebar-container .lpx-sidebar,
-  .lpx-sidebar-container .lpx-sidebar .lpx-nav,
-  .lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
-  .lpx-sidebar.lpx-scroll-container,
-  .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
-    min-width: $lpx-custom-sidebar-w !important;
-    max-width: $lpx-custom-sidebar-w !important;
-    width: $lpx-custom-sidebar-w !important;
-  }
+    .lpx-sidebar,
+    .lpx-sidebar-container .lpx-sidebar,
+    .lpx-sidebar-container .lpx-sidebar .lpx-nav,
+    .lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
+    .lpx-sidebar.lpx-scroll-container,
+    .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+      min-width: $lpx-custom-sidebar-w !important;
+      max-width: $lpx-custom-sidebar-w !important;
+      width: $lpx-custom-sidebar-w !important;
+    }
 
-  .lpx-sidebar .lpx-logo-container,
-  .lpx-logo-container {
-    width: $lpx-custom-sidebar-w !important;
-    max-width: $lpx-custom-sidebar-w !important;
-  }
+    .lpx-sidebar .lpx-logo-container,
+    .lpx-logo-container {
+      width: $lpx-custom-sidebar-w !important;
+      max-width: $lpx-custom-sidebar-w !important;
+    }
 
-  .lpx-sidebar .lpx-logo-container .menu-collapse-icon {
-    left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
-    right: auto !important;
-  }
+    .lpx-sidebar .lpx-logo-container .menu-collapse-icon {
+      left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
+      right: auto !important;
+      display: block !important;
+    }
 
-  @media only screen and (min-width: 1200px) {
     .lpx-content-container {
       margin-left: $lpx-custom-sidebar-w !important;
       transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1334,22 +1335,22 @@ body:not(.hover-trigger) {
       left: $lpx-custom-sidebar-w !important;
       transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
-  }
 
-  .lpx-nav-menu .lpx-menu-item-link .lpx-menu-item-text {
-    width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
-  }
+    .lpx-nav-menu .lpx-menu-item-link .lpx-menu-item-text {
+      width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+      display: inline-block !important;
+    }
 
-  .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
-    width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
+    .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
+      width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
+      display: inline-block !important;
+    }
   }
 }
 
-/* --- 2. COLLAPSED / ICON-ONLY STATE (When user clicks toggle icon) --- */
-#lpx-wrapper.hover-trigger,
-body.hover-trigger,
-.hover-trigger {
-  /* When unhovered: strictly shrink sidebar to 72px strip with NO leftover whitespace */
+/* --- 2. COLLAPSED / ICON-ONLY / ZOOMED RESPONSIVE STATE --- */
+/* A) When screen is zoomed in or on tablet (768px - 1199px): strictly 72px width */
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
   .lpx-sidebar-container:not(:hover) {
     min-width: $lpx-collapsed-sidebar-w !important;
     max-width: $lpx-collapsed-sidebar-w !important;
@@ -1372,9 +1373,9 @@ body.hover-trigger,
       justify-content: center !important;
 
       .lpx-brand-logo {
-        max-width: 42px !important;
-        width: 42px !important;
-        height: 38px !important;
+        max-width: 38px !important;
+        width: 38px !important;
+        height: 34px !important;
         margin: 0 auto !important;
       }
     }
@@ -1396,13 +1397,143 @@ body.hover-trigger,
     }
   }
 
-  /* When hovered in collapsed mode: flyout overlay to 250px */
+  .lpx-content-container {
+    margin-left: $lpx-collapsed-sidebar-w !important;
+    transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .lpx-footbar-container {
+    left: $lpx-collapsed-sidebar-w !important;
+    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* B) When manually collapsed on desktop via toggle button (#lpx-wrapper.hover-trigger): strictly 72px */
+@media only screen and (min-width: 1200px) {
+  #lpx-wrapper.hover-trigger,
+  body.hover-trigger,
+  .hover-trigger {
+    .lpx-sidebar-container:not(:hover) {
+      min-width: $lpx-collapsed-sidebar-w !important;
+      max-width: $lpx-collapsed-sidebar-w !important;
+      width: $lpx-collapsed-sidebar-w !important;
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+      .lpx-sidebar,
+      .lpx-nav,
+      .lpx-nav-menu {
+        min-width: $lpx-collapsed-sidebar-w !important;
+        max-width: $lpx-collapsed-sidebar-w !important;
+        width: $lpx-collapsed-sidebar-w !important;
+      }
+
+      .lpx-logo-container {
+        min-width: $lpx-collapsed-sidebar-w !important;
+        max-width: $lpx-collapsed-sidebar-w !important;
+        width: $lpx-collapsed-sidebar-w !important;
+        padding: 8px 4px !important;
+        justify-content: center !important;
+
+        .lpx-brand-logo {
+          max-width: 38px !important;
+          width: 38px !important;
+          height: 34px !important;
+          margin: 0 auto !important;
+        }
+      }
+
+      .lpx-nav-menu .lpx-menu-item-link {
+        padding: 9px 0 !important;
+        justify-content: center !important;
+        text-align: center !important;
+
+        .lpx-menu-item-icon {
+          margin: 0 auto !important;
+          font-size: 1.15rem !important;
+        }
+
+        .lpx-menu-item-text,
+        .dd-icon {
+          display: none !important;
+        }
+      }
+    }
+
+    .lpx-content-container {
+      margin-left: $lpx-collapsed-sidebar-w !important;
+      transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .lpx-footbar-container {
+      left: $lpx-collapsed-sidebar-w !important;
+      transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+/* --- 3. HOVER OVERLAY EXPANSION IN COLLAPSED MODE --- */
+@media only screen and (min-width: 768px) {
+  .hover-trigger .lpx-sidebar-container:hover,
   .lpx-sidebar-container:hover {
+    @media (max-width: 1199px) {
+      min-width: $lpx-custom-sidebar-w !important;
+      max-width: $lpx-custom-sidebar-w !important;
+      width: $lpx-custom-sidebar-w !important;
+      z-index: 1050 !important;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.14) !important;
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+      .lpx-sidebar,
+      .lpx-nav,
+      .lpx-nav-menu {
+        min-width: $lpx-custom-sidebar-w !important;
+        max-width: $lpx-custom-sidebar-w !important;
+        width: $lpx-custom-sidebar-w !important;
+      }
+
+      .lpx-logo-container {
+        min-width: $lpx-custom-sidebar-w !important;
+        max-width: $lpx-custom-sidebar-w !important;
+        width: $lpx-custom-sidebar-w !important;
+        padding: 8px 16px !important;
+
+        .lpx-brand-logo {
+          max-width: 180px !important;
+          width: 100% !important;
+          height: 42px !important;
+        }
+
+        .menu-collapse-icon {
+          left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
+          right: auto !important;
+          display: block !important;
+        }
+      }
+
+      .lpx-nav-menu .lpx-menu-item-link {
+        padding: 6px 10px !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+
+        .lpx-menu-item-text {
+          display: inline-block !important;
+          width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+        }
+      }
+
+      .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
+        display: inline-block !important;
+        width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
+      }
+    }
+  }
+
+  #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover {
     min-width: $lpx-custom-sidebar-w !important;
     max-width: $lpx-custom-sidebar-w !important;
     width: $lpx-custom-sidebar-w !important;
     z-index: 1050 !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.14) !important;
     transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 
     .lpx-sidebar,
@@ -1417,6 +1548,13 @@ body.hover-trigger,
       min-width: $lpx-custom-sidebar-w !important;
       max-width: $lpx-custom-sidebar-w !important;
       width: $lpx-custom-sidebar-w !important;
+      padding: 8px 16px !important;
+
+      .lpx-brand-logo {
+        max-width: 180px !important;
+        width: 100% !important;
+        height: 42px !important;
+      }
 
       .menu-collapse-icon {
         left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
@@ -1425,25 +1563,20 @@ body.hover-trigger,
       }
     }
 
-    .lpx-nav-menu .lpx-menu-item-link .lpx-menu-item-text {
-      width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+    .lpx-nav-menu .lpx-menu-item-link {
+      padding: 6px 10px !important;
+      justify-content: flex-start !important;
+      text-align: left !important;
+
+      .lpx-menu-item-text {
+        display: inline-block !important;
+        width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+      }
     }
 
     .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
+      display: inline-block !important;
       width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
-    }
-  }
-
-  /* Main content shifts left to 72px so all space is reclaimed! */
-  @media only screen and (min-width: 1200px) {
-    .lpx-content-container {
-      margin-left: $lpx-collapsed-sidebar-w !important;
-      transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .lpx-footbar-container {
-      left: $lpx-collapsed-sidebar-w !important;
-      transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }

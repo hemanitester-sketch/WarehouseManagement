@@ -393,7 +393,7 @@
 
       <!-- Quick Command Shortcuts & System Telemetry Desk -->
       <div class="col-12 col-xl-4 col-lg-12">
-        <div class="dash-card h-100 d-flex flex-column justify-content-between command-desk-card">
+        <div class="dash-card d-flex flex-column justify-content-between command-desk-card">
           <div>
             <div class="dash-card-header mb-2.5">
               <div class="d-flex align-items-center gap-2">
@@ -411,9 +411,9 @@
                   <div class="quick-action-icon-modern">
                     <i [class]="act.icon"></i>
                   </div>
-                  <div class="text-start min-w-0 flex-grow-1">
-                    <div class="quick-action-title text-truncate">{{ act.label }}</div>
-                    <div class="quick-action-subtitle text-truncate">{{ act.desc }}</div>
+                  <div class="quick-action-text-wrap text-start">
+                    <div class="quick-action-title">{{ act.label }}</div>
+                    <div class="quick-action-subtitle">{{ act.desc }}</div>
                   </div>
                 </button>
               }
@@ -422,11 +422,11 @@
 
           <!-- Enterprise System Telemetry Badge Box -->
           <div class="telemetry-box mt-3 p-2.5 rounded-3 bg-light border border-slate-100">
-            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1.5">
               <span><i class="bi bi-database text-success me-1"></i>Database Cluster:</span>
               <span class="fw-semibold text-dark">PostgreSQL 16 Live</span>
             </div>
-            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1.5">
               <span><i class="bi bi-broadcast text-primary me-1"></i>Telemetry Latency:</span>
               <span class="fw-semibold text-success">&lt; 28 ms</span>
             </div>

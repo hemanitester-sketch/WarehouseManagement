@@ -1,0 +1,949 @@
+<div class="customers-container container-fluid px-3 py-2">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h4 class="fw-bold text-dark mb-0 font-size-18">Customers & B2B Clients</h4>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-size-11 px-2.5 py-1">
+          <i class="bi bi-people-fill me-1"></i>Client Directory
+        </span>
+      </div>
+      <p class="text-muted font-size-12 mb-0">
+        Enterprise corporate accounts, delivery hubs, GSTIN tax compliance & credit terms management
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center gap-1.5" (click)="exportToCsv()">
+        <i class="bi bi-file-earmark-spreadsheet"></i>
+        <span>Export CSV</span>
+      </button>
+
+      <button class="btn btn-outline-primary btn-sm rounded-2 d-flex align-items-center gap-1.5" (click)="loadData()" [disabled]="isLoading">
+        <i class="bi bi-arrow-clockwise" [class.donut-spin]="isLoading"></i>
+        <span>Refresh</span>
+      </button>
+
+      <button class="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1.5 shadow-sm" (click)="openCreateModal()">
+        <i class="bi bi-plus-lg"></i>
+        <span>Add Customer</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards -->
+  <div class="row g-2 mb-3">
+    <!-- Total Clients -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="wms-metric-card">
+        <div class="metric-icon bg-primary-subtle text-primary">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.totalClientsCount }}</div>
+          <div class="metric-label">Total Registered Accounts</div>
+          <div class="font-size-11 text-success mt-1">
+            <i class="bi bi-check-circle me-0.5"></i>{{ metrics.activeClientsCount }} Active Accounts
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corporate B2B Accounts -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="wms-metric-card">
+        <div class="metric-icon bg-info-subtle text-info">
+          <i class="bi bi-briefcase"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.corporateB2BCount }}</div>
+          <div class="metric-label">Corporate B2B Clients</div>
+          <div class="font-size-11 text-muted mt-1">
+            {{ metrics.retailDistributorCount }} Retail & Distributors
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credit Extended -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="wms-metric-card">
+        <div class="metric-icon bg-success-subtle text-success">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">₹{{ metrics.totalCreditLimitExposure | number:'1.0-0' }}</div>
+          <div class="metric-label">Total Credit Limit Granted</div>
+          <div class="font-size-11 text-muted mt-1">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5 font-size-10">Authorized</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outstanding & Exposure -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="wms-metric-card">
+        <div class="metric-icon bg-warning-subtle text-warning">
+          <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">₹{{ metrics.totalCurrentOutstanding | number:'1.0-0' }}</div>
+          <div class="metric-label">Current Outstanding Balance</div>
+          <div class="font-size-11 text-warning mt-1">
+            <i class="bi bi-speedometer me-0.5"></i>{{ metrics.averageCreditUtilizationPercent }}% Net Utilization
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="card wms-card border-0 mb-3 shadow-xs">
+    <div class="card-body p-2.5">
+      <div class="row g-2 align-items-center">
+        <!-- Search Input -->
+        <div class="col-lg-3 col-md-6">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0 text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control form-control-sm border-start-0 ps-0"
+              placeholder="Search by code, company, contact, GSTIN..."
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="applyFilters()"
+            />
+          </div>
+        </div>
+
+        <!-- Customer Type Filter -->
+        <div class="col-lg-2 col-md-4 col-sm-6">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedTypeFilter !== 'all'"
+            [(ngModel)]="selectedTypeFilter"
+            (change)="applyFilters()"
+          >
+            <option value="all">All Client Types</option>
+            <option [value]="CustomerType.CorporateB2B">Corporate B2B</option>
+            <option [value]="CustomerType.RetailB2C">Retail B2C</option>
+            <option [value]="CustomerType.Distributor">Distributor / Channel</option>
+            <option [value]="CustomerType.EcommercePartner">E-Commerce Partner</option>
+            <option [value]="CustomerType.Government">Government / PSU</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-lg-2 col-md-4 col-sm-6">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedStatusFilter !== 'all'"
+            [(ngModel)]="selectedStatusFilter"
+            (change)="applyFilters()"
+          >
+            <option value="all">All Statuses</option>
+            <option [value]="CustomerStatus.Active">Active Accounts</option>
+            <option [value]="CustomerStatus.UnderReview">Under Review</option>
+            <option [value]="CustomerStatus.OnHold">On Hold</option>
+            <option [value]="CustomerStatus.Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <!-- Price Tier Filter -->
+        <div class="col-lg-2 col-md-4 col-sm-6">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedTierFilter !== 'all'"
+            [(ngModel)]="selectedTierFilter"
+            (change)="applyFilters()"
+          >
+            <option value="all">All Price Tiers</option>
+            @for (tier of availableTiers; track tier) {
+              <option [value]="tier">{{ tier }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- City Filter -->
+        <div class="col-lg-2 col-md-4 col-sm-6">
+          <select
+            class="form-select form-select-sm"
+            [class.filter-active]="selectedCityFilter !== 'all'"
+            [(ngModel)]="selectedCityFilter"
+            (change)="applyFilters()"
+          >
+            <option value="all">All Hub Cities</option>
+            @for (city of availableCities; track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="col-lg-1 col-md-4 col-sm-12 text-end">
+          <button
+            class="btn btn-light btn-sm text-muted w-100 border d-flex align-items-center justify-content-center gap-1"
+            (click)="clearFilters()"
+            title="Clear all filters"
+          >
+            <i class="bi bi-x-circle"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customers Data Table -->
+  <div class="card categories-table-card products-table-card customers-table-card overflow-hidden mb-3">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table categories-table products-table customers-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3 text-nowrap" style="width: 140px;">Client Code</th>
+            <th>Client Name</th>
+            <th style="width: 150px;">Account Type</th>
+            <th style="width: 180px;">Contact Person</th>
+            <th style="width: 150px;">Hub Location</th>
+            <th style="width: 200px;">Commercials & Credit</th>
+            <th style="width: 120px;">Price Tier</th>
+            <th style="width: 100px;">Status</th>
+            <th class="text-end pe-3" style="width: 110px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="9" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                <div class="font-size-12">Loading enterprise customer directory...</div>
+              </td>
+            </tr>
+          } @else if (filteredCustomers.length === 0) {
+            <tr>
+              <td colspan="9" class="text-center py-5">
+                <div class="d-flex flex-column align-items-center justify-content-center text-center py-4">
+                  <div class="text-muted mb-2">
+                    <i class="fas fa-users-slash fs-1 text-secondary opacity-50"></i>
+                  </div>
+                  <h6 class="mb-1 fw-bold text-dark">No customer accounts found</h6>
+                  <p class="text-muted small mb-3">
+                    {{ searchQuery || selectedTypeFilter !== 'all' || selectedStatusFilter !== 'all' ? 'Try adjusting your search filters.' : 'Get started by registering your first customer account.' }}
+                  </p>
+                  <button *ngIf="!searchQuery" class="btn btn-sm btn-wms-primary px-3" (click)="openCreateModal()">
+                    <i class="fas fa-plus me-1"></i> Add Customer
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (customer of paginatedCustomers; track customer.id) {
+              <tr>
+                <!-- Client Code Column -->
+                <td class="ps-3 text-nowrap" style="width: 140px;">
+                  <span class="product-cell-text d-block font-monospace fw-semibold text-nowrap">{{ customer.code }}</span>
+                </td>
+
+                <!-- Client Name Column -->
+                <td>
+                  <span class="product-cell-text d-block fw-bold text-dark cursor-pointer hover-primary text-truncate" 
+                       (click)="openViewModal(customer)" 
+                       [title]="customer.name">
+                    {{ customer.name }}
+                  </span>
+                  <small class="product-cell-subtext d-block text-truncate" 
+                       [title]="(customer.industry || 'General Trade') + (customer.taxNumber ? ' • GST: ' + customer.taxNumber : '')">
+                    <i class="bi bi-tag text-muted me-1"></i>
+                    <span>{{ customer.industry || 'General Trade' }}</span>
+                    @if (customer.taxNumber) {
+                      <span class="text-muted"> &bull; GST: {{ customer.taxNumber }}</span>
+                    }
+                  </small>
+                </td>
+
+                <!-- Account Type -->
+                <td>
+                  <span class="type-pill" [ngClass]="getTypeBadgeClass(customer.customerType)">
+                    @switch (customer.customerType) {
+                      @case (CustomerType.CorporateB2B) {
+                        <i class="bi bi-building"></i>
+                      }
+                      @case (CustomerType.RetailB2C) {
+                        <i class="bi bi-person"></i>
+                      }
+                      @case (CustomerType.Distributor) {
+                        <i class="bi bi-diagram-3"></i>
+                      }
+                      @case (CustomerType.EcommercePartner) {
+                        <i class="bi bi-cart3"></i>
+                      }
+                      @case (CustomerType.Government) {
+                        <i class="bi bi-shield-check"></i>
+                      }
+                    }
+                    <span>{{ customer.customerTypeName }}</span>
+                  </span>
+                </td>
+
+                <!-- Contact Person -->
+                <td>
+                  <div class="fw-semibold text-dark font-size-12">
+                    {{ customer.contactPerson || 'Not Assigned' }}
+                  </div>
+                  <div class="text-muted font-size-11 d-flex flex-column gap-0.5 mt-0.5">
+                    @if (customer.phoneNumber) {
+                      <a href="tel:{{ customer.phoneNumber }}" class="text-muted text-decoration-none d-flex align-items-center gap-1 hover-primary">
+                        <i class="bi bi-telephone font-size-10"></i>{{ customer.phoneNumber }}
+                      </a>
+                    }
+                    @if (customer.email) {
+                      <a href="mailto:{{ customer.email }}" class="text-muted text-decoration-none d-flex align-items-center gap-1 text-truncate hover-primary" style="max-width: 170px;">
+                        <i class="bi bi-envelope font-size-10"></i>{{ customer.email }}
+                      </a>
+                    }
+                  </div>
+                </td>
+
+                <!-- Hub Location -->
+                <td>
+                  <div class="fw-semibold text-dark">
+                    <i class="bi bi-geo-alt text-primary font-size-11 me-0.5"></i>
+                    {{ customer.city || '—' }}
+                  </div>
+                  <div class="text-muted font-size-11">
+                    {{ customer.state || 'India' }}
+                    @if (customer.postalCode) {
+                      <span>- {{ customer.postalCode }}</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Commercials & Credit -->
+                <td>
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="badge bg-light text-dark border font-size-10">{{ customer.paymentTerms || 'Net 30' }}</span>
+                    <span class="font-size-11 fw-semibold" [class.text-danger]="customer.creditUtilizationPercent >= 80" [class.text-muted]="customer.creditUtilizationPercent < 80">
+                      ₹{{ customer.currentOutstanding | number:'1.0-0' }} / ₹{{ customer.creditLimit | number:'1.0-0' }}
+                    </span>
+                  </div>
+                  <!-- Progress Bar -->
+                  <div class="progress" style="height: 5px;">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      [style.width.%]="customer.creditUtilizationPercent"
+                      [ngClass]="{
+                        'bg-success': customer.creditUtilizationPercent < 60,
+                        'bg-warning': customer.creditUtilizationPercent >= 60 && customer.creditUtilizationPercent < 85,
+                        'bg-danger': customer.creditUtilizationPercent >= 85
+                      }"
+                    ></div>
+                  </div>
+                </td>
+
+                <!-- Price Tier & Rating -->
+                <td>
+                  <span class="tier-pill">{{ customer.priceTier || 'Standard B2B' }}</span>
+                  <div class="text-warning font-size-10 mt-1 d-flex gap-0.5">
+                    @for (s of getStarArray(customer.rating); track $index) {
+                      <i class="bi bi-star-fill"></i>
+                    }
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td>
+                  <span class="product-status-badge" [ngClass]="getStatusBadgeClass(customer.status)">
+                    @switch (customer.status) {
+                      @case (CustomerStatus.Active) {
+                        <i class="fas fa-check-circle"></i>
+                      }
+                      @case (CustomerStatus.UnderReview) {
+                        <i class="fas fa-clock"></i>
+                      }
+                      @case (CustomerStatus.OnHold) {
+                        <i class="fas fa-pause-circle"></i>
+                      }
+                      @case (CustomerStatus.Inactive) {
+                        <i class="fas fa-times-circle"></i>
+                      }
+                    }
+                    <span>{{ customer.statusName }}</span>
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="text-end pe-3" style="width: 110px;">
+                  <div class="d-inline-flex align-items-center justify-content-end gap-1">
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-view"
+                      (click)="openViewModal(customer)"
+                      title="View Detailed Dossier"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-edit"
+                      (click)="openEditModal(customer)"
+                      title="Edit Customer"
+                    >
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-hold"
+                      [class.text-warning]="customer.status === CustomerStatus.Active"
+                      [class.text-success]="customer.status === CustomerStatus.OnHold"
+                      (click)="toggleClientHold(customer)"
+                      [title]="customer.status === CustomerStatus.OnHold ? 'Reactivate Account' : 'Place Account on Hold'"
+                    >
+                      <i class="fas" [class.fa-pause-circle]="customer.status === CustomerStatus.Active" [class.fa-play-circle]="customer.status === CustomerStatus.OnHold"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-table-action btn-delete"
+                      (click)="deleteCustomer(customer)"
+                      title="Delete Customer"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (Matching Products & Categories) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredCustomers.length }}</strong> accounts
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT-SIDE SLIDE-OVER DRAWER MODAL -->
+  @if (isFormModalOpen) {
+    <div class="drawer-backdrop" (click)="closeFormModal()"></div>
+  }
+
+  <div class="customer-drawer-panel" [class.open]="isFormModalOpen">
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="drawer-header-info">       
+        <h4 class="drawer-title">{{ formModalTitle }}</h4>
+        <p class="drawer-subtitle">
+          Corporate client identity, statutory GSTIN, credit ceiling & delivery dock parameters
+        </p>
+      </div>
+      <button class="btn-drawer-close" (click)="closeFormModal()" title="Close Drawer">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Body (Continuous Scrollable Form) -->
+    <div class="drawer-body p-3 font-size-12">
+      <!-- Section 1: General Business Identity -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-info-circle me-1 text-primary"></i> 1. General Business Identity
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold font-size-11">Customer Code <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control form-control-sm text-uppercase"
+              [(ngModel)]="formModel.code"
+              placeholder="e.g. CUST-1001"
+              [disabled]="isEditing"
+            />
+            <div class="form-text font-size-10">Unique client account identifier in WMS.</div>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label fw-semibold font-size-11">Company / Legal Entity Name <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.name"
+              placeholder="e.g. Reliance Retail Logistics Limited"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Customer Classification / Type</label>
+            <select class="form-select form-select-sm" [(ngModel)]="formModel.customerType">
+              <option [ngValue]="CustomerType.CorporateB2B">Corporate B2B Account</option>
+              <option [ngValue]="CustomerType.RetailB2C">Retail B2C Client</option>
+              <option [ngValue]="CustomerType.Distributor">Distributor / Channel Partner</option>
+              <option [ngValue]="CustomerType.EcommercePartner">E-Commerce Quick Commerce Partner</option>
+              <option [ngValue]="CustomerType.Government">Government / Public Sector Unit</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Industry / Sector</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.industry"
+              placeholder="e.g. Consumer Electronics, FMCG, Pharma"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Account Operating Status</label>
+            <select class="form-select form-select-sm" [(ngModel)]="formModel.status">
+              <option [ngValue]="CustomerStatus.Active">Active (Fully Operational)</option>
+              <option [ngValue]="CustomerStatus.UnderReview">Under Review (KYC / Credit Verification)</option>
+              <option [ngValue]="CustomerStatus.OnHold">On Hold (Pending Payment / Disputes)</option>
+              <option [ngValue]="CustomerStatus.Inactive">Inactive (Suspended)</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Internal Rating (1 to 5 Stars)</label>
+            <select class="form-select form-select-sm" [(ngModel)]="formModel.rating">
+              <option [ngValue]="5">⭐⭐⭐⭐⭐ 5 Stars (Top Tier Enterprise VIP)</option>
+              <option [ngValue]="4">⭐⭐⭐⭐ 4 Stars (High Reliability Partner)</option>
+              <option [ngValue]="3">⭐⭐⭐ 3 Stars (Standard Commercial Partner)</option>
+              <option [ngValue]="2">⭐⭐ 2 Stars (Moderate Payment Delays)</option>
+              <option [ngValue]="1">⭐ 1 Star (High Risk Account)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Key Contact Personnel -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-person-lines-fill me-1 text-primary"></i> 2. Key Contacts & Personnel
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Primary Contact / Account Manager</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.contactPerson"
+              placeholder="e.g. Rajesh Verma (VP Supply Chain)"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Primary Corporate Email</label>
+            <input
+              type="email"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.email"
+              placeholder="e.g. supplychain@relianceretail.com"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Direct Phone / Mobile</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.phoneNumber"
+              placeholder="e.g. +91 98200 11223"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Alternative / Dispatch Desk Phone</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.alternativePhone"
+              placeholder="e.g. +91 22 4556 7890"
+            />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold font-size-11">Internal Logistics & Relationship Notes</label>
+            <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              [(ngModel)]="formModel.notes"
+              placeholder="Special terms, relationship contacts, seasonal demand patterns..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Locations & Delivery Dock -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-geo-alt me-1 text-primary"></i> 3. Statutory, Billing & Delivery Dock
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">GSTIN Number (Statutory Compliance)</label>
+            <input
+              type="text"
+              class="form-control form-control-sm text-uppercase"
+              [(ngModel)]="formModel.taxNumber"
+              placeholder="e.g. 27AAACR1234F1Z8"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">PAN Card Number</label>
+            <input
+              type="text"
+              class="form-control form-control-sm text-uppercase"
+              [(ngModel)]="formModel.panNumber"
+              placeholder="e.g. AAACR1234F"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Billing Registered Address</label>
+            <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              [(ngModel)]="formModel.billingAddress"
+              placeholder="Corporate registered office address..."
+            ></textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Primary Shipping Hub / Warehouse Dock Address</label>
+            <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              [(ngModel)]="formModel.shippingAddress"
+              placeholder="Delivery fulfillment center, Gate/Dock number..."
+            ></textarea>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold font-size-11">Hub City</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.city"
+              placeholder="e.g. Mumbai, Bengaluru"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold font-size-11">State / Province</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.state"
+              placeholder="e.g. Maharashtra, Karnataka"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold font-size-11">Postal / PIN Code</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.postalCode"
+              placeholder="e.g. 400701"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Receiving Dock Operating Hours</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.deliveryDockHours"
+              placeholder="e.g. 08:00 AM - 08:00 PM (Mon-Sat)"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Dock Unloading & Handling Instructions</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="formModel.specialInstructions"
+              placeholder="e.g. Palletized only, Gate Pass required, Forklift on site"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Commercials & Credit -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-cash-coin me-1 text-primary"></i> 4. Commercial Terms & Credit Ceiling
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Payment Terms</label>
+            <select class="form-select form-select-sm" [(ngModel)]="formModel.paymentTerms">
+              <option value="Net 15">Net 15 Days</option>
+              <option value="Net 30">Net 30 Days (Standard)</option>
+              <option value="Net 45">Net 45 Days</option>
+              <option value="Net 60">Net 60 Days (Enterprise)</option>
+              <option value="Advance">Advance Payment Required</option>
+              <option value="Letter of Credit (LC)">Letter of Credit (LC)</option>
+              <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Pricing Tier</label>
+            <select class="form-select form-select-sm" [(ngModel)]="formModel.priceTier">
+              <option value="Tier 1 (Wholesale VIP)">Tier 1 (Wholesale VIP - Max Discount)</option>
+              <option value="Tier 2 (Standard B2B)">Tier 2 (Standard B2B Corporate)</option>
+              <option value="Tier 3 (Retail Partner)">Tier 3 (Retail Partner)</option>
+              <option value="Govt Institutional">Govt Institutional Price Matrix</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Approved Credit Limit (₹)</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">₹</span>
+              <input
+                type="number"
+                class="form-control form-control-sm"
+                [(ngModel)]="formModel.creditLimit"
+                min="0"
+                step="10000"
+              />
+            </div>
+            <div class="form-text font-size-10">Max financial exposure ceiling allowed before hold.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold font-size-11">Current Outstanding Balance (₹)</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">₹</span>
+              <input
+                type="number"
+                class="form-control form-control-sm"
+                [(ngModel)]="formModel.currentOutstanding"
+                min="0"
+                step="1000"
+              />
+            </div>
+            <div class="form-text font-size-10">Pending dues / invoices awaiting clearance.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="drawer-footer py-2 px-3 bg-light d-flex justify-content-between align-items-center">
+      <div class="font-size-11 text-muted">
+        Fields marked with <span class="text-danger">*</span> are mandatory
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-category-cancel btn-sm" (click)="closeFormModal()" [disabled]="isSaving">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1.5" (click)="saveCustomer()" [disabled]="isSaving">
+          @if (isSaving) {
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+          }
+          <span>{{ isEditing ? 'Save Changes' : 'Register Client Account' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW CLIENT DOSSIER MODAL -->
+  @if (isViewModalOpen && selectedCustomer) {
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px);">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+          <!-- Header -->
+          <div class="modal-header bg-light py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <span class="customer-code-pill fs-6">{{ selectedCustomer.code }}</span>
+              <div>
+                <h5 class="modal-title font-size-14 mb-0 fw-bold text-dark">{{ selectedCustomer.name }}</h5>
+                <span class="text-muted font-size-11">{{ selectedCustomer.industry || 'Commercial Enterprise' }}</span>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="status-pill" [ngClass]="getStatusBadgeClass(selectedCustomer.status)">
+                {{ selectedCustomer.statusName }}
+              </span>
+              <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body p-3 font-size-12">
+            <!-- Summary Stats -->
+            <div class="row g-2 mb-3">
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted font-size-10 text-uppercase fw-semibold">Classification</div>
+                  <div class="fw-bold text-dark font-size-12 mt-0.5">{{ selectedCustomer.customerTypeName }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted font-size-10 text-uppercase fw-semibold">Credit Limit</div>
+                  <div class="fw-bold text-success font-size-12 mt-0.5">₹{{ selectedCustomer.creditLimit | number:'1.0-0' }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted font-size-10 text-uppercase fw-semibold">Outstanding</div>
+                  <div class="fw-bold text-warning font-size-12 mt-0.5">₹{{ selectedCustomer.currentOutstanding | number:'1.0-0' }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border rounded bg-light text-center">
+                  <div class="text-muted font-size-10 text-uppercase fw-semibold">Total Revenue</div>
+                  <div class="fw-bold text-primary font-size-12 mt-0.5">₹{{ selectedCustomer.totalRevenue | number:'1.0-0' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <!-- Contact Card -->
+              <div class="col-md-6">
+                <div class="card border rounded-2 h-100 p-2.5">
+                  <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+                    <i class="bi bi-person-badge me-1"></i>Key Contact Personnel
+                  </h6>
+                  <div class="mb-1.5">
+                    <strong class="text-dark">{{ selectedCustomer.contactPerson || 'None specified' }}</strong>
+                  </div>
+                  @if (selectedCustomer.phoneNumber) {
+                    <div class="text-muted mb-1 d-flex align-items-center gap-1.5">
+                      <i class="bi bi-telephone text-primary"></i>
+                      <span>{{ selectedCustomer.phoneNumber }}</span>
+                    </div>
+                  }
+                  @if (selectedCustomer.alternativePhone) {
+                    <div class="text-muted mb-1 d-flex align-items-center gap-1.5">
+                      <i class="bi bi-telephone-plus text-muted"></i>
+                      <span>{{ selectedCustomer.alternativePhone }} (Dispatch Desk)</span>
+                    </div>
+                  }
+                  @if (selectedCustomer.email) {
+                    <div class="text-muted d-flex align-items-center gap-1.5">
+                      <i class="bi bi-envelope text-primary"></i>
+                      <span>{{ selectedCustomer.email }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Statutory & Billing -->
+              <div class="col-md-6">
+                <div class="card border rounded-2 h-100 p-2.5">
+                  <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+                    <i class="bi bi-file-earmark-text me-1"></i>Tax & Billing Info
+                  </h6>
+                  <div class="mb-1">
+                    <span class="text-muted">GSTIN: </span>
+                    <strong class="text-dark">{{ selectedCustomer.taxNumber || 'Unregistered / Exempt' }}</strong>
+                  </div>
+                  @if (selectedCustomer.panNumber) {
+                    <div class="mb-1">
+                      <span class="text-muted">PAN: </span>
+                      <strong class="text-dark">{{ selectedCustomer.panNumber }}</strong>
+                    </div>
+                  }
+                  <div class="mb-1">
+                    <span class="text-muted">Payment Terms: </span>
+                    <span class="badge bg-light text-dark border">{{ selectedCustomer.paymentTerms || 'Net 30' }}</span>
+                  </div>
+                  <div class="mt-1">
+                    <span class="text-muted">Billing Address: </span>
+                    <div class="text-dark mt-0.5">{{ selectedCustomer.billingAddress || 'Same as shipping' }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shipping Dock Specs -->
+              <div class="col-12">
+                <div class="card border rounded-2 p-2.5 bg-light">
+                  <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+                    <i class="bi bi-truck me-1"></i>Delivery Hub & Dock Unloading Specs
+                  </h6>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <span class="text-muted">Fulfillment Hub Destination:</span>
+                      <div class="fw-semibold text-dark">{{ selectedCustomer.shippingAddress || 'Primary warehouse' }}</div>
+                      <div class="text-muted font-size-11">{{ selectedCustomer.city }}, {{ selectedCustomer.state }} - {{ selectedCustomer.postalCode }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <span class="text-muted">Dock Receiving Windows:</span>
+                      <div class="fw-semibold text-dark">{{ selectedCustomer.deliveryDockHours || 'Standard Business Hours' }}</div>
+                      <div class="text-muted font-size-11 mt-1">
+                        <strong>Special Dock Instructions: </strong>
+                        {{ selectedCustomer.specialInstructions || 'None specified' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              @if (selectedCustomer.notes) {
+                <div class="col-12">
+                  <div class="card border rounded-2 p-2.5">
+                    <span class="text-muted fw-semibold mb-1 d-block font-size-11">Internal Logistics Remarks:</span>
+                    <div class="text-dark">{{ selectedCustomer.notes }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer py-2 px-3 bg-light d-flex justify-content-between">
+            <div class="text-muted font-size-11">
+              Registered on {{ selectedCustomer.creationTime | date:'mediumDate' }}
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="closeViewModal(); openEditModal(selectedCustomer)">
+                <i class="bi bi-pencil me-1"></i>Edit Client
+              </button>
+              <button class="btn btn-category-cancel btn-sm" (click)="closeViewModal()">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

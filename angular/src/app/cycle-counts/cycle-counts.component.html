@@ -1,0 +1,925 @@
+<div class="cycle-counts-page">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h1 class="h4 font-weight-bold text-dark mb-0">Cycle Counting & Stock Audits</h1>
+        <span class="wms-badge wms-badge-purple">Reconciliation Engine</span>
+      </div>
+      <p class="text-muted small mb-0 mt-0.5">
+        Physical inventory counting, blind verification, discrepancy variance analysis, and automated financial stock reconciliation.
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" (click)="fetchAudits(); fetchMetrics()" title="Refresh live audit data">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+        <span>Refresh</span>
+      </button>
+
+      <button class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle"></i>
+        <span>Plan Cycle Count</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 1. KPI Pulse Metrics Row -->
+  <div class="row g-3 mb-3">
+    <!-- Overall Inventory Accuracy -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #ecfdf5; color: #059669;">
+          <i class="bi bi-check2-all"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.overallAccuracyRate }}%</div>
+          <div class="metric-label">OVERALL INVENTORY ACCURACY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Floor Counts -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #eff6ff; color: #2563eb;">
+          <i class="bi bi-clipboard-pulse"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.inProgressCounts }} Orders</div>
+          <div class="metric-label">ACTIVE FLOOR COUNTS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Under Review / Variances -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #fffbeb; color: #d97706;">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.auditsUnderReview }} Audits</div>
+          <div class="metric-label">PENDING RECONCILIATION</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Net Financial Variance -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="wms-metric-card">
+        <div class="metric-icon" [style.background-color]="metrics.totalNetVarianceValue < 0 ? '#fef2f2' : '#f0fdf4'" [style.color]="metrics.totalNetVarianceValue < 0 ? '#dc2626' : '#16a34a'">
+          <i class="bi" [class.bi-arrow-down-right]="metrics.totalNetVarianceValue < 0" [class.bi-arrow-up-right]="metrics.totalNetVarianceValue >= 0"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">
+            {{ metrics.totalNetVarianceValue >= 0 ? '+' : '' }}₹{{ metrics.totalNetVarianceValue | number: '1.2-2' }}
+          </div>
+          <div class="metric-label">NET FINANCIAL VARIANCE (IMPACT)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Controls & Status Tabs Card -->
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-body p-2.5">
+      <!-- Status Tabs Row -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom pb-2 mb-2.5">
+        <div class="nav-tabs-wrapper d-flex align-items-center gap-1">
+          <button class="status-tab-btn" [class.active]="selectedStatusTab === 'ALL'" (click)="setTab('ALL')">
+            All Audits <span class="tab-badge">{{ metrics.totalAudits }}</span>
+          </button>
+          <button class="status-tab-btn" [class.active]="selectedStatusTab === 'IN_PROGRESS'" (click)="setTab('IN_PROGRESS')">
+            <i class="bi bi-clock-history me-1 text-primary"></i>In Progress <span class="tab-badge">{{ metrics.inProgressCounts }}</span>
+          </button>
+          <button class="status-tab-btn" [class.active]="selectedStatusTab === 'UNDER_REVIEW'" (click)="setTab('UNDER_REVIEW')">
+            <i class="bi bi-exclamation-circle me-1 text-warning"></i>Under Review <span class="tab-badge">{{ metrics.auditsUnderReview }}</span>
+          </button>
+          <button class="status-tab-btn" [class.active]="selectedStatusTab === 'RECONCILED'" (click)="setTab('RECONCILED')">
+            <i class="bi bi-check2-circle me-1 text-success"></i>Reconciled <span class="tab-badge">{{ metrics.reconciledAudits }}</span>
+          </button>
+          <button class="status-tab-btn" [class.active]="selectedStatusTab === 'DRAFT'" (click)="setTab('DRAFT')">
+            Draft Planned
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="row g-2 align-items-center">
+        <!-- Search Keyword -->
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Search by Audit #, Notes, Auditor..."
+              [(ngModel)]="filterText"
+              (keyup.enter)="onFilterChange()"
+            />
+          </div>
+        </div>
+
+        <!-- Facility Filter -->
+        <div class="col-6 col-md-3">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedWarehouseId" (ngModelChange)="onFilterChange()">
+            <option value="">All Warehouse Nodes</option>
+            @for (wh of warehouses; track wh.id) {
+              <option [value]="wh.id">{{ wh.name }} ({{ wh.code }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Count Type Filter -->
+        <div class="col-6 col-md-3">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedCountType" (ngModelChange)="onFilterChange()">
+            <option value="">All Audit Types</option>
+            @for (opt of typeOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="col-12 col-md-2 text-md-end">
+          <button
+            class="btn btn-sm btn-outline-secondary w-100"
+            (click)="filterText = ''; selectedWarehouseId = ''; selectedCountType = ''; onFilterChange()"
+          >
+            <i class="bi bi-x-circle me-1"></i>Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Enterprise Audits Data Table -->
+  <div class="card cycle-counts-table-card products-table-card overflow-hidden mb-3">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table products-table cycle-counts-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3" style="width: 175px; min-width: 165px; white-space: nowrap;">Audit Order #</th>
+            <th style="min-width: 180px;">Facility & Zone</th>
+            <th style="width: 170px; min-width: 160px; white-space: nowrap;">Audit Method</th>
+            <th style="width: 160px; min-width: 150px;">Schedule & Auditor</th>
+            <th style="width: 140px; min-width: 130px;">Count Progress</th>
+            <th style="width: 150px; min-width: 140px;">Accuracy & Variance</th>
+            <th style="width: 130px; min-width: 120px;" class="text-center">Status</th>
+            <th class="pe-3 text-end" style="width: 160px; min-width: 150px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                Loading stock audits & reconciliation records...
+              </td>
+            </tr>
+          } @else if (audits.length === 0) {
+            <tr>
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-clipboard-x fs-2 d-block mb-2 text-slate-300"></i>
+                No stock count orders found matching current criteria.
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-wms-primary" (click)="openCreateModal()">
+                    <i class="bi bi-plus-circle me-1"></i>Plan First Cycle Count
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (audit of audits; track audit.id) {
+              <tr>
+                <!-- Audit # & Blind Mode -->
+                <td class="ps-3" style="width: 175px; min-width: 165px; white-space: nowrap;">
+                  <span class="product-cell-text d-block font-monospace fw-semibold text-primary text-nowrap">{{ audit.auditNumber }}</span>
+                  <div class="mt-0.5">
+                    @if (audit.isBlindCount) {
+                      <span class="badge bg-secondary-subtle text-secondary border font-size-9">
+                        <i class="bi bi-eye-slash me-0.5"></i>Blind Count
+                      </span>
+                    } @else {
+                      <span class="badge bg-info-subtle text-info border font-size-9">
+                        <i class="bi bi-eye me-0.5"></i>Guided Count
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Facility & Zone -->
+                <td>
+                  <span class="product-cell-text d-block text-truncate fw-semibold text-nowrap" style="max-width: 170px;" [title]="audit.warehouseName">
+                    <i class="fas fa-warehouse text-primary me-1"></i>{{ audit.warehouseName }}
+                  </span>
+                  <small class="product-cell-subtext text-nowrap">
+                    <i class="fas fa-layer-group text-muted me-1"></i>{{ audit.zoneName || 'All Warehouse Zones' }}
+                  </small>
+                </td>
+
+                <!-- Audit Method -->
+                <td style="width: 170px; min-width: 160px; white-space: nowrap;">
+                  <span class="method-badge">{{ getTypeLabel(audit.countType) }}</span>
+                </td>
+
+                <!-- Schedule & Auditor -->
+                <td style="width: 160px; min-width: 150px;">
+                  <span class="product-cell-text font-monospace d-block">
+                    <i class="fas fa-calendar-alt text-muted me-1"></i>{{ audit.scheduledDate | date: 'dd MMM yyyy' }}
+                  </span>
+                  <small class="product-cell-subtext text-truncate d-block text-nowrap" style="max-width: 150px;" [title]="audit.assignedAuditorName || 'Unassigned'">
+                    <i class="fas fa-user-check text-muted me-1"></i>{{ audit.assignedAuditorName || 'Unassigned' }}
+                  </small>
+                </td>
+
+                <!-- Count Progress -->
+                <td style="width: 140px; min-width: 130px;">
+                  <div class="d-flex align-items-center justify-content-between font-size-11 mb-1">
+                    <span class="product-cell-subtext">Counted:</span>
+                    <span class="product-cell-text font-monospace fw-bold">{{ audit.countedItemsCount }} / {{ audit.totalItemsCount }}</span>
+                  </div>
+                  <div class="progress" style="height: 5px; border-radius: 3px;">
+                    <div
+                      class="progress-bar bg-primary"
+                      [style.width.%]="audit.totalItemsCount ? (audit.countedItemsCount / audit.totalItemsCount) * 100 : 0"
+                    ></div>
+                  </div>
+                </td>
+
+                <!-- Accuracy & Variance -->
+                <td style="width: 150px; min-width: 140px;">
+                  <div class="product-cell-text fw-bold" [class.text-success]="audit.accuracyPercentage >= 99" [class.text-warning]="audit.accuracyPercentage >= 90 && audit.accuracyPercentage < 99" [class.text-danger]="audit.accuracyPercentage < 90">
+                    {{ audit.accuracyPercentage }}% Accuracy
+                  </div>
+                  <small class="product-cell-subtext d-block">
+                    Variance:
+                    <strong [class.text-danger]="audit.totalVarianceQuantity !== 0" [class.text-success]="audit.totalVarianceQuantity === 0">
+                      {{ audit.totalVarianceQuantity >= 0 ? '+' : '' }}{{ audit.totalVarianceQuantity }} units
+                    </strong>
+                  </small>
+                </td>
+
+                <!-- Status Pill -->
+                <td class="text-center" style="width: 130px; min-width: 120px;">
+                  <span class="status-pill {{ getStatusClass(audit.status) }}">
+                    {{ getStatusLabel(audit.status) }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="pe-3 text-end" style="width: 160px; min-width: 150px;">
+                  <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                    @if (audit.status === CycleCountStatus.Draft) {
+                      <button class="btn btn-table-action btn-start" (click)="openCountModal(audit)" title="Start Counting Session">
+                        <i class="fas fa-play"></i>
+                      </button>
+                    }
+
+                    @if (audit.status === CycleCountStatus.InProgress || audit.status === CycleCountStatus.ReCountRequested) {
+                      <button class="btn btn-table-action btn-count" (click)="openCountModal(audit)" title="Record Physical Counts">
+                        <i class="fas fa-clipboard-check"></i>
+                      </button>
+                    }
+
+                    @if (audit.status === CycleCountStatus.UnderReview) {
+                      <button class="btn btn-table-action btn-reconcile" (click)="openReconcileModal(audit)" title="Review Variances & Authorize Reconciliation">
+                        <i class="fas fa-check-double"></i>
+                      </button>
+                    }
+
+                    @if (audit.status === CycleCountStatus.Reconciled) {
+                      <button class="btn btn-table-action btn-cert" (click)="openPrintModal(audit)" title="View Audit Certificate">
+                        <i class="fas fa-award"></i>
+                      </button>
+                    }
+
+                    <button class="btn btn-table-action btn-print" (click)="openPrintModal(audit)" title="Print Physical Count Sheet">
+                      <i class="fas fa-print"></i>
+                    </button>
+
+                    @if (audit.status !== CycleCountStatus.Reconciled && audit.status !== CycleCountStatus.Cancelled) {
+                      <button class="btn btn-table-action btn-delete" (click)="cancelAudit(audit)" title="Cancel Count">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="card-footer bg-white border-top py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="text-muted font-size-12">
+        Showing <strong>{{ paginationStart }}</strong> to <strong>{{ paginationEnd }}</strong> of <strong>{{ totalCount }}</strong> audit orders
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <select class="form-select form-select-sm" style="width: 115px;" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+          <option [value]="10">10 per page</option>
+          <option [value]="15">15 per page</option>
+          <option [value]="25">25 per page</option>
+          <option [value]="50">50 per page</option>
+        </select>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="page === 1">
+              <button class="page-link" (click)="prevPage()" [disabled]="page === 1">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link font-size-11">Page {{ page }} of {{ totalPages }}</span>
+            </li>
+            <li class="page-item" [class.disabled]="page === totalPages">
+              <button class="page-link" (click)="nextPage()" [disabled]="page === totalPages">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: PLAN NEW CYCLE COUNT ORDER                                       -->
+  <!-- ========================================================================= -->
+  @if (isCreateModalOpen) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+          <!-- Header -->
+          <div class="modal-header wms-modal-header bg-primary text-white py-2.5 px-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-clipboard-check fs-5 text-white" style="color: #ffffff !important;"></i>
+              <div>
+                <h5 class="modal-title font-size-14 mb-0 fw-bold text-white" style="color: #ffffff !important;">Plan New Stock Audit & Cycle Count</h5>
+                <span class="font-size-11" style="color: rgba(255, 255, 255, 0.92) !important;">Physical stock verification order with inventory snapshot</span>
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" style="filter: brightness(0) invert(1) !important; opacity: 0.9;" (click)="closeCreateModal()"></button>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body p-3">
+            <!-- Facility, Method & Date Section -->
+            <div class="transfer-section-box p-3 mb-3">
+              <div class="section-audit-badge mb-2.5">
+                <i class="bi bi-building-gear me-1"></i> AUDIT SCOPE & SCHEDULING
+              </div>
+              <div class="row g-2">
+                <!-- Facility Node -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Warehouse Facility *</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newAuditModel.warehouseId" (ngModelChange)="onWarehouseChangeForCreate()">
+                    @for (wh of warehouses; track wh.id) {
+                      <option [value]="wh.id">{{ wh.name }} ({{ wh.code }})</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Count Method -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Audit Type / Strategy *</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newAuditModel.countType">
+                    @for (opt of typeOptions; track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Scheduled Date -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Scheduled Date *</label>
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="newAuditModel.scheduledDate" />
+                </div>
+
+                <!-- Optional Zone Filter -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 text-muted mb-0.5">Target Zone (Optional)</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newAuditModel.zoneId">
+                    <option value="">All Warehouse Zones</option>
+                    @for (z of zones; track z.id) {
+                      <option [value]="z.id">{{ z.name }} ({{ z.code }})</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Optional Product Filter -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 text-muted mb-0.5">Target SKU (For Spot Check)</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newAuditModel.specificProductId">
+                    <option value="">All Inventory SKUs</option>
+                    @for (p of products; track p.id) {
+                      <option [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Assigned Faculty Auditor -->
+                <div class="col-12 col-md-4">
+                  <label class="form-label font-size-11 text-muted mb-0.5">Assigned Auditor / Faculty Member</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newAuditModel.assignedToFacultyId" (ngModelChange)="onAuditorChange()">
+                    <option value="">Unassigned (Open for floor team)</option>
+                    @for (f of facultyMembers; track f.id) {
+                      <option [value]="f.id">{{ f.fullName }} ({{ f.designation || 'Staff' }})</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Blind Count Policy & Notes -->
+            <div class="transfer-section-box p-3 mb-3">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="blindCountSwitch" [(ngModel)]="newAuditModel.isBlindCount" />
+                    <label class="form-check-label fw-bold font-size-12 text-dark" for="blindCountSwitch">
+                      Enforce Blind Counting Mode (Recommended)
+                    </label>
+                  </div>
+                  <span class="font-size-11 text-muted d-block mt-0.5">
+                    Hides expected system stock from warehouse counters to eliminate confirmation bias and ensure 100% genuine physical counts.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5"
+                  (click)="loadLiveSnapshotPreview()"
+                  [disabled]="isLoadingSnapshot || !newAuditModel.warehouseId"
+                >
+                  <i class="bi bi-camera me-1" [class.spin]="isLoadingSnapshot"></i>
+                  <span>{{ isLoadingSnapshot ? 'Fetching...' : 'Capture Inventory Snapshot' }}</span>
+                </button>
+              </div>
+
+              <div class="mt-2.5">
+                <label class="form-label font-size-11 text-muted mb-0.5">Audit Instructions / Reference Notes</label>
+                <input type="text" class="form-control form-control-sm" placeholder="e.g. End of Month Q3 Physical Verification, High-Value Electronics focus" [(ngModel)]="newAuditModel.notes" />
+              </div>
+            </div>
+
+            <!-- Snapshot Items Preview Table -->
+            <div class="d-flex justify-content-between align-items-center mb-1.5">
+              <span class="fw-bold text-dark font-size-12">
+                <i class="bi bi-list-check me-1 text-primary"></i>INVENTORY SNAPSHOT LINES ({{ previewSnapshotItems.length }} lines ready for counting)
+              </span>
+              @if (previewSnapshotItems.length === 0) {
+                <span class="font-size-11 text-muted">Click "Capture Inventory Snapshot" to preview items</span>
+              }
+            </div>
+
+            <div class="table-responsive border rounded-2" style="max-height: 250px; overflow-y: auto;">
+              <table class="table table-sm table-striped mb-0 font-size-11">
+                <thead class="bg-light sticky-top">
+                  <tr>
+                    <th>#</th>
+                    <th>PRODUCT & SKU</th>
+                    <th>LOCATION / BIN</th>
+                    <th>BATCH / SERIAL</th>
+                    <th class="text-end">SYSTEM ON-HAND</th>
+                    <th class="text-end">UNIT COST</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @if (previewSnapshotItems.length === 0) {
+                    <tr>
+                      <td colspan="6" class="text-center py-4 text-muted">
+                        No snapshot captured yet. Click "Capture Inventory Snapshot" above to pull live warehouse items.
+                      </td>
+                    </tr>
+                  } @else {
+                    @for (itm of previewSnapshotItems; track $index) {
+                      <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td class="fw-bold text-dark">{{ getProductName(itm.productId) }}</td>
+                        <td><span class="badge bg-light text-dark font-monospace border">{{ getLocationName(itm.locationId) }}</span></td>
+                        <td>{{ itm.lotBatchNumber || '-' }}</td>
+                        <td class="text-end fw-bold">{{ itm.systemQuantity }}</td>
+                        <td class="text-end">₹{{ itm.unitCost | number: '1.2-2' }}</td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-between">
+            <div class="font-size-11 text-muted">
+              Total lines queued: <strong>{{ previewSnapshotItems.length }} items</strong>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-category-cancel" (click)="closeCreateModal()">Cancel</button>
+              <button type="button" class="btn btn-sm btn-wms-primary" (click)="saveCycleCount()" [disabled]="isSavingAudit || !newAuditModel.warehouseId">
+                <i class="bi bi-check2-circle me-1"></i>{{ isSavingAudit ? 'Planning...' : 'Generate Count Order' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: ACTIVE FLOOR COUNTING SESSION                                    -->
+  <!-- ========================================================================= -->
+  @if (isCountModalOpen && activeAuditForCount) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content border-0">
+          <!-- Header -->
+          <div class="modal-header wms-modal-header bg-primary text-white py-2 px-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-clipboard-pulse fs-5 text-white" style="color: #ffffff !important;"></i>
+              <div>
+                <h5 class="modal-title font-size-14 mb-0 fw-bold text-white" style="color: #ffffff !important;">
+                  Floor Count Sheet &bull; {{ activeAuditForCount.auditNumber }}
+                </h5>
+                <span class="font-size-11" style="color: rgba(255, 255, 255, 0.92) !important;">
+                  {{ activeAuditForCount.warehouseName }} &bull; {{ getTypeLabel(activeAuditForCount.countType) }}
+                  @if (activeAuditForCount.isBlindCount) {
+                    &bull; <span class="badge bg-warning text-dark"><i class="bi bi-eye-slash me-0.5"></i>Blind Mode</span>
+                  }
+                </span>
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" style="filter: brightness(0) invert(1) !important; opacity: 0.9;" (click)="closeCountModal()"></button>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body p-3 bg-light">
+            <!-- Search & Filter Ribbon -->
+            <div class="card p-2.5 mb-2.5 border-0 shadow-sm">
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-upc-scan text-primary"></i></span>
+                    <input
+                      type="text"
+                      class="form-control border-start-0"
+                      placeholder="Scan Barcode or Search SKU / Location..."
+                      [(ngModel)]="itemFilterSearch"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-7 text-md-end font-size-12">
+                  <span class="text-muted me-3">
+                    Progress: <strong>{{ activeAuditForCount.items.length }} Total SKUs</strong>
+                  </span>
+                  <span class="badge bg-primary-subtle text-primary border me-1 font-size-11">
+                    Auditor: {{ activeAuditForCount.assignedAuditorName || 'Active Floor Auditor' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Items Counting Table -->
+            <div class="card border-0 shadow-sm">
+              <div class="table-responsive" style="max-height: calc(100vh - 230px); overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 font-size-12">
+                  <thead class="bg-light sticky-top text-muted font-size-11">
+                    <tr>
+                      <th class="ps-3" style="width: 140px;">LOCATION / BIN</th>
+                      <th>PRODUCT & SKU</th>
+                      <th style="width: 130px;">BATCH / SERIAL</th>
+                      <th class="text-end" style="width: 120px;">SYSTEM STOCK</th>
+                      <th class="text-center" style="width: 150px;">PHYSICAL COUNT *</th>
+                      <th class="text-center" style="width: 130px;">VARIANCE</th>
+                      <th style="min-width: 220px;">DISCREPANCY REASON & NOTES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of filteredCountItems; track item.id) {
+                      <tr>
+                        <!-- Location / Bin -->
+                        <td class="ps-3">
+                          <span class="location-pill">{{ item.locationCode }}</span>
+                          @if (item.zoneName) {
+                            <div class="font-size-10 text-muted mt-0.5">{{ item.zoneName }}</div>
+                          }
+                        </td>
+
+                        <!-- Product & SKU -->
+                        <td>
+                          <div class="fw-bold text-dark">{{ item.productName }}</div>
+                          <div class="font-size-11 text-muted">
+                            <span class="font-monospace text-primary fw-semibold">{{ item.productSku }}</span>
+                            @if (item.productBarcode) {
+                              &bull; <i class="bi bi-upc me-0.5"></i>{{ item.productBarcode }}
+                            }
+                          </div>
+                        </td>
+
+                        <!-- Batch / Serial -->
+                        <td>
+                          <span class="font-monospace font-size-11 text-muted">
+                            {{ item.lotBatchNumber || item.serialNumber || 'Standard' }}
+                          </span>
+                        </td>
+
+                        <!-- System Stock -->
+                        <td class="text-end">
+                          @if (activeAuditForCount.isBlindCount && activeAuditForCount.status === CycleCountStatus.InProgress) {
+                            <span class="badge bg-secondary-subtle text-secondary border font-size-10" title="Hidden to ensure blind verification">
+                              <i class="bi bi-lock me-0.5"></i>BLIND
+                            </span>
+                          } @else {
+                            <strong class="font-size-13">{{ item.systemQuantity }}</strong>
+                          }
+                        </td>
+
+                        <!-- Physical Count Input -->
+                        <td class="text-center">
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            class="form-control form-control-sm text-center fw-bold count-input"
+                            placeholder="Qty"
+                            [(ngModel)]="countItemsDraft[item.id].countedQuantity"
+                          />
+                        </td>
+
+                        <!-- Variance Indicator -->
+                        <td class="text-center">
+                          @if (countItemsDraft[item.id].countedQuantity !== undefined && countItemsDraft[item.id].countedQuantity !== null) {
+                            @let varDiff = calculateLiveVariance(item);
+                            @if (varDiff === 0) {
+                              <span class="badge bg-success-subtle text-success border font-size-11">
+                                <i class="bi bi-check me-0.5"></i>0 Matched
+                              </span>
+                            } @else if (varDiff > 0) {
+                              <span class="badge bg-primary-subtle text-primary border font-size-11">
+                                +{{ varDiff }} Surplus
+                              </span>
+                            } @else {
+                              <span class="badge bg-danger-subtle text-danger border font-size-11">
+                                {{ varDiff }} Shortage
+                              </span>
+                            }
+                          } @else {
+                            <span class="text-muted font-size-11">&mdash;</span>
+                          }
+                        </td>
+
+                        <!-- Discrepancy Reason -->
+                        <td>
+                          @if (calculateLiveVariance(item) !== 0 && countItemsDraft[item.id].countedQuantity !== undefined) {
+                            <select class="form-select form-select-sm mb-1" [(ngModel)]="countItemsDraft[item.id].reason">
+                              @for (r of discrepancyReasons; track r.value) {
+                                <option [value]="r.value">{{ r.label }}</option>
+                              }
+                            </select>
+                            <input
+                              type="text"
+                              class="form-control form-control-sm font-size-11"
+                              placeholder="Notes / root cause..."
+                              [(ngModel)]="countItemsDraft[item.id].notes"
+                            />
+                          } @else {
+                            <span class="font-size-11 text-muted">No discrepancy</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-between">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeCountModal()">Close</button>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="saveDraftCounts()" [disabled]="isSavingCounts">
+                <i class="bi bi-save me-1"></i>{{ isSavingCounts ? 'Saving...' : 'Save Draft Counts' }}
+              </button>
+              <button type="button" class="btn btn-sm btn-wms-primary" (click)="submitCountForReview()" [disabled]="isSavingCounts">
+                <i class="bi bi-send-check me-1"></i>Submit for Manager Review
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: MANAGERIAL VARIANCE REVIEW & RECONCILIATION                      -->
+  <!-- ========================================================================= -->
+  @if (isReconcileModalOpen && activeAuditForReconcile) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+          <!-- Header -->
+          <div class="modal-header wms-modal-header bg-warning text-dark py-2.5 px-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-shield-check fs-5"></i>
+              <div>
+                <h5 class="modal-title font-size-14 mb-0 fw-bold">Stock Reconciliation & Variance Approval</h5>
+                <span class="font-size-11 opacity-75">Order: {{ activeAuditForReconcile.auditNumber }} &bull; {{ activeAuditForReconcile.warehouseName }}</span>
+              </div>
+            </div>
+            <button type="button" class="btn-close" (click)="closeReconcileModal()"></button>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body p-3">
+            <!-- Variance Impact Summary Banner -->
+            <div class="row g-2 mb-3">
+              <div class="col-6 col-md-3">
+                <div class="reconcile-stat-box">
+                  <div class="stat-label">TOTAL SKUs AUDITED</div>
+                  <div class="stat-val text-dark">{{ activeAuditForReconcile.totalItemsCount }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="reconcile-stat-box">
+                  <div class="stat-label">OVERALL ACCURACY</div>
+                  <div class="stat-val text-success">{{ activeAuditForReconcile.accuracyPercentage }}%</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="reconcile-stat-box">
+                  <div class="stat-label">NET VARIANCE UNITS</div>
+                  <div class="stat-val" [class.text-danger]="activeAuditForReconcile.totalVarianceQuantity !== 0">
+                    {{ activeAuditForReconcile.totalVarianceQuantity >= 0 ? '+' : '' }}{{ activeAuditForReconcile.totalVarianceQuantity }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="reconcile-stat-box">
+                  <div class="stat-label">NET FINANCIAL IMPACT (₹)</div>
+                  <div class="stat-val" [class.text-danger]="activeAuditForReconcile.totalVarianceValue < 0" [class.text-success]="activeAuditForReconcile.totalVarianceValue >= 0">
+                    {{ activeAuditForReconcile.totalVarianceValue >= 0 ? '+' : '' }}₹{{ activeAuditForReconcile.totalVarianceValue | number: '1.2-2' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variance Breakdown Table -->
+            <div class="fw-bold text-dark font-size-12 mb-2">
+              <i class="bi bi-exclamation-triangle text-warning me-1"></i>DISCREPANCY VARIANCE AUDIT TRAIL
+            </div>
+
+            <div class="table-responsive border rounded-2 mb-3">
+              <table class="table table-hover align-middle mb-0 font-size-11">
+                <thead class="bg-light text-muted">
+                  <tr>
+                    <th class="ps-3">LOCATION</th>
+                    <th>PRODUCT & SKU</th>
+                    <th class="text-end">SYSTEM</th>
+                    <th class="text-end">PHYSICAL COUNT</th>
+                    <th class="text-end">VARIANCE</th>
+                    <th class="text-end">IMPACT VALUE (₹)</th>
+                    <th>ROOT CAUSE / REASON</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of activeAuditForReconcile.items; track item.id) {
+                    <tr [class.table-danger-subtle]="item.varianceQuantity < 0" [class.table-success-subtle]="item.varianceQuantity > 0">
+                      <td class="ps-3 fw-bold">{{ item.locationCode }}</td>
+                      <td>
+                        <div class="fw-bold">{{ item.productName }}</div>
+                        <div class="font-size-10 text-muted font-monospace">{{ item.productSku }}</div>
+                      </td>
+                      <td class="text-end">{{ item.systemQuantity }}</td>
+                      <td class="text-end fw-bold">{{ item.countedQuantity }}</td>
+                      <td class="text-end fw-bold" [class.text-danger]="item.varianceQuantity < 0" [class.text-primary]="item.varianceQuantity > 0" [class.text-success]="item.varianceQuantity === 0">
+                        {{ item.varianceQuantity >= 0 ? '+' : '' }}{{ item.varianceQuantity }}
+                      </td>
+                      <td class="text-end fw-bold" [class.text-danger]="item.varianceValue < 0">
+                        ₹{{ item.varianceValue | number: '1.2-2' }}
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-dark border">{{ getReasonLabel(item.discrepancyReason) }}</span>
+                        @if (item.reasonNotes) {
+                          <span class="font-size-10 text-muted ms-1">({{ item.reasonNotes }})</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Manager Sign-off Fields -->
+            <div class="transfer-section-box p-3">
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <label class="form-label font-size-11 fw-bold text-muted mb-0.5">Manager Approver Name *</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="approverName" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label font-size-11 text-muted mb-0.5">Authorization Notes / Reason for Acceptance</label>
+                  <input type="text" class="form-control form-control-sm" placeholder="e.g. Approved for book adjustment after spot re-verification" [(ngModel)]="approvalNotes" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-between">
+            <button type="button" class="btn btn-sm btn-category-cancel" (click)="closeReconcileModal()">Cancel</button>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-bold" (click)="requestReCount()">
+                <i class="bi bi-arrow-repeat me-1"></i>Request Re-Count
+              </button>
+              <button type="button" class="btn btn-sm btn-success fw-bold" (click)="approveAndReconcile()" [disabled]="isReconciling">
+                <i class="bi bi-check2-circle me-1"></i>{{ isReconciling ? 'Posting...' : 'Approve & Post Reconciliation' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: PRINTABLE AUDIT SHEET / CERTIFICATE                              -->
+  <!-- ========================================================================= -->
+  @if (isPrintModalOpen && activeAuditForPrint) {
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+          <div class="modal-header py-2 px-3 bg-dark text-white">
+            <h5 class="modal-title font-size-13 mb-0">Printable Audit Document</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closePrintModal()"></button>
+          </div>
+          <div class="modal-body p-4" id="printableAuditDoc">
+            <div class="text-center pb-3 border-bottom mb-3">
+              <h4 class="mb-0 fw-bold">WareFlow Inventory Management</h4>
+              <p class="font-size-11 text-muted mb-0">OFFICIAL PHYSICAL INVENTORY COUNT & AUDIT CERTIFICATE</p>
+            </div>
+
+            <div class="row g-2 mb-3 font-size-11">
+              <div class="col-6"><strong>Audit #:</strong> {{ activeAuditForPrint.auditNumber }}</div>
+              <div class="col-6 text-end"><strong>Scheduled Date:</strong> {{ activeAuditForPrint.scheduledDate | date: 'dd/MM/yyyy' }}</div>
+              <div class="col-6"><strong>Warehouse Node:</strong> {{ activeAuditForPrint.warehouseName }} ({{ activeAuditForPrint.warehouseCode }})</div>
+              <div class="col-6 text-end"><strong>Auditor:</strong> {{ activeAuditForPrint.assignedAuditorName || 'Lead Floor Auditor' }}</div>
+              <div class="col-6"><strong>Count Strategy:</strong> {{ getTypeLabel(activeAuditForPrint.countType) }}</div>
+              <div class="col-6 text-end"><strong>Status:</strong> {{ getStatusLabel(activeAuditForPrint.status) }}</div>
+            </div>
+
+            <table class="table table-bordered table-sm font-size-11 mb-3">
+              <thead class="bg-light">
+                <tr>
+                  <th>#</th>
+                  <th>BIN LOCATION</th>
+                  <th>SKU</th>
+                  <th>PRODUCT DESCRIPTION</th>
+                  <th class="text-end">SYSTEM QTY</th>
+                  <th class="text-end">COUNTED QTY</th>
+                  <th class="text-end">VARIANCE</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of activeAuditForPrint.items; track $index) {
+                  <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="fw-bold">{{ item.locationCode }}</td>
+                    <td>{{ item.productSku }}</td>
+                    <td>{{ item.productName }}</td>
+                    <td class="text-end">{{ activeAuditForPrint.isBlindCount && activeAuditForPrint.status === CycleCountStatus.InProgress ? 'BLIND' : item.systemQuantity }}</td>
+                    <td class="text-end fw-bold">{{ item.countedQuantity !== undefined ? item.countedQuantity : '____' }}</td>
+                    <td class="text-end">{{ item.varianceQuantity !== undefined ? item.varianceQuantity : '____' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <div class="row pt-4 font-size-11">
+              <div class="col-6 text-center">
+                <div class="border-top pt-1" style="width: 200px; margin: 0 auto;">Floor Auditor Signature</div>
+              </div>
+              <div class="col-6 text-center">
+                <div class="border-top pt-1" style="width: 200px; margin: 0 auto;">Facility Manager Sign-off</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closePrintModal()">Close</button>
+            <button type="button" class="btn btn-sm btn-primary" (click)="printDocument()">
+              <i class="bi bi-printer me-1"></i>Print Document
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

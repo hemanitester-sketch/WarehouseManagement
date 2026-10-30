@@ -24,7 +24,7 @@
             [(ngModel)]="selectedWarehouseFilter" 
             (ngModelChange)="onFacilityFilterChange()"
           >
-            @for (wh of warehousesList; track wh) {
+            @for (wh of warehousesList; track $index) {
               <option [value]="wh">{{ wh }}</option>
             }
           </select>
@@ -243,7 +243,7 @@
               <!-- Donut SVG -->
               <div class="position-relative donut-wrapper flex-shrink-0">
                 <svg viewBox="0 0 160 160" width="115" height="115" class="donut-svg">
-                  @for (item of warehouseStock; track item.name; let i = $index) {
+                  @for (item of warehouseStock; track $index; let i = $index) {
                     <circle cx="80" cy="80" r="56" fill="transparent" [attr.stroke]="item.color" stroke-width="22"
                       [attr.stroke-dasharray]="getDonutDashArray(item.percent)"
                       [attr.stroke-dashoffset]="getDonutDashOffset(i)">
@@ -259,7 +259,7 @@
 
               <!-- Legend List on Right -->
               <div class="warehouse-legend-list flex-grow-1 min-w-0">
-                @for (item of warehouseStock; track item.name) {
+                @for (item of warehouseStock; track $index) {
                   <div class="d-flex justify-content-between align-items-center mb-1.5 gap-2">
                     <div class="d-flex align-items-center gap-1.5 min-w-0">
                       <span class="legend-color-dot flex-shrink-0" [style.background-color]="item.color"></span>

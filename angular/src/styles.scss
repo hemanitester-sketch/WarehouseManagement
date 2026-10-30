@@ -12,8 +12,8 @@
 :root {
   --lpx-brand: #2563eb !important;
   --lpx-brand-hover: #3b82f6 !important;
-  --lpx-logo: url('/assets/images/logo/sleek-wareflow-wordmark.png');
-  --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png');
+  --lpx-logo: url('/assets/images/logo/sleek-wareflow-wordmark.png?v=3');
+  --lpx-logo-icon: url('/assets/images/logo/logo-light-thumbnail.png?v=3');
   --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
   /* Brand Theme Colors */
@@ -1351,19 +1351,34 @@ $lpx-collapsed-sidebar-w: 72px;
   height: 0 !important;
 }
 
-.lpx-brand-logo,
-a.lpx-brand-logo,
 lpx-brand-logo,
+a.lpx-brand-logo,
 lpx-brand-logo a,
 .lpx-logo-container > a {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  background-image: none !important;
+  background-color: transparent !important;
+  text-decoration: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+div.lpx-brand-logo,
+.lpx-logo-container div.lpx-brand-logo,
+lpx-brand-logo div.lpx-brand-logo {
+  display: block !important;
+  background-image: var(--lpx-logo) !important;
   background-color: transparent !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: contain !important;
   text-decoration: none !important;
+  max-width: 180px !important;
+  width: 100% !important;
+  height: 42px !important;
+  margin: 0 auto !important;
 }
 
 .menu-collapse-icon,
@@ -1406,8 +1421,7 @@ lpx-brand-logo a,
       padding: 8px 16px !important;
       justify-content: center !important;
 
-      .lpx-brand-logo,
-      lpx-brand-logo .lpx-brand-logo {
+      div.lpx-brand-logo {
         background-image: var(--lpx-logo) !important;
         max-width: 180px !important;
         width: 100% !important;
@@ -1467,8 +1481,7 @@ body #lpx-wrapper.hover-trigger {
       padding: 8px 4px !important;
       justify-content: center !important;
 
-      .lpx-brand-logo,
-      lpx-brand-logo .lpx-brand-logo {
+      div.lpx-brand-logo {
         background-image: var(--lpx-logo-icon) !important;
         max-width: 38px !important;
         width: 38px !important;
@@ -1529,8 +1542,7 @@ body #lpx-wrapper.hover-trigger {
         padding: 8px 4px !important;
         justify-content: center !important;
 
-        .lpx-brand-logo,
-        lpx-brand-logo .lpx-brand-logo {
+        div.lpx-brand-logo {
           background-image: var(--lpx-logo-icon) !important;
           max-width: 38px !important;
           width: 38px !important;
@@ -1599,8 +1611,7 @@ body #lpx-wrapper.hover-trigger {
     padding: 8px 16px !important;
     justify-content: center !important;
 
-    .lpx-brand-logo,
-    lpx-brand-logo .lpx-brand-logo {
+    div.lpx-brand-logo {
       background-image: var(--lpx-logo) !important;
       max-width: 180px !important;
       width: 100% !important;
@@ -1663,8 +1674,7 @@ body #lpx-wrapper.hover-trigger {
       padding: 8px 16px !important;
       justify-content: center !important;
 
-      .lpx-brand-logo,
-      lpx-brand-logo .lpx-brand-logo {
+      div.lpx-brand-logo {
         background-image: var(--lpx-logo) !important;
         max-width: 180px !important;
         width: 100% !important;

@@ -63,6 +63,8 @@ export class TransfersComponent implements OnInit {
     type: TransferType.InterWarehouse,
     sourceWarehouseId: '',
     destinationWarehouseId: '',
+    sourceLocationId: '',
+    destinationLocationId: '',
     carrierName: '',
     trackingNumber: '',
     vehicleNumber: '',
@@ -265,6 +267,8 @@ export class TransfersComponent implements OnInit {
       type: TransferType.InterWarehouse,
       sourceWarehouseId: defaultSrc,
       destinationWarehouseId: defaultDst,
+      sourceLocationId: '',
+      destinationLocationId: '',
       carrierName: '',
       trackingNumber: '',
       vehicleNumber: '',
@@ -356,6 +360,24 @@ export class TransfersComponent implements OnInit {
     return this.transferModel.items.reduce((acc, cur) => acc + (Number(cur.requestedQuantity) || 0), 0);
   }
 
+  private extractErrorMessage(err: any, fallback: string = 'Operation failed'): string {
+    if (!err) return fallback;
+    const errObj = err.error?.error || err.error;
+    if (errObj?.validationErrors && Array.isArray(errObj.validationErrors) && errObj.validationErrors.length > 0) {
+      return errObj.validationErrors.map((v: any) => v.message).filter(Boolean).join(' | ');
+    }
+    if (errObj?.details) {
+      return errObj.details;
+    }
+    if (errObj?.message) {
+      return errObj.message;
+    }
+    if (err.message) {
+      return err.message;
+    }
+    return fallback;
+  }
+
   saveTransfer(): void {
     if (!this.transferModel.sourceWarehouseId) {
       this.toasterService.error('Please select a source warehouse.');
@@ -363,6 +385,10 @@ export class TransfersComponent implements OnInit {
     }
     if (!this.transferModel.destinationWarehouseId) {
       this.toasterService.error('Please select a destination warehouse.');
+      return;
+    }
+    if (this.transferModel.sourceWarehouseId === this.transferModel.destinationWarehouseId && Number(this.transferModel.type) === TransferType.InterWarehouse) {
+      this.toasterService.error('Inter-warehouse transfer cannot have the same source and destination facility.');
       return;
     }
     if (this.transferModel.items.length === 0) {
@@ -374,14 +400,31 @@ export class TransfersComponent implements OnInit {
         this.toasterService.error('Each line item must have a valid product.');
         return;
       }
-      if (!item.requestedQuantity || item.requestedQuantity <= 0) {
+      if (!item.requestedQuantity || Number(item.requestedQuantity) <= 0) {
         this.toasterService.error('Requested quantity must be greater than zero.');
         return;
       }
     }
 
+    const payload: CreateUpdateStockTransferDto = {
+      ...this.transferModel,
+      transferType: Number(this.transferModel.type),
+      type: Number(this.transferModel.type),
+      sourceLocationId: this.transferModel.sourceLocationId || undefined,
+      destinationLocationId: this.transferModel.destinationLocationId || undefined,
+      items: this.transferModel.items.map(item => ({
+        productId: item.productId,
+        quantityRequested: Number(item.requestedQuantity),
+        requestedQuantity: Number(item.requestedQuantity),
+        sourceLocationId: item.sourceLocationId || undefined,
+        destinationLocationId: item.destinationLocationId || undefined,
+        unitCost: item.unitCost != null ? Number(item.unitCost) : undefined,
+        notes: item.notes || '',
+      })),
+    };
+
     this.isSaving = true;
-    this.transferService.create(this.transferModel).subscribe({
+    this.transferService.create(payload).subscribe({
       next: res => {
         this.isSaving = false;
         this.toasterService.success(`Transfer ${res.transferNumber} created successfully!`);
@@ -390,7 +433,8 @@ export class TransfersComponent implements OnInit {
       },
       error: err => {
         this.isSaving = false;
-        this.toasterService.error(err.message || 'Failed to create transfer order.');
+        const msg = this.extractErrorMessage(err, 'Failed to create transfer order.');
+        this.toasterService.error(msg);
       },
     });
   }
@@ -404,7 +448,7 @@ export class TransfersComponent implements OnInit {
           this.loadTransfers();
         },
         error: err => {
-          this.toasterService.error(err.message || 'Failed to approve transfer.');
+          this.toasterService.error(this.extractErrorMessage(err, 'Failed to approve transfer.'));
         },
       });
     }
@@ -442,7 +486,7 @@ export class TransfersComponent implements OnInit {
       },
       error: err => {
         this.isSaving = false;
-        this.toasterService.error(err.message || 'Failed to dispatch transfer.');
+        this.toasterService.error(this.extractErrorMessage(err, 'Failed to dispatch transfer.'));
       },
     });
   }
@@ -461,7 +505,7 @@ export class TransfersComponent implements OnInit {
           this.loadTransfers();
         },
         error: err => {
-          this.toasterService.error(err.message || 'Failed to complete transfer.');
+          this.toasterService.error(this.extractErrorMessage(err, 'Failed to complete transfer.'));
         },
       });
     }
@@ -487,7 +531,7 @@ export class TransfersComponent implements OnInit {
         this.loadTransfers();
       },
       error: err => {
-        this.toasterService.error(err.message || 'Failed to cancel transfer.');
+        this.toasterService.error(this.extractErrorMessage(err, 'Failed to cancel transfer.'));
       },
     });
   }

@@ -92,7 +92,7 @@ function configureRoutes(routesService: RoutesService) {
       },
       {
         path: '/customers',
-        name: 'Customers & Clients',
+        name: 'Customers & B2B Clients',
         iconClass: 'bi bi-people',
         order: 7,
         layout: eLayoutType.application,

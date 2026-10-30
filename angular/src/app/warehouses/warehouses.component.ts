@@ -6,15 +6,15 @@ import { ToasterService } from '@abp/ng.theme.shared';
 import { RouterModule } from '@angular/router';
 import { FacultyMemberService } from '../proxy/faculty/faculty-member.service';
 import { FacultyMemberLookupDto } from '../proxy/faculty/models';
-import { 
-  WarehouseService, 
-  WarehouseZoneService, 
-  WarehouseLocationService 
+import {
+  WarehouseService,
+  WarehouseZoneService,
+  WarehouseLocationService
 } from '../proxy/warehouses';
-import { 
-  WarehouseDto, 
-  WarehouseZoneDto, 
-  WarehouseLocationDto, 
+import {
+  WarehouseDto,
+  WarehouseZoneDto,
+  WarehouseLocationDto,
   CreateUpdateWarehouseDto,
   CreateUpdateWarehouseZoneDto,
   CreateUpdateWarehouseLocationDto
@@ -189,7 +189,7 @@ export class WarehousesComponent implements OnInit {
         WarehousesComponent.cachedZonesCount = this.totalZonesCount;
         this.cdr.detectChanges();
       },
-      error: () => {}
+      error: () => { }
     });
 
     this.locationService.getList({ maxResultCount: 1, skipCount: 0 }).subscribe({
@@ -198,7 +198,7 @@ export class WarehousesComponent implements OnInit {
         WarehousesComponent.cachedLocationsCount = this.totalLocationsCount;
         this.cdr.detectChanges();
       },
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -243,7 +243,7 @@ export class WarehousesComponent implements OnInit {
     // Search query filter
     const q = this.searchQuery?.trim().toLowerCase();
     if (q) {
-      list = list.filter(w => 
+      list = list.filter(w =>
         w.code?.toLowerCase().includes(q) ||
         w.name?.toLowerCase().includes(q) ||
         w.city?.toLowerCase().includes(q) ||
@@ -403,7 +403,7 @@ export class WarehousesComponent implements OnInit {
   get filteredLocations(): WarehouseLocationDto[] {
     return this.selectedWarehouseLocations.filter(loc => {
       const matchesZone = this.selectedZoneFilter === 'all' || loc.zoneId === this.selectedZoneFilter;
-      const matchesSearch = !this.binSearchQuery || 
+      const matchesSearch = !this.binSearchQuery ||
         loc.barcode?.toLowerCase().includes(this.binSearchQuery.toLowerCase()) ||
         loc.aisle?.toLowerCase().includes(this.binSearchQuery.toLowerCase()) ||
         loc.rack?.toLowerCase().includes(this.binSearchQuery.toLowerCase());
@@ -740,8 +740,8 @@ export class WarehousesComponent implements OnInit {
     const nameTrimmed = this.newWarehouse.name.trim().toLowerCase();
 
     // Check duplicate code (excluding currently edited warehouse)
-    const codeExists = this.warehouses.some(w => 
-      w.id !== this.editingWarehouseId && 
+    const codeExists = this.warehouses.some(w =>
+      w.id !== this.editingWarehouseId &&
       w.code?.trim().toUpperCase() === codeTrimmed
     );
     if (codeExists) {
@@ -753,8 +753,8 @@ export class WarehousesComponent implements OnInit {
     }
 
     // Check duplicate name (excluding currently edited warehouse)
-    const nameExists = this.warehouses.some(w => 
-      w.id !== this.editingWarehouseId && 
+    const nameExists = this.warehouses.some(w =>
+      w.id !== this.editingWarehouseId &&
       w.name?.trim().toLowerCase() === nameTrimmed
     );
     if (nameExists) {

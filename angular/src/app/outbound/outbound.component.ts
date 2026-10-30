@@ -19,6 +19,8 @@ import { ProductService } from '../proxy/products';
 import { WarehouseDto } from '../proxy/warehouses/models';
 import { InventoryItemDto } from '../proxy/inventory/models';
 import { ProductDto } from '../proxy/products/models';
+import { CustomerService } from '../proxy/customers';
+import { CustomerDto } from '../proxy/customers/models';
 
 @Component({
   selector: 'app-outbound',
@@ -32,18 +34,25 @@ export class OutboundComponent implements OnInit {
   private warehouseService = inject(WarehouseService);
   private inventoryService = inject(InventoryService);
   private productService = inject(ProductService);
+  private customerService = inject(CustomerService);
   private toasterService = inject(ToasterService);
   private cdr = inject(ChangeDetectorRef);
 
   orders: OutboundOrderDto[] = [];
   warehouses: WarehouseDto[] = [];
   products: ProductDto[] = [];
+  customers: CustomerDto[] = [];
   availableStockItems: InventoryItemDto[] = [];
 
   isLoading = false;
   isSaving = false;
   searchQuery = '';
   selectedOrder: OutboundOrderDto | null = null;
+  selectedCustomerId: string = '';
+
+  get selectedCustomer(): CustomerDto | undefined {
+    return this.customers.find(c => c.id === this.selectedCustomerId);
+  }
 
   // Pick Modal
   isPickModalOpen = false;
@@ -157,7 +166,17 @@ export class OutboundComponent implements OnInit {
   ngOnInit(): void {
     this.loadWarehouses();
     this.loadProducts();
+    this.loadCustomers();
     this.loadOrders();
+  }
+
+  loadCustomers(): void {
+    this.customerService.getList({ maxResultCount: 200, skipCount: 0 }).subscribe({
+      next: (res) => {
+        this.customers = res.items || [];
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadWarehouses(): void {
@@ -445,6 +464,8 @@ export class OutboundComponent implements OnInit {
   openCreateOrderModal(): void {
     const todayPlus2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     this.deliveryDateStr = todayPlus2.toISOString().split('T')[0];
+    this.selectedCustomerId = '';
+    this.loadCustomers();
 
     this.newOrder = {
       orderNumber: `SO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -468,6 +489,23 @@ export class OutboundComponent implements OnInit {
     }
     this.quantityForLine = 10;
     this.isCreateOrderModalOpen = true;
+  }
+
+  onCustomerSelected(): void {
+    const cust = this.customers.find(c => c.id === this.selectedCustomerId);
+    if (cust) {
+      this.newOrder.customerName = cust.name;
+      if (cust.city) this.newOrder.city = cust.city;
+      if (cust.state) this.newOrder.state = cust.state;
+      if (cust.shippingAddress) this.newOrder.shippingAddress = cust.shippingAddress;
+      if (cust.postalCode) this.newOrder.postalCode = cust.postalCode;
+      if (cust.specialInstructions) {
+        this.newOrder.notes = cust.specialInstructions;
+      }
+    } else {
+      this.newOrder.customerName = '';
+    }
+    this.cdr.detectChanges();
   }
 
   onProductSelected(): void {
@@ -548,7 +586,7 @@ export class OutboundComponent implements OnInit {
       return;
     }
     if (!this.newOrder.customerName || !this.newOrder.customerName.trim()) {
-      this.toasterService.warn('Please enter the Customer Name.');
+      this.toasterService.warn('Please select a registered customer account.');
       return;
     }
     if (!this.newOrder.lines || this.newOrder.lines.length === 0) {

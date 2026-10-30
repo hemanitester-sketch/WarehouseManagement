@@ -63,6 +63,9 @@ public class WarehouseManagementDbContext :
     // Suppliers & Vendors
     public DbSet<WarehouseManagement.Suppliers.Supplier> Suppliers { get; set; }
 
+    // Customers & B2B Clients
+    public DbSet<WarehouseManagement.Customers.Customer> Customers { get; set; }
+
     // Products
     public DbSet<WarehouseManagement.Products.Category> Categories { get; set; }
     public DbSet<WarehouseManagement.Products.Product> Products { get; set; }
@@ -82,6 +85,10 @@ public class WarehouseManagementDbContext :
     // Stock Transfers & Movement
     public DbSet<WarehouseManagement.Transfers.StockTransfer> StockTransfers { get; set; }
     public DbSet<WarehouseManagement.Transfers.StockTransferItem> StockTransferItems { get; set; }
+
+    // Cycle Counts & Stock Audits
+    public DbSet<WarehouseManagement.Audits.CycleCountAudit> CycleCountAudits { get; set; }
+    public DbSet<WarehouseManagement.Audits.CycleCountAuditItem> CycleCountAuditItems { get; set; }
 
     #endregion
 
@@ -176,6 +183,40 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxNotesLength);
 
             b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.IsActive });
+        });
+
+        builder.Entity<WarehouseManagement.Customers.Customer>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "Customers", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxCodeLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxNameLength);
+            b.Property(x => x.Industry).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxIndustryLength);
+            b.Property(x => x.ContactPerson).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxContactPersonLength);
+            b.Property(x => x.Email).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxEmailLength);
+            b.Property(x => x.PhoneNumber).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPhoneLength);
+            b.Property(x => x.AlternativePhone).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPhoneLength);
+            b.Property(x => x.TaxNumber).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxTaxNumberLength);
+            b.Property(x => x.PanNumber).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPanNumberLength);
+            b.Property(x => x.BillingAddress).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxAddressLength);
+            b.Property(x => x.ShippingAddress).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxAddressLength);
+            b.Property(x => x.City).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxCityLength);
+            b.Property(x => x.State).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxStateLength);
+            b.Property(x => x.PostalCode).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPostalCodeLength);
+            b.Property(x => x.Country).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxCountryLength);
+            b.Property(x => x.PaymentTerms).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPaymentTermsLength);
+            b.Property(x => x.CreditLimit).HasPrecision(18, 2);
+            b.Property(x => x.CurrentOutstanding).HasPrecision(18, 2);
+            b.Property(x => x.TotalRevenue).HasPrecision(18, 2);
+            b.Property(x => x.PriceTier).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPriceTierLength);
+            b.Property(x => x.DeliveryDockHours).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxDeliveryDockHoursLength);
+            b.Property(x => x.SpecialInstructions).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxSpecialInstructionsLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxNotesLength);
+
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.CustomerType });
+            b.HasIndex(x => new { x.TenantId, x.Status });
             b.HasIndex(x => new { x.TenantId, x.IsActive });
         });
 
@@ -464,6 +505,59 @@ public class WarehouseManagementDbContext :
             b.HasOne<WarehouseManagement.Products.Product>()
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Audits.CycleCountAudit>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "CycleCountAudits", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.AuditNumber).IsRequired().HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxAuditNumberLength);
+            b.Property(x => x.AssignedAuditorName).HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxAuditorNameLength);
+            b.Property(x => x.ApprovedByFacultyName).HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxAuditorNameLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxNotesLength);
+            b.Property(x => x.TotalVarianceQuantity).HasPrecision(18, 4);
+            b.Property(x => x.TotalVarianceValue).HasPrecision(18, 2);
+
+            b.HasIndex(x => x.AuditNumber).IsUnique();
+            b.HasIndex(x => new { x.WarehouseId, x.Status });
+
+            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+                .WithMany()
+                .HasForeignKey(x => x.WarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(x => x.Items)
+                .WithOne()
+                .HasForeignKey(x => x.CycleCountAuditId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Audits.CycleCountAuditItem>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "CycleCountAuditItems", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.SystemQuantity).HasPrecision(18, 4);
+            b.Property(x => x.CountedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.UnitCost).HasPrecision(18, 2);
+            b.Property(x => x.LotBatchNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLotBatchNumberLength);
+            b.Property(x => x.SerialNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxSerialNumberLength);
+            b.Property(x => x.ReasonNotes).HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxReasonNotesLength);
+
+            b.HasIndex(x => new { x.CycleCountAuditId, x.ProductId, x.LocationId });
+
+            b.HasOne<WarehouseManagement.Products.Product>()
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne<WarehouseManagement.Warehouses.WarehouseLocation>()
+                .WithMany()
+                .HasForeignKey(x => x.LocationId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
         });

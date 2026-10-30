@@ -16,6 +16,12 @@ public class CreateStockTransferItemDto
     [Range(0.0001, double.MaxValue, ErrorMessage = "Requested quantity must be greater than zero.")]
     public decimal QuantityRequested { get; set; }
 
+    public decimal RequestedQuantity
+    {
+        get => QuantityRequested;
+        set => QuantityRequested = value;
+    }
+
     public string? LotBatchNumber { get; set; }
 
     public string? SerialNumber { get; set; }
@@ -27,6 +33,12 @@ public class CreateUpdateStockTransferDto
 {
     [Required]
     public TransferType TransferType { get; set; } = TransferType.InterWarehouse;
+
+    public TransferType Type
+    {
+        get => TransferType;
+        set => TransferType = value;
+    }
 
     [Required]
     public Guid SourceWarehouseId { get; set; }

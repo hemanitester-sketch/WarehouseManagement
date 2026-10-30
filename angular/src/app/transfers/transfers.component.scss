@@ -14,13 +14,153 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Stock Transfers Table Subtle Clean Card & Table (Matching Products & Outbound) */
+.transfers-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.transfers-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th,
+  .table-light th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.64rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.95rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.65rem 0.95rem;
+      vertical-align: middle;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+}
+
+/* Unified & Clean Cell Typography (Exact match to Products) */
+.product-cell-text,
+.transfer-cell-text {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1.45;
+}
+
+.product-cell-subtext,
+.transfer-cell-subtext {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* Action Buttons: Normal Icon Only, Button on Hover (Exact match to Products & Outbound) */
+.btn-table-action {
+  width: 28px;
+  height: 28px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+
+  &.btn-approve {
+    color: #059669;
+    &:hover {
+      background-color: #ecfdf5 !important;
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      color: #047857 !important;
+    }
+  }
+
+  &.btn-dispatch {
+    color: #2563eb;
+    &:hover {
+      background-color: #eff6ff !important;
+      background: #eff6ff !important;
+      border-color: #bfdbfe !important;
+      color: #1d4ed8 !important;
+    }
+  }
+
+  &.btn-receive {
+    color: #0d9488;
+    &:hover {
+      background-color: #f0fdfa !important;
+      background: #f0fdfa !important;
+      border-color: #99f6e4 !important;
+      color: #0f766e !important;
+    }
+  }
+
+  &.btn-challan {
+    color: #475569;
+    &:hover {
+      background-color: #f1f5f9 !important;
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+  }
+
+  &.btn-view {
+    color: #0284c7;
+    &:hover {
+      background-color: #f0f9ff !important;
+      background: #f0f9ff !important;
+      border-color: #bae6fd !important;
+      color: #0369a1 !important;
+    }
+  }
+
+  &.btn-delete {
+    color: #dc2626;
+    &:hover {
+      background-color: #fef2f2 !important;
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      color: #b91c1c !important;
+    }
+  }
+}
+
 /* Movement Type Pills */
 .type-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.22rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.2;
 
@@ -60,8 +200,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.22rem 0.65rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 9999px;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.2;
 
@@ -167,9 +308,10 @@
 
 /* Modal Section Box & Crisp Clean Card Background */
 .transfer-section-box {
-  background-color: #f8fafc !important;
+  background-color: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 .section-origin-badge {
@@ -278,6 +420,38 @@ select,
     }
   }
 }
+
+/* White Cancel Button */
+.btn-category-cancel {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  padding: 0.42rem 1.15rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  &:hover {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  &:active,
+  &:focus {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #64748b !important;
+    outline: none !important;
+  }
+}
+
 
 /* Printable Challan Styles */
 @media print {

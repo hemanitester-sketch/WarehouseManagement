@@ -40,21 +40,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'cycle-counts',
-    loadComponent: () =>
-      import('./shared/components/module-placeholder.component').then(m => m.ModulePlaceholderComponent),
-    data: {
-      title: 'Cycle Counting & Stock Audits',
-      badge: 'Inventory Reconciliation',
-      icon: 'bi bi-clipboard-check',
-      subtitle: 'Periodic physical inventory verification, variance reconciliation & audit approvals.',
-      features: [
-        'ABC classification-based periodic count scheduling (Daily / Weekly)',
-        'Blind counting mode to ensure 100% accurate physical verification',
-        'Automatic variance detection between system stock vs actual count',
-        'Managerial variance review, sign-off & financial write-off approvals',
-        'Discrepancy reason code tracking & shrinkage analytics',
-      ],
-    },
+    loadChildren: () => import('./cycle-counts/cycle-counts.routes').then(m => m.cycleCountsRoutes),
     canActivate: [AuthGuard],
   },
   {
@@ -64,21 +50,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'customers',
-    loadComponent: () =>
-      import('./shared/components/module-placeholder.component').then(m => m.ModulePlaceholderComponent),
-    data: {
-      title: 'Customers & B2B Clients',
-      badge: 'Client Directory',
-      icon: 'bi bi-people',
-      subtitle: 'Manage client accounts, delivery locations, GSTIN tax credentials & credit terms.',
-      features: [
-        'B2B Corporate & B2C customer master profiling',
-        'Multiple shipping destinations, dock hours & delivery instructions',
-        'GSTIN, PAN & tax compliance verification for invoicing',
-        'Payment terms (Net 30, Advance, COD) & credit limit enforcement',
-        'Seamless integration with Outbound Orders customer selector',
-      ],
-    },
+    loadChildren: () => import('./customers/customers.routes').then(m => m.customersRoutes),
     canActivate: [AuthGuard],
   },
   {

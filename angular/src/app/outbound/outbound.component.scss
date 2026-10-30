@@ -490,4 +490,54 @@
   }
 }
 
+/* Scoped Dropdown Select & Option Active/Hover Styling (Matching WMS Theme) */
+select,
+.form-select {
+  accent-color: #2563eb !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+  }
+
+  &:focus,
+  &:active,
+  &.active {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18) !important;
+    outline: none !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected],
+    &:active,
+    &.active {
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+  }
+}
+
+
 

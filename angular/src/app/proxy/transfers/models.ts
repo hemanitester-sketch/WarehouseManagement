@@ -75,6 +75,7 @@ export interface CreateStockTransferItemDto {
   sourceLocationId?: string;
   destinationLocationId?: string;
   requestedQuantity: number;
+  quantityRequested?: number;
   unitCost?: number;
   notes?: string;
 }
@@ -82,8 +83,11 @@ export interface CreateStockTransferItemDto {
 export interface CreateUpdateStockTransferDto {
   transferNumber?: string;
   type: TransferType;
+  transferType?: TransferType;
   sourceWarehouseId: string;
   destinationWarehouseId: string;
+  sourceLocationId?: string;
+  destinationLocationId?: string;
   carrierName?: string;
   trackingNumber?: string;
   vehicleNumber?: string;

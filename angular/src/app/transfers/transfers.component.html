@@ -157,32 +157,27 @@
 
       <!-- Clear Button -->
       <div class="col-12 col-md-1 text-md-end">
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary w-100"
-          (click)="clearFilters()"
-          title="Reset Filters"
-        >
-          <i class="bi bi-x-circle me-1"></i>Reset
-        </button>
+      <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
+            <i class="fas fa-undo-alt me-1"></i>
+          </button>
       </div>
     </div>
   </div>
 
   <!-- Data Grid Card -->
-  <div class="wms-card">
+  <div class="card transfers-table-card products-table-card overflow-hidden mb-3">
     <div class="table-responsive">
-      <table class="table wms-table wms-table-compact align-middle mb-0">
-        <thead>
+      <table class="table table-hover align-middle mb-0 wms-table products-table transfers-table">
+        <thead class="table-light">
           <tr>
-            <th style="min-width: 140px; width: 145px;">Transfer Order</th>
-            <th style="min-width: 130px; width: 135px;">Type</th>
-            <th style="min-width: 220px;">Route / Facility Movement</th>
-            <th style="min-width: 110px; width: 120px;" class="text-center">Items & Units</th>
-            <th style="min-width: 180px;">Logistics & Carrier</th>
-            <th style="min-width: 105px; width: 110px;">Date</th>
-            <th style="min-width: 110px; width: 115px;" class="text-center">Status</th>
-            <th style="min-width: 160px; width: 170px;" class="text-end">Actions</th>
+            <th class="ps-3" style="width: 170px; min-width: 160px; white-space: nowrap;">Transfer Order</th>
+            <th style="width: 160px; min-width: 150px; white-space: nowrap;">Type</th>
+            <th>Route / Facility Movement</th>
+            <th style="width: 130px; min-width: 120px;" class="text-center">Items & Units</th>
+            <th style="width: 190px; min-width: 180px;">Logistics & Carrier</th>
+            <th style="width: 120px; min-width: 110px;">Date</th>
+            <th style="width: 125px; min-width: 120px;" class="text-center">Status</th>
+            <th class="text-end pe-3" style="width: 180px; min-width: 170px;">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -204,20 +199,20 @@
             @for (t of paginatedTransfers; track t.id) {
               <tr>
                 <!-- Transfer Number & Challan -->
-                <td>
-                  <div class="d-flex flex-column gap-0.5">
-                    <span class="fw-bold text-dark font-monospace font-size-13">{{ t.transferNumber }}</span>
-                    @if (t.deliveryChallanNumber) {
-                      <span class="challan-pill font-size-10" title="Delivery Challan">
-                        <i class="bi bi-receipt me-1"></i>{{ t.deliveryChallanNumber }}
-                      </span>
-                    }
-                  </div>
+                <td class="ps-3" style="width: 170px; min-width: 160px; white-space: nowrap;">
+                  <span class="product-cell-text d-block font-monospace fw-semibold text-primary text-nowrap">{{ t.transferNumber }}</span>
+                  @if (t.deliveryChallanNumber) {
+                    <small class="product-cell-subtext text-nowrap font-monospace">
+                      <i class="fas fa-receipt me-1 text-muted"></i>{{ t.deliveryChallanNumber }}
+                    </small>
+                  } @else {
+                    <small class="product-cell-subtext text-muted">—</small>
+                  }
                 </td>
 
                 <!-- Type -->
-                <td>
-                  <span class="type-pill font-size-11" [ngClass]="getTypeBadgeClass(t.type)">
+                <td style="width: 160px; min-width: 150px; white-space: nowrap;">
+                  <span class="type-pill" [ngClass]="getTypeBadgeClass(t.type)">
                     <i [class]="getTypeIcon(t.type)"></i>
                     <span>{{ getTypeLabel(t.type) }}</span>
                   </span>
@@ -225,75 +220,73 @@
 
                 <!-- Route / Movement -->
                 <td>
-                  <div class="route-movement-box">
-                    <div class="route-node">
-                      <span class="route-node-label">FROM</span>
-                      <span class="route-node-val text-truncate" [title]="t.sourceWarehouseName || 'Source'">
-                        {{ t.sourceWarehouseName || 'Source Warehouse' }}
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="min-w-0">
+                      <span class="product-cell-text d-block text-truncate fw-semibold text-nowrap" style="max-width: 140px;" [title]="t.sourceWarehouseName || 'Source'">
+                        <i class="fas fa-warehouse text-primary me-1"></i>{{ t.sourceWarehouseName || 'Source Warehouse' }}
                       </span>
+                      <small class="product-cell-subtext text-nowrap">From Origin</small>
                     </div>
-                    <i class="bi bi-arrow-right route-arrow text-primary"></i>
-                    <div class="route-node">
-                      <span class="route-node-label">TO</span>
-                      <span class="route-node-val text-truncate" [title]="t.destinationWarehouseName || 'Destination'">
-                        {{ t.destinationWarehouseName || 'Destination Warehouse' }}
+                    <i class="fas fa-arrow-right text-muted flex-shrink-0" style="font-size: 0.72rem;"></i>
+                    <div class="min-w-0">
+                      <span class="product-cell-text d-block text-truncate fw-semibold text-nowrap" style="max-width: 140px;" [title]="t.destinationWarehouseName || 'Destination'">
+                        <i class="fas fa-map-marker-alt text-success me-1"></i>{{ t.destinationWarehouseName || 'Destination Warehouse' }}
                       </span>
+                      <small class="product-cell-subtext text-nowrap">To Target</small>
                     </div>
                   </div>
                 </td>
 
                 <!-- Items & Units -->
-                <td class="text-center">
-                  <button type="button" class="btn btn-sm btn-light border py-0.5 px-2 font-size-11" (click)="openDetailsModal(t)">
-                    <strong class="text-dark">{{ t.totalUnits }}</strong> units
-                    <span class="text-muted">({{ t.totalItemsCount }} SKU)</span>
-                  </button>
+                <td class="text-center" style="width: 130px; min-width: 120px;">
+                  <span class="product-cell-text font-monospace fw-bold d-block">{{ t.totalUnits | number }} units</span>
+                  <small class="product-cell-subtext">({{ t.totalItemsCount }} SKU)</small>
                 </td>
 
                 <!-- Logistics & Carrier -->
-                <td>
+                <td style="width: 190px; min-width: 180px;">
                   @if (t.carrierName || t.vehicleNumber) {
-                    <div class="d-flex flex-column font-size-11">
-                      <div class="fw-semibold text-dark text-truncate" [title]="t.carrierName">
-                        <i class="bi bi-truck text-muted me-1"></i>{{ t.carrierName || 'Internal Fleet' }}
-                      </div>
-                      <div class="text-muted font-size-10 font-monospace">
+                    <div class="d-flex flex-column">
+                      <span class="product-cell-text text-truncate text-nowrap" style="max-width: 170px;" [title]="t.carrierName">
+                        <i class="fas fa-truck text-muted me-1"></i>{{ t.carrierName || 'Internal Fleet' }}
+                      </span>
+                      <small class="product-cell-subtext font-monospace text-nowrap">
                         {{ t.vehicleNumber || '-' }}
                         @if (t.driverName) {
                           &bull; {{ t.driverName }}
                         }
-                      </div>
+                      </small>
                     </div>
                   } @else {
-                    <span class="text-muted font-size-11 fst-italic">Local / Direct Putaway</span>
+                    <span class="product-cell-subtext fst-italic">Local / Direct Putaway</span>
                   }
                 </td>
 
                 <!-- Date -->
-                <td>
-                  <span class="text-muted font-size-11">{{ t.transferDate | date: 'dd MMM yyyy' }}</span>
+                <td style="width: 120px; min-width: 110px;">
+                  <span class="product-cell-text font-monospace">{{ t.transferDate | date: 'dd MMM yyyy' }}</span>
                 </td>
 
                 <!-- Status -->
-                <td class="text-center">
-                  <span class="status-pill font-size-11" [ngClass]="getStatusBadgeClass(t.status)">
+                <td class="text-center" style="width: 125px; min-width: 120px;">
+                  <span class="status-pill" [ngClass]="getStatusBadgeClass(t.status)">
                     <i [class]="getStatusIcon(t.status)"></i>
                     <span>{{ getStatusLabel(t.status) }}</span>
                   </span>
                 </td>
 
                 <!-- Actions -->
-                <td class="text-end">
-                  <div class="d-inline-flex align-items-center gap-1">
+                <td class="text-end pe-3" style="width: 180px; min-width: 170px;">
+                  <div class="d-inline-flex align-items-center gap-1 justify-content-end">
                     <!-- If Draft -> Approve button -->
                     @if (t.status === 0) {
                       <button
                         type="button"
-                        class="btn btn-xs btn-outline-success py-1 px-2 font-size-11"
+                        class="btn btn-table-action btn-approve"
                         (click)="approveTransfer(t)"
                         title="Approve Transfer"
                       >
-                        <i class="bi bi-check-lg"></i> Approve
+                        <i class="fas fa-check"></i>
                       </button>
                     }
 
@@ -301,11 +294,11 @@
                     @if (t.status === 1) {
                       <button
                         type="button"
-                        class="btn btn-xs btn-wms-primary py-1 px-2 font-size-11"
+                        class="btn btn-table-action btn-dispatch"
                         (click)="openDispatchModal(t)"
                         title="Dispatch Shipment"
                       >
-                        <i class="bi bi-send"></i> Dispatch
+                        <i class="fas fa-paper-plane"></i>
                       </button>
                     }
 
@@ -313,43 +306,43 @@
                     @if (t.status === 2) {
                       <button
                         type="button"
-                        class="btn btn-xs btn-success py-1 px-2 font-size-11"
+                        class="btn btn-table-action btn-receive"
                         (click)="completeTransfer(t)"
-                        title="Receive at Destination & Putaway"
+                        title="Receive & Complete Transfer"
                       >
-                        <i class="bi bi-box-arrow-in-down"></i> Receive
+                        <i class="fas fa-box-open"></i>
                       </button>
                     }
 
                     <!-- Challan / Gate Pass print button -->
                     <button
                       type="button"
-                      class="btn btn-xs btn-outline-secondary py-1 px-2 font-size-11"
+                      class="btn btn-table-action btn-challan"
                       (click)="openChallanModal(t)"
-                      title="View & Print Delivery Challan / Gate Pass"
+                      title="Print Delivery Challan / Gate Pass"
                     >
-                      <i class="bi bi-printer"></i> Challan
+                      <i class="fas fa-print"></i>
                     </button>
 
                     <!-- Details preview button -->
                     <button
                       type="button"
-                      class="btn btn-xs btn-outline-primary py-1 px-1.5 font-size-11"
+                      class="btn btn-table-action btn-view"
                       (click)="openDetailsModal(t)"
-                      title="View Details"
+                      title="View Transfer Details"
                     >
-                      <i class="bi bi-eye"></i>
+                      <i class="fas fa-eye"></i>
                     </button>
 
                     <!-- Cancel button (if not completed or cancelled) -->
                     @if (t.status !== 3 && t.status !== 4) {
                       <button
                         type="button"
-                        class="btn btn-xs btn-outline-danger py-1 px-1.5 font-size-11"
+                        class="btn btn-table-action btn-delete"
                         (click)="openCancelModal(t)"
                         title="Cancel Transfer"
                       >
-                        <i class="bi bi-x-lg"></i>
+                        <i class="fas fa-times"></i>
                       </button>
                     }
                   </div>
@@ -367,7 +360,7 @@
         Showing <strong>{{ paginationStart }}</strong> to <strong>{{ paginationEnd }}</strong> of <strong>{{ filteredTransfers.length }}</strong> transfer movements
       </div>
       <div class="d-flex align-items-center gap-2">
-        <select class="form-select form-select-sm" style="width: 105px;" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+        <select class="form-select form-select-sm" style="width: 115px;" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
           <option [value]="10">10 per page</option>
           <option [value]="25">25 per page</option>
           <option [value]="50">50 per page</option>
@@ -377,7 +370,7 @@
           <ul class="pagination pagination-sm mb-0">
             <li class="page-item" [class.disabled]="currentPage === 1">
               <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">
-                <i class="bi bi-chevron-left"></i>
+                <i class="fas fa-chevron-left"></i>
               </button>
             </li>
             <li class="page-item disabled">
@@ -385,7 +378,7 @@
             </li>
             <li class="page-item" [class.disabled]="currentPage === totalPages">
               <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
-                <i class="bi bi-chevron-right"></i>
+                <i class="fas fa-chevron-right"></i>
               </button>
             </li>
           </ul>
@@ -611,7 +604,7 @@
             Total transfer volume: <strong>{{ totalUnitsCalculated }} physical units</strong>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeCreateModal()">Cancel</button>
+            <button type="button" class="btn btn-sm btn-category-cancel" (click)="closeCreateModal()">Cancel</button>
             <button type="button" class="btn btn-sm btn-wms-primary" (click)="saveTransfer()" [disabled]="isSaving">
               <i class="bi bi-check2-circle me-1"></i>{{ isSaving ? 'Saving...' : 'Create Transfer Order' }}
             </button>
@@ -673,7 +666,7 @@
           </div>
         </div>
         <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeDispatchModal()">Cancel</button>
+          <button type="button" class="btn btn-sm btn-category-cancel" (click)="closeDispatchModal()">Cancel</button>
           <button type="button" class="btn btn-sm btn-wms-primary" (click)="confirmDispatch()" [disabled]="isSaving">
             <i class="bi bi-send me-1"></i>Confirm Dispatch
           </button>
@@ -900,7 +893,7 @@
           <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="cancelReason"></textarea>
         </div>
         <div class="modal-footer py-2 px-3 bg-white border-top d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeCancelModal()">Keep Order</button>
+          <button type="button" class="btn btn-sm btn-category-cancel" (click)="closeCancelModal()">Keep Order</button>
           <button type="button" class="btn btn-sm btn-danger" (click)="confirmCancel()">Confirm Cancel</button>
         </div>
       </div>

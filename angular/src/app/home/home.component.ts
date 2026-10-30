@@ -384,7 +384,7 @@ export class HomeComponent implements OnInit {
 
     // 0. Update Warehouses List if available
     if (warehouses && warehouses.length > 0) {
-      this.warehousesList = ['All Facilities', ...warehouses.map((w) => w.name || 'Warehouse')];
+      this.warehousesList = ['All Facilities', ...Array.from(new Set(warehouses.map((w) => w.name || 'Warehouse')))];
     }
 
     // 0.1 Calculate 7-Day Velocity from Transactions

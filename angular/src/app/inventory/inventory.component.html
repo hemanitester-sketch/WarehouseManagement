@@ -129,7 +129,7 @@
         <thead class="table-light">
           <tr>
             <th class="ps-3" style="width: 170px;">Product / SKU</th>
-            <th style="width: 170px;">Location / Bin</th>
+            <th style="width: 220px; min-width: 210px; white-space: nowrap;">Location / Bin</th>
             <th style="width: 110px;">Lot / Batch</th>
             <th style="width: 110px;">Expiry Date</th>
             <th style="width: 90px;">On Hand</th>
@@ -145,11 +145,11 @@
               <span class="inventory-cell-text d-block">{{ item.productSku }}</span>
               <small class="inventory-cell-subtext">{{ item.productName }}</small>
             </td>
-            <td>
-              <span class="inventory-cell-text d-block">
+            <td style="width: 220px; min-width: 210px; white-space: nowrap;">
+              <span class="inventory-cell-text d-block text-nowrap">
                 <i class="fas fa-barcode text-primary me-1"></i>{{ item.locationBarcode }}
               </span>
-              <small class="inventory-cell-subtext">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
+              <small class="inventory-cell-subtext text-nowrap">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
             </td>
             <td>
               <span class="inventory-cell-text">{{ item.lotBatchNumber || '—' }}</span>

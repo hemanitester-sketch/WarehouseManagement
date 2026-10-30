@@ -100,7 +100,7 @@
         <thead class="table-light">
           <tr>
             <th class="ps-3" style="width: 140px;">PO Number</th>
-            <th style="width: 100px;">Facility</th>
+            <th style="width: 170px; min-width: 160px; white-space: nowrap;">Facility</th>
             <th>Supplier</th>
             <th style="width: 130px;">Expected Arrival</th>
             <th class="text-center" style="width: 70px;">Lines</th>
@@ -115,8 +115,11 @@
             <td class="ps-3">
               <span class="inbound-cell-text font-monospace d-block text-primary">{{ ord.orderNumber }}</span>
             </td>
-            <td>
-              <span class="inbound-cell-text">{{ ord.warehouseCode }}</span>
+            <td style="width: 170px; min-width: 160px; white-space: nowrap;">
+              <span class="inbound-cell-text d-block fw-semibold text-dark text-nowrap">
+                <i class="fas fa-warehouse text-primary me-1"></i>{{ ord.warehouseCode || 'WH-01' }}
+              </span>
+              <small class="inbound-cell-subtext text-nowrap" *ngIf="ord.warehouseName">{{ ord.warehouseName }}</small>
             </td>
             <td>
               <span class="inbound-cell-text d-block">{{ ord.supplierName }}</span>

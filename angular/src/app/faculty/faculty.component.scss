@@ -8,6 +8,7 @@
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -83,12 +84,15 @@
       &.bg-blue-soft {
         background: #eff6ff;
       }
+
       &.bg-green-soft {
         background: #f0fdf4;
       }
+
       &.bg-purple-soft {
         background: #faf5ff;
       }
+
       &.bg-orange-soft {
         background: #fffbeb;
       }
@@ -328,13 +332,14 @@
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
 .faculty-modal-header {
-  background: #759ef8 !important;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
   border-radius: 0 !important;
   padding: 1rem 1.4rem;
   flex-shrink: 0;
@@ -433,5 +438,3 @@ select {
     }
   }
 }
-
-

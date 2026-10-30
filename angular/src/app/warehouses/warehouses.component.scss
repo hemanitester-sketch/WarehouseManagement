@@ -389,6 +389,24 @@
   }
 }
 
+/* Facility Manager Select Optimization */
+.manager-select {
+  width: 100% !important;
+  max-width: 100% !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.82rem !important;
+
+  option {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
 /* Warehouse Type Filter & Form Selects - Override Pink with Blue */
 .form-select,
 select {

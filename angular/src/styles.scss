@@ -47,14 +47,26 @@
   accent-color: #2563eb !important;
 }
 
-/* Global Select & Dropdown Option Styling - Override Browser/OS Pink with Blue */
+/* Global Select & Dropdown Option Styling - Modern Soft Blue Hover & Active */
 select,
 .form-select {
   accent-color: #2563eb !important;
+  transition: all 0.2s ease;
 
-  &:focus {
+  &:hover {
     border-color: #2563eb !important;
-    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2) !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+  }
+
+  &:focus,
+  &:active,
+  &.active {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18) !important;
+    outline: none !important;
   }
 
   option {
@@ -63,19 +75,23 @@ select,
     padding: 6px 12px;
 
     &:checked,
-    &[selected] {
-      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
-      background-color: #2563eb !important;
-      color: #ffffff !important;
-      -webkit-text-fill-color: #ffffff !important;
+    &[selected],
+    &:active,
+    &.active {
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
     }
 
     &:hover,
     &:focus {
-      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
-      background-color: #2563eb !important;
-      color: #ffffff !important;
-      -webkit-text-fill-color: #ffffff !important;
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
     }
   }
 
@@ -86,6 +102,13 @@ select,
     background-color: #eff6ff !important;
     box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1) !important;
   }
+}
+
+/* Fix bg-light overriding dark #bbb from lepton bootstrap-dim */
+.bg-light,
+.card.bg-light,
+.modal-body .card.bg-light {
+  background-color: #f8fafc !important;
 }
 
 body {
@@ -1292,55 +1315,118 @@ body,
 $lpx-custom-sidebar-w: 250px;
 $lpx-collapsed-sidebar-w: 72px;
 
-/* --- 1. FULL EXPANDED DESKTOP (Only >= 1200px and when not in hover-trigger mode) --- */
+/* Common sidebar transitions */
+.lpx-sidebar-container,
+.lpx-content-container,
+.lpx-footbar-container {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Logo Container & Brand Logo setup */
+.lpx-sidebar .lpx-logo-container,
+#lpx-wrapper .lpx-sidebar-container .lpx-logo-container,
+#lpx-wrapper .lpx-logo-container {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  border-right: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  box-sizing: border-box !important;
+}
+
+.lpx-brand-name,
+#lpx-wrapper .lpx-brand-name,
+.lpx-logo-container .lpx-brand-name,
+.lpx-brand-title,
+.lpx-logo-title,
+.brand-title,
+.lpx-brand-text {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.lpx-brand-logo,
+a.lpx-brand-logo,
+lpx-brand-logo,
+lpx-brand-logo a,
+.lpx-logo-container > a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: transparent !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  text-decoration: none !important;
+}
+
+.menu-collapse-icon,
+.lpx-logo-container .menu-collapse-icon {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  font-size: 1.25rem !important;
+  transition: color 0.2s ease;
+  z-index: 10;
+  &:hover {
+    color: #0f172a !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1. FULL EXPANDED DESKTOP (Screen >= 1200px and NOT collapsed)
+   -------------------------------------------------------------------------- */
 @media only screen and (min-width: 1200px) {
   #lpx-wrapper:not(.hover-trigger) {
-    .lpx-sidebar-container {
-      min-width: $lpx-custom-sidebar-w !important;
-      max-width: $lpx-custom-sidebar-w !important;
-      width: $lpx-custom-sidebar-w !important;
-      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
+    .lpx-sidebar-container,
     .lpx-sidebar,
     .lpx-sidebar-container .lpx-sidebar,
     .lpx-sidebar-container .lpx-sidebar .lpx-nav,
     .lpx-sidebar-container .lpx-sidebar .lpx-nav .lpx-nav-menu,
     .lpx-sidebar.lpx-scroll-container,
-    .lpx-sidebar.lpx-scroll-container .lpx-nav-menu {
+    .lpx-sidebar.lpx-scroll-container .lpx-nav-menu,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-nav,
+    .lpx-logo-container,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container {
       min-width: $lpx-custom-sidebar-w !important;
       max-width: $lpx-custom-sidebar-w !important;
       width: $lpx-custom-sidebar-w !important;
     }
 
-    .lpx-sidebar .lpx-logo-container,
     .lpx-logo-container {
-      width: $lpx-custom-sidebar-w !important;
-      max-width: $lpx-custom-sidebar-w !important;
       padding: 8px 16px !important;
+      justify-content: center !important;
 
-      .lpx-brand-logo {
+      .lpx-brand-logo,
+      lpx-brand-logo .lpx-brand-logo {
         background-image: var(--lpx-logo) !important;
         max-width: 180px !important;
         width: 100% !important;
         height: 42px !important;
       }
-    }
 
-    .lpx-sidebar .lpx-logo-container .menu-collapse-icon {
-      left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
-      right: auto !important;
-      display: block !important;
+      .menu-collapse-icon {
+        display: block !important;
+        right: 12px !important;
+        left: auto !important;
+      }
     }
 
     .lpx-content-container {
       margin-left: $lpx-custom-sidebar-w !important;
-      transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .lpx-footbar-container {
       left: $lpx-custom-sidebar-w !important;
-      transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .lpx-nav-menu .lpx-menu-item-link .lpx-menu-item-text {
@@ -1355,95 +1441,34 @@ $lpx-collapsed-sidebar-w: 72px;
   }
 }
 
-/* --- 2. COLLAPSED / ICON-ONLY / ZOOMED RESPONSIVE STATE --- */
-/* A) When screen is zoomed in or on tablet (768px - 1199px): strictly 72px width */
-@media only screen and (min-width: 768px) and (max-width: 1199px) {
-  #lpx-wrapper .lpx-sidebar-container:not(:hover) {
+/* --------------------------------------------------------------------------
+   2. COLLAPSED / ICON-ONLY STATE (Strictly 72px)
+   Applied when:
+   - User toggled collapse: #lpx-wrapper.hover-trigger
+   - OR screen is zoomed / tablet: @media (max-width: 1199px) and (min-width: 768px)
+   -------------------------------------------------------------------------- */
+#lpx-wrapper.hover-trigger,
+body #lpx-wrapper.hover-trigger {
+  .lpx-sidebar-container:not(:hover),
+  .lpx-sidebar-container:not(:hover) .lpx-sidebar,
+  .lpx-sidebar-container:not(:hover) .lpx-nav,
+  .lpx-sidebar-container:not(:hover) .lpx-nav-menu,
+  .lpx-sidebar-container:not(:hover) .lpx-logo-container,
+  .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
+  .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-nav {
     min-width: $lpx-collapsed-sidebar-w !important;
     max-width: $lpx-collapsed-sidebar-w !important;
     width: $lpx-collapsed-sidebar-w !important;
-    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-
-    .lpx-sidebar,
-    .lpx-nav,
-    .lpx-nav-menu {
-      min-width: $lpx-collapsed-sidebar-w !important;
-      max-width: $lpx-collapsed-sidebar-w !important;
-      width: $lpx-collapsed-sidebar-w !important;
-    }
-
-    .lpx-logo-container {
-      min-width: $lpx-collapsed-sidebar-w !important;
-      max-width: $lpx-collapsed-sidebar-w !important;
-      width: $lpx-collapsed-sidebar-w !important;
-      padding: 8px 4px !important;
-      justify-content: center !important;
-
-      .lpx-brand-logo {
-        background-image: var(--lpx-logo-icon) !important;
-        max-width: 38px !important;
-        width: 38px !important;
-        height: 34px !important;
-        margin: 0 auto !important;
-      }
-
-      .menu-collapse-icon {
-        display: none !important;
-      }
-    }
-
-    .lpx-nav-menu .lpx-menu-item-link {
-      padding: 9px 0 !important;
-      justify-content: center !important;
-      text-align: center !important;
-
-      .lpx-menu-item-icon {
-        margin: 0 auto !important;
-        font-size: 1.15rem !important;
-      }
-
-      .lpx-menu-item-text,
-      .dd-icon {
-        display: none !important;
-      }
-    }
+    overflow: hidden !important;
   }
 
-  #lpx-wrapper .lpx-content-container {
-    margin-left: $lpx-collapsed-sidebar-w !important;
-    transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  #lpx-wrapper .lpx-footbar-container {
-    left: $lpx-collapsed-sidebar-w !important;
-    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
-
-/* B) When manually collapsed via toggle button (#lpx-wrapper.hover-trigger): strictly 72px */
-#lpx-wrapper.hover-trigger {
   .lpx-sidebar-container:not(:hover) {
-    min-width: $lpx-collapsed-sidebar-w !important;
-    max-width: $lpx-collapsed-sidebar-w !important;
-    width: $lpx-collapsed-sidebar-w !important;
-    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-
-    .lpx-sidebar,
-    .lpx-nav,
-    .lpx-nav-menu {
-      min-width: $lpx-collapsed-sidebar-w !important;
-      max-width: $lpx-collapsed-sidebar-w !important;
-      width: $lpx-collapsed-sidebar-w !important;
-    }
-
     .lpx-logo-container {
-      min-width: $lpx-collapsed-sidebar-w !important;
-      max-width: $lpx-collapsed-sidebar-w !important;
-      width: $lpx-collapsed-sidebar-w !important;
       padding: 8px 4px !important;
       justify-content: center !important;
 
-      .lpx-brand-logo {
+      .lpx-brand-logo,
+      lpx-brand-logo .lpx-brand-logo {
         background-image: var(--lpx-logo-icon) !important;
         max-width: 38px !important;
         width: 38px !important;
@@ -1467,49 +1492,179 @@ $lpx-collapsed-sidebar-w: 72px;
       }
 
       .lpx-menu-item-text,
-      .dd-icon {
+      .dd-icon,
+      .hidden-in-hover-trigger {
         display: none !important;
+        width: 0 !important;
       }
     }
   }
 
   .lpx-content-container {
     margin-left: $lpx-collapsed-sidebar-w !important;
-    transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .lpx-footbar-container {
     left: $lpx-collapsed-sidebar-w !important;
-    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-/* --- 3. HOVER OVERLAY EXPANSION IN COLLAPSED MODE --- */
-@media only screen and (min-width: 768px) {
-  #lpx-wrapper.hover-trigger .lpx-sidebar-container:hover,
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
+  #lpx-wrapper {
+    .lpx-sidebar-container:not(:hover),
+    .lpx-sidebar-container:not(:hover) .lpx-sidebar,
+    .lpx-sidebar-container:not(:hover) .lpx-nav,
+    .lpx-sidebar-container:not(:hover) .lpx-nav-menu,
+    .lpx-sidebar-container:not(:hover) .lpx-logo-container,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-nav {
+      min-width: $lpx-collapsed-sidebar-w !important;
+      max-width: $lpx-collapsed-sidebar-w !important;
+      width: $lpx-collapsed-sidebar-w !important;
+      overflow: hidden !important;
+    }
+
+    .lpx-sidebar-container:not(:hover) {
+      .lpx-logo-container {
+        padding: 8px 4px !important;
+        justify-content: center !important;
+
+        .lpx-brand-logo,
+        lpx-brand-logo .lpx-brand-logo {
+          background-image: var(--lpx-logo-icon) !important;
+          max-width: 38px !important;
+          width: 38px !important;
+          height: 34px !important;
+          margin: 0 auto !important;
+        }
+
+        .menu-collapse-icon {
+          display: none !important;
+        }
+      }
+
+      .lpx-nav-menu .lpx-menu-item-link {
+        padding: 9px 0 !important;
+        justify-content: center !important;
+        text-align: center !important;
+
+        .lpx-menu-item-icon {
+          margin: 0 auto !important;
+          font-size: 1.15rem !important;
+        }
+
+        .lpx-menu-item-text,
+        .dd-icon,
+        .hidden-in-hover-trigger {
+          display: none !important;
+          width: 0 !important;
+        }
+      }
+    }
+
+    .lpx-content-container {
+      margin-left: $lpx-collapsed-sidebar-w !important;
+    }
+
+    .lpx-footbar-container {
+      left: $lpx-collapsed-sidebar-w !important;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. HOVER OVERLAY IN COLLAPSED MODE
+   When collapsed and user hovers over sidebar: temporary flyout overlay
+   -------------------------------------------------------------------------- */
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:hover,
+#lpx-wrapper.initial-hover .lpx-sidebar-container:hover {
+  min-width: $lpx-custom-sidebar-w !important;
+  max-width: $lpx-custom-sidebar-w !important;
+  width: $lpx-custom-sidebar-w !important;
+  z-index: 1050 !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
+
+  .lpx-sidebar,
+  .lpx-nav,
+  .lpx-nav-menu,
+  .lpx-logo-container,
+  .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
+  .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-nav {
+    min-width: $lpx-custom-sidebar-w !important;
+    max-width: $lpx-custom-sidebar-w !important;
+    width: $lpx-custom-sidebar-w !important;
+  }
+
+  .lpx-logo-container {
+    padding: 8px 16px !important;
+    justify-content: center !important;
+
+    .lpx-brand-logo,
+    lpx-brand-logo .lpx-brand-logo {
+      background-image: var(--lpx-logo) !important;
+      max-width: 180px !important;
+      width: 100% !important;
+      height: 42px !important;
+    }
+
+    .menu-collapse-icon {
+      display: block !important;
+      position: absolute !important;
+      right: 12px !important;
+      left: auto !important;
+    }
+  }
+
+  .lpx-nav-menu .lpx-menu-item-link {
+    padding: 6px 10px !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+
+    .lpx-menu-item-icon {
+      margin: 0 8px 0 0 !important;
+    }
+
+    .lpx-menu-item-text {
+      display: inline-block !important;
+      width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+    }
+
+    .dd-icon {
+      display: inline-block !important;
+    }
+  }
+
+  .lpx-nav-menu .lpx-inner-menu-item .lpx-menu-item-link .lpx-menu-item-text {
+    display: inline-block !important;
+    width: calc(#{$lpx-custom-sidebar-w} - 82px) !important;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
   #lpx-wrapper .lpx-sidebar-container:hover {
     min-width: $lpx-custom-sidebar-w !important;
     max-width: $lpx-custom-sidebar-w !important;
     width: $lpx-custom-sidebar-w !important;
     z-index: 1050 !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.14) !important;
-    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
 
     .lpx-sidebar,
     .lpx-nav,
-    .lpx-nav-menu {
+    .lpx-nav-menu,
+    .lpx-logo-container,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
+    .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-nav {
       min-width: $lpx-custom-sidebar-w !important;
       max-width: $lpx-custom-sidebar-w !important;
       width: $lpx-custom-sidebar-w !important;
     }
 
     .lpx-logo-container {
-      min-width: $lpx-custom-sidebar-w !important;
-      max-width: $lpx-custom-sidebar-w !important;
-      width: $lpx-custom-sidebar-w !important;
       padding: 8px 16px !important;
+      justify-content: center !important;
 
-      .lpx-brand-logo {
+      .lpx-brand-logo,
+      lpx-brand-logo .lpx-brand-logo {
         background-image: var(--lpx-logo) !important;
         max-width: 180px !important;
         width: 100% !important;
@@ -1517,9 +1672,10 @@ $lpx-collapsed-sidebar-w: 72px;
       }
 
       .menu-collapse-icon {
-        left: calc(#{$lpx-custom-sidebar-w} - 38px) !important;
-        right: auto !important;
         display: block !important;
+        position: absolute !important;
+        right: 12px !important;
+        left: auto !important;
       }
     }
 
@@ -1535,6 +1691,10 @@ $lpx-collapsed-sidebar-w: 72px;
       .lpx-menu-item-text {
         display: inline-block !important;
         width: calc(#{$lpx-custom-sidebar-w} - 68px) !important;
+      }
+
+      .dd-icon {
+        display: inline-block !important;
       }
     }
 
@@ -1595,99 +1755,7 @@ $lpx-collapsed-sidebar-w: 72px;
   display: none !important;
 }
 
-/* Logo container & brand header */
-.lpx-sidebar .lpx-logo-container,
-#lpx-wrapper .lpx-sidebar.lpx-scroll-container.lpx-has-scrollbar .lpx-logo-container,
-#lpx-wrapper .lpx-logo-container {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-  border-right: 1px solid #e2e8f0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
-  height: 64px !important;
-  min-height: 64px !important;
-  padding: 8px 16px !important;
-}
 
-/* Hide separate text next to logo */
-.lpx-brand-name,
-#lpx-wrapper .lpx-brand-name,
-.lpx-logo-container .lpx-brand-name,
-.lpx-brand-title,
-.lpx-logo-title,
-.brand-title,
-.lpx-brand-text {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-}
-
-/* Center wordmark logo */
-.lpx-brand-logo,
-a.lpx-brand-logo,
-lpx-brand-logo,
-lpx-brand-logo a,
-.lpx-logo-container > a {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: transparent !important;
-  text-decoration: none !important;
-  width: 100% !important;
-  max-width: 185px !important;
-  margin: 0 auto !important;
-}
-
-.lpx-brand-logo,
-lpx-brand-logo .lpx-brand-logo {
-  background-image: var(--lpx-logo) !important;
-  background-repeat: no-repeat !important;
-  background-size: contain !important;
-  background-position: center !important;
-  height: 42px !important;
-  width: 100% !important;
-  max-width: 180px !important;
-  margin: 0 auto !important;
-}
-
-/* Keep logo fixed and static when expanded or hovered */
-#lpx-wrapper:not(.hover-trigger) .lpx-brand-logo,
-.lpx-sidebar-container:hover .lpx-brand-logo {
-  max-width: 180px !important;
-  width: 100% !important;
-  height: 42px !important;
-  transform: none !important;
-  transition: none !important;
-  background-size: contain !important;
-  background-position: center !important;
-}
-
-#lpx-wrapper:not(.hover-trigger) .lpx-logo-container,
-.lpx-sidebar-container:hover .lpx-logo-container {
-  padding: 8px 16px !important;
-  justify-content: center !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-.menu-collapse-icon,
-.lpx-logo-container .menu-collapse-icon {
-  position: absolute !important;
-  right: 12px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  color: #64748b !important;
-  transition: color 0.2s ease;
-  z-index: 10;
-  &:hover {
-    color: #0f172a !important;
-  }
-}
 
 /* Menu Filter Input inside sidebar */
 .lpx-menu-filter {

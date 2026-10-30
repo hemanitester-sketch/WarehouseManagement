@@ -7,3 +7,4 @@ public enum TransferType
     Replenishment = 3,    // Reserve rack to pick face
     Quarantine = 4        // Move to quality inspection / damaged zone
 }
+

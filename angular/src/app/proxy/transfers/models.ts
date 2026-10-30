@@ -111,3 +111,4 @@ export interface GetStockTransferListDto extends PagedAndSortedResultRequestDto 
   sourceWarehouseId?: string;
   destinationWarehouseId?: string;
 }
+

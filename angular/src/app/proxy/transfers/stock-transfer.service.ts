@@ -109,3 +109,4 @@ export class StockTransferService {
       { apiName: this.apiName, ...config }
     );
 }
+

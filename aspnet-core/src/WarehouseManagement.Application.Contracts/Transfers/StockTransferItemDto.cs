@@ -31,3 +31,4 @@ public class StockTransferItemDto : EntityDto<Guid>
 
     public string? Lpn { get; set; }
 }
+

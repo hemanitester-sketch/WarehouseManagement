@@ -7,3 +7,4 @@ export const transfersRoutes: Routes = [
     component: TransfersComponent,
   },
 ];
+

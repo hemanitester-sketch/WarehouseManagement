@@ -51,3 +51,4 @@ public class StockTransferItem : Entity<Guid>
         Lpn = lpn?.Trim();
     }
 }
+

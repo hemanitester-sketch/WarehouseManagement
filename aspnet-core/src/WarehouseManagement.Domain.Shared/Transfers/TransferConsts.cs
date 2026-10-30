@@ -10,3 +10,4 @@ public static class TransferConsts
     public const int MaxDriverPhoneLength = 32;
     public const int MaxNotesLength = 1000;
 }
+

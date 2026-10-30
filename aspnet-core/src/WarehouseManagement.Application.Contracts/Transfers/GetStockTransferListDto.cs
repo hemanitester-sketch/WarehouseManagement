@@ -15,3 +15,4 @@ public class GetStockTransferListDto : PagedAndSortedResultRequestDto
 
     public Guid? DestinationWarehouseId { get; set; }
 }
+

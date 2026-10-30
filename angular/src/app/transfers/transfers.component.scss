@@ -165,6 +165,120 @@
   }
 }
 
+/* Modal Section Box & Crisp Clean Card Background */
+.transfer-section-box {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.section-origin-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #1e40af;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.section-target-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #065f46;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.section-logistics-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #1e293b;
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+/* Modal Header Force Pure White Styling */
+.wms-modal-header,
+.modal-header {
+  .modal-title,
+  h5,
+  span,
+  small,
+  i {
+    color: #ffffff !important;
+  }
+  .btn-close {
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.85;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* Scoped Dropdown Select & Option Active Hover Styling */
+select,
+.form-select {
+  accent-color: #2563eb !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+  }
+
+  &:focus,
+  &:active,
+  &.active {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18) !important;
+    outline: none !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected],
+    &:active,
+    &.active {
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: #eff6ff !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+  }
+}
+
 /* Printable Challan Styles */
 @media print {
   body * {
@@ -186,3 +300,4 @@
     background: #ffffff;
   }
 }
+

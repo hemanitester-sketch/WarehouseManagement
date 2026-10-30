@@ -23,3 +23,4 @@ public interface IStockTransferAppService : IApplicationService
 
     Task DeleteAsync(Guid id);
 }
+

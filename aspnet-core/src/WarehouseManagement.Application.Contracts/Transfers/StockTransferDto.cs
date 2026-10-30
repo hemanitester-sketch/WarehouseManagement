@@ -60,3 +60,4 @@ public class StockTransferDto : FullAuditedEntityDto<Guid>
 
     public List<StockTransferItemDto> Items { get; set; } = new();
 }
+

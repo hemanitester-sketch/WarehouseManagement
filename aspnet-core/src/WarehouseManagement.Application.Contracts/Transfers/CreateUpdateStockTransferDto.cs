@@ -78,3 +78,4 @@ public class DispatchTransferDto
     [StringLength(TransferConsts.MaxDriverPhoneLength)]
     public string? DriverPhone { get; set; }
 }
+

@@ -8,5 +8,7 @@ public enum InventoryTransactionType
     AdjustmentIncrease = 4,
     AdjustmentDecrease = 5,
     DamageWriteOff = 6,
-    QuarantineRelease = 7
+    QuarantineRelease = 7,
+    CustomerReturn = 8,
+    VendorReturn = 9
 }

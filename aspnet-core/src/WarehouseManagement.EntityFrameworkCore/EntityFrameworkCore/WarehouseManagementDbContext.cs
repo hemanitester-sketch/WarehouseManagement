@@ -90,6 +90,10 @@ public class WarehouseManagementDbContext :
     public DbSet<WarehouseManagement.Audits.CycleCountAudit> CycleCountAudits { get; set; }
     public DbSet<WarehouseManagement.Audits.CycleCountAuditItem> CycleCountAuditItems { get; set; }
 
+    // Returns & Reverse Logistics (RMA)
+    public DbSet<WarehouseManagement.Returns.ReturnOrder> ReturnOrders { get; set; }
+    public DbSet<WarehouseManagement.Returns.ReturnOrderItem> ReturnOrderItems { get; set; }
+
     #endregion
 
     public WarehouseManagementDbContext(DbContextOptions<WarehouseManagementDbContext> options)
@@ -560,6 +564,75 @@ public class WarehouseManagementDbContext :
                 .HasForeignKey(x => x.LocationId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Returns.ReturnOrder>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ReturnOrders", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.RmaNumber).IsRequired().HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxRmaNumberLength);
+            b.Property(x => x.CustomerName).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxCustomerNameLength);
+            b.Property(x => x.SupplierName).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxSupplierNameLength);
+            b.Property(x => x.OutboundOrderNumber).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxOrderNumberLength);
+            b.Property(x => x.InboundOrderNumber).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxOrderNumberLength);
+            b.Property(x => x.CarrierName).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxCarrierNameLength);
+            b.Property(x => x.TrackingNumber).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxTrackingNumberLength);
+            b.Property(x => x.InspectedBy).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxCustomerNameLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxNotesLength);
+
+            b.Property(x => x.TotalQuantityExpected).HasPrecision(18, 4);
+            b.Property(x => x.TotalQuantityReceived).HasPrecision(18, 4);
+            b.Property(x => x.TotalQuantityRestocked).HasPrecision(18, 4);
+            b.Property(x => x.TotalQuantityScrapped).HasPrecision(18, 4);
+            b.Property(x => x.TotalRefundOrCreditAmount).HasPrecision(18, 2);
+
+            b.HasIndex(x => x.RmaNumber).IsUnique();
+            b.HasIndex(x => new { x.WarehouseId, x.Status });
+            b.HasIndex(x => new { x.CustomerId, x.Status });
+            b.HasIndex(x => new { x.SupplierId, x.Status });
+            b.HasIndex(x => x.ReturnDate);
+
+            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+                .WithMany()
+                .HasForeignKey(x => x.WarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasMany(x => x.Items)
+                .WithOne()
+                .HasForeignKey(x => x.ReturnOrderId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Returns.ReturnOrderItem>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ReturnOrderItems", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.ProductSku).IsRequired().HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxProductSkuLength);
+            b.Property(x => x.ProductName).IsRequired().HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxProductNameLength);
+            b.Property(x => x.ExpectedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.ReceivedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.RestockedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.ScrappedQuantity).HasPrecision(18, 4);
+            b.Property(x => x.UnitRefundPrice).HasPrecision(18, 2);
+            b.Property(x => x.LotBatchNumber).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxLotBatchNumberLength);
+            b.Property(x => x.SerialNumber).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxSerialNumberLength);
+            b.Property(x => x.InspectionNotes).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxInspectionNotesLength);
+
+            b.HasIndex(x => new { x.ReturnOrderId, x.ProductId });
+
+            b.HasOne<WarehouseManagement.Products.Product>()
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne<WarehouseManagement.Warehouses.WarehouseLocation>()
+                .WithMany()
+                .HasForeignKey(x => x.DestinationLocationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

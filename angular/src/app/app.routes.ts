@@ -65,21 +65,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'returns',
-    loadComponent: () =>
-      import('./shared/components/module-placeholder.component').then(m => m.ModulePlaceholderComponent),
-    data: {
-      title: 'Returns & Reverse Logistics (RMA)',
-      badge: 'RTO / RMA Hub',
-      icon: 'bi bi-arrow-return-left',
-      subtitle: 'Receive customer returns, inspect quality & route to restock, refurbish or scrap.',
-      features: [
-        'RMA (Return Merchandise Authorization) order generation & tracking',
-        'Return dock receiving with carrier AWB & customer invoice matching',
-        'Quality grading inspection (Grade A / Like New, B / Open Box, Damaged)',
-        'Automated bin putaway routing: Restock to inventory or Scrap bin',
-        'Return reason analytics (Defective, Wrong Item, Buyer Remorse)',
-      ],
-    },
+    loadChildren: () => import('./returns/returns.routes').then(m => m.returnsRoutes),
     canActivate: [AuthGuard],
   },
   {

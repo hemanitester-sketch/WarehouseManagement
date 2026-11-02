@@ -21,3 +21,4 @@ public class CreateReturnOrderItemDto
     [StringLength(RmaConsts.MaxSerialNumberLength)]
     public string? SerialNumber { get; set; }
 }
+

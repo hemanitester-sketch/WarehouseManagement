@@ -21,3 +21,4 @@ public class GetReturnOrderListDto : PagedAndSortedResultRequestDto
 
     public DateTime? ToDate { get; set; }
 }
+

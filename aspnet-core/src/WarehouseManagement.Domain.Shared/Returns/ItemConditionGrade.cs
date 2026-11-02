@@ -7,3 +7,4 @@ public enum ItemConditionGrade
     GradeC_Defective = 3,    // Faulty or damaged, needs vendor return or repair
     GradeD_Scrap = 4         // Complete loss, write-off / scrap disposal
 }
+

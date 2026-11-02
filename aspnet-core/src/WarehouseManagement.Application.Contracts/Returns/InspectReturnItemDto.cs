@@ -34,3 +34,4 @@ public class InspectReturnOrderDto
 
     public List<InspectItemResolutionDto> Items { get; set; } = new();
 }
+

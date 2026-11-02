@@ -69,3 +69,4 @@ public class ReturnOrderItem : FullAuditedEntity<Guid>
         SerialNumber = serialNumber;
     }
 }
+

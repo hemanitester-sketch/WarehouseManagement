@@ -70,21 +70,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'reports',
-    loadComponent: () =>
-      import('./shared/components/module-placeholder.component').then(m => m.ModulePlaceholderComponent),
-    data: {
-      title: 'Reports & Warehouse Analytics',
-      badge: 'Business Intelligence',
-      icon: 'bi bi-bar-chart-line',
-      subtitle: 'Comprehensive inventory valuation, aging reports, turnover metrics & operational KPIs.',
-      features: [
-        'Stock Aging Report (0-30, 31-60, 61-90, 90+ days inventory age)',
-        'FSN Analysis (Fast-moving, Slow-moving & Non-moving dead stock)',
-        'Inventory valuation summary by category, warehouse & FIFO cost',
-        'Dock-to-Stock inbound receiving turnaround efficiency reports',
-        'Outbound fulfillment SLA & pick-pack worker productivity metrics',
-      ],
-    },
+    loadChildren: () => import('./reports/reports.routes').then(m => m.reportsRoutes),
     canActivate: [AuthGuard],
   },
   {

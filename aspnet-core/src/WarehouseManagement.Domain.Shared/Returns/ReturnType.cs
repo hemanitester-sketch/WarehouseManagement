@@ -6,3 +6,4 @@ public enum ReturnType
     VendorReturn = 2,
     InterBranchReturn = 3
 }
+

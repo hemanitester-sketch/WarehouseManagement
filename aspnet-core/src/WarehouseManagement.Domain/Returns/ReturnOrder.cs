@@ -207,3 +207,4 @@ public class ReturnOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
         TotalRefundOrCreditAmount = Items.Sum(x => (x.ReceivedQuantity > 0 ? x.ReceivedQuantity : x.ExpectedQuantity) * x.UnitRefundPrice);
     }
 }
+

@@ -64,3 +64,4 @@ public class ReturnOrderDto : FullAuditedEntityDto<Guid>
 
     public List<ReturnOrderItemDto> Items { get; set; } = new();
 }
+

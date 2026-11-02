@@ -20,3 +20,4 @@ public class ReturnDashboardMetricsDto
 
     public double RecoveryRatePercentage { get; set; }
 }
+

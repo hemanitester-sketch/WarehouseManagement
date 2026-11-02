@@ -8,3 +8,4 @@ public enum ItemResolutionAction
     ReturnToVendor = 4,
     QuarantineHold = 5
 }
+

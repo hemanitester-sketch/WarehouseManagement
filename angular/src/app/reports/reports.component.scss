@@ -1,0 +1,145 @@
+.reports-page-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.bg-gradient-blue {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+.bg-gradient-emerald {
+  background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #581c87 0%, #8b5cf6 100%);
+}
+
+.bg-gradient-amber {
+  background: linear-gradient(135deg, #9a3412 0%, #f97316 100%);
+}
+
+.border-white-20 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.text-white-75 {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.kpi-card {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+.kpi-icon-pill {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.report-nav-pills {
+  .nav-link {
+    color: #64748b;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+
+    &.active {
+      background-color: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+  }
+}
+
+.header-select {
+  max-width: 200px;
+}
+
+.progress-sm {
+  height: 6px;
+  border-radius: 4px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.font-size-10 {
+  font-size: 0.625rem;
+}
+.font-size-11 {
+  font-size: 0.6875rem;
+}
+.font-size-12 {
+  font-size: 0.75rem;
+}
+.font-size-13 {
+  font-size: 0.8125rem;
+}
+.font-size-14 {
+  font-size: 0.875rem;
+}
+.font-size-16 {
+  font-size: 1rem;
+}
+
+.bg-purple-subtle {
+  background-color: #f3e8ff !important;
+}
+
+.text-purple {
+  color: #7e22ce !important;
+}
+
+.border-purple-subtle {
+  border-color: #d8b4fe !important;
+}
+
+@media print {
+  .d-print-none {
+    display: none !important;
+  }
+  .d-print-block {
+    display: block !important;
+  }
+  body, .reports-page-container {
+    background: #ffffff !important;
+    padding: 0 !important;
+  }
+  .kpi-card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #0f172a !important;
+  }
+  .kpi-card h3, .kpi-card span {
+    color: #0f172a !important;
+  }
+  .table {
+    border-collapse: collapse !important;
+  }
+}

@@ -15,3 +15,4 @@ public static class RmaConsts
     public const int MaxLotBatchNumberLength = 64;
     public const int MaxSerialNumberLength = 64;
 }
+

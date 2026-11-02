@@ -22,3 +22,4 @@ public class ReceiveReturnDto
 
     public List<ReceiveReturnItemDto> Items { get; set; } = new();
 }
+

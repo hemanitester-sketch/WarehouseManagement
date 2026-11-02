@@ -1,0 +1,975 @@
+<div class="reports-page-container container-fluid p-3 p-md-4">
+  <!-- Print Only Header -->
+  <div class="d-none d-print-block mb-4 border-bottom pb-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="fw-bold mb-0 text-dark">WareFlow Enterprise Logistics</h2>
+        <p class="text-muted mb-0 font-size-12">Official Warehouse Analytics & Executive Operations Audit</p>
+      </div>
+      <div class="text-end font-size-11 text-muted">
+        <div><strong>Generated:</strong> {{ reportGeneratedDate | date: 'medium' }}</div>
+        <div><strong>Facility:</strong> {{ selectedWarehouseId ? 'Filtered Facility' : 'All Regional Facilities' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Section with Facility Selector & Actions -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4 d-print-none">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h3 class="fw-bold mb-0 text-dark">Reports & Warehouse Analytics</h3>
+        <span class="badge bg-purple-subtle text-purple border border-purple-subtle font-size-11">
+          <i class="bi bi-graph-up-arrow me-1"></i>Business Intelligence
+        </span>
+      </div>
+      <p class="text-muted font-size-13 mb-0">
+        Executive inventory valuation, stock aging, throughput SLAs, space utilization & quality metrics.
+      </p>
+    </div>
+
+    <!-- Toolbar Filters & Actions -->
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <!-- Facility Dropdown -->
+      <select
+        class="form-select form-select-sm header-select"
+        [(ngModel)]="selectedWarehouseId"
+        (ngModelChange)="onWarehouseChange()"
+      >
+        <option value="">All Warehouses</option>
+        <option *ngFor="let wh of warehouses" [value]="wh.id">
+          {{ wh.code }} - {{ wh.name }}
+        </option>
+      </select>
+
+      <!-- Date Presets -->
+      <div class="btn-group btn-group-sm bg-white border rounded shadow-xs" role="group">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary border-0"
+          [class.active]="selectedDatePreset === 'today'"
+          (click)="setDatePreset('today')"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary border-0"
+          [class.active]="selectedDatePreset === '7d'"
+          (click)="setDatePreset('7d')"
+        >
+          7D
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary border-0"
+          [class.active]="selectedDatePreset === '30d'"
+          (click)="setDatePreset('30d')"
+        >
+          30D
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary border-0"
+          [class.active]="selectedDatePreset === '90d'"
+          (click)="setDatePreset('90d')"
+        >
+          90D
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary border-0"
+          [class.active]="selectedDatePreset === 'all'"
+          (click)="setDatePreset('all')"
+        >
+          All
+        </button>
+      </div>
+
+      <!-- Export CSV Button -->
+      <button
+        type="button"
+        class="btn btn-outline-success btn-sm d-flex align-items-center gap-1 shadow-xs"
+        (click)="exportToCsv()"
+        title="Download CSV for Current View"
+      >
+        <i class="bi bi-file-earmark-spreadsheet"></i>
+        <span>Export CSV</span>
+      </button>
+
+      <!-- Print Report Button -->
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-xs"
+        (click)="printReport()"
+        title="Print or Save as PDF"
+      >
+        <i class="bi bi-printer"></i>
+        <span>Print Report</span>
+      </button>
+
+      <!-- Refresh Button -->
+      <button
+        type="button"
+        class="btn btn-light btn-sm border d-flex align-items-center gap-1 shadow-xs"
+        (click)="loadActiveTabData()"
+        [disabled]="isLoading"
+        title="Refresh Data"
+      >
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Executive Summary KPI Cards -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Inventory Valuation -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm kpi-card bg-gradient-blue text-white h-100">
+        <div class="card-body p-3 d-flex flex-column justify-content-between">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="font-size-11 text-uppercase text-white-50 fw-semibold tracking-wider">Total Asset Valuation</span>
+              <h3 class="fw-bold mb-0 text-white mt-1">₹{{ kpis.totalInventoryValuation | number: '1.2-2' }}</h3>
+            </div>
+            <div class="kpi-icon-pill bg-white text-primary">
+              <i class="bi bi-currency-rupee"></i>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-20 font-size-11 text-white-75">
+            <span><i class="bi bi-boxes me-1"></i>{{ kpis.totalStockUnits | number }} Units</span>
+            <span><i class="bi bi-tags me-1"></i>{{ kpis.totalActiveSkus }} Active SKUs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Space Utilization -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm kpi-card bg-gradient-emerald text-white h-100">
+        <div class="card-body p-3 d-flex flex-column justify-content-between">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="font-size-11 text-uppercase text-white-50 fw-semibold tracking-wider">Facility Space Utilization</span>
+              <h3 class="fw-bold mb-0 text-white mt-1">{{ kpis.overallSpaceUtilizationRate }}%</h3>
+            </div>
+            <div class="kpi-icon-pill bg-white text-success">
+              <i class="bi bi-pie-chart"></i>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-20 font-size-11 text-white-75">
+            <span><i class="bi bi-box-fill me-1"></i>{{ kpis.totalOccupiedBins | number }} Occupied</span>
+            <span><i class="bi bi-grid me-1"></i>{{ kpis.totalWarehouseLocations | number }} Total Bins</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: 30-Day Throughput -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm kpi-card bg-gradient-purple text-white h-100">
+        <div class="card-body p-3 d-flex flex-column justify-content-between">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="font-size-11 text-uppercase text-white-50 fw-semibold tracking-wider">30-Day In/Out Velocity</span>
+              <h3 class="fw-bold mb-0 text-white mt-1">
+                {{ (kpis.inboundThroughput30Days + kpis.outboundThroughput30Days) | number }}
+                <span class="font-size-14 fw-normal text-white-50">Units</span>
+              </h3>
+            </div>
+            <div class="kpi-icon-pill bg-white text-purple">
+              <i class="bi bi-arrow-left-right"></i>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-20 font-size-11 text-white-75">
+            <span><i class="bi bi-truck me-1"></i>In: {{ kpis.inboundThroughput30Days | number }}</span>
+            <span><i class="bi bi-send me-1"></i>Out: {{ kpis.outboundThroughput30Days | number }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Quality & Audits SLA -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm kpi-card bg-gradient-amber text-white h-100">
+        <div class="card-body p-3 d-flex flex-column justify-content-between">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="font-size-11 text-uppercase text-white-50 fw-semibold tracking-wider">Audit Accuracy & SLA</span>
+              <h3 class="fw-bold mb-0 text-white mt-1">{{ kpis.auditAccuracyRate }}%</h3>
+            </div>
+            <div class="kpi-icon-pill bg-white text-warning">
+              <i class="bi bi-shield-check"></i>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-20 font-size-11 text-white-75">
+            <span><i class="bi bi-exclamation-triangle me-1"></i>{{ kpis.lowStockSkuCount }} Low Stock</span>
+            <span><i class="bi bi-arrow-return-left me-1"></i>{{ kpis.returnRatePercentage }}% RMA Rate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tab Bar -->
+  <div class="card border-0 shadow-sm mb-3 d-print-none">
+    <div class="card-body p-2">
+      <ul class="nav nav-pills report-nav-pills gap-1 flex-nowrap overflow-x-auto">
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'executive'"
+            (click)="setTab('executive')"
+          >
+            <i class="bi bi-speedometer2"></i>
+            <span>Executive Overview</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'aging'"
+            (click)="setTab('aging')"
+          >
+            <i class="bi bi-hourglass-split"></i>
+            <span>Stock Aging & FSN</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'space'"
+            (click)="setTab('space')"
+          >
+            <i class="bi bi-building"></i>
+            <span>Space & Utilization</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'inbound'"
+            (click)="setTab('inbound')"
+          >
+            <i class="bi bi-box-arrow-in-down"></i>
+            <span>Inbound & Supplier SLA</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'outbound'"
+            (click)="setTab('outbound')"
+          >
+            <i class="bi bi-send-check"></i>
+            <span>Outbound Fulfillment</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link font-size-13 py-2 px-3 d-flex align-items-center gap-2"
+            [class.active]="activeTab === 'quality'"
+            (click)="setTab('quality')"
+          >
+            <i class="bi bi-shield-shaded"></i>
+            <span>Audits & Reverse Logistics</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading report intelligence...</span>
+    </div>
+    <div class="text-muted font-size-12 mt-2">Computing warehouse operational data...</div>
+  </div>
+
+  <!-- Main Content Body (When not loading) -->
+  <div *ngIf="!isLoading">
+    <!-- ========================================== -->
+    <!-- TAB 1: EXECUTIVE OVERVIEW -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'executive'">
+      <div class="row g-3 mb-4">
+        <!-- Aging Distribution Breakdown -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <h6 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-clock-history text-primary me-2"></i>Stock Aging Breakdown
+              </h6>
+              <span class="font-size-11 text-muted">Aging vs Inventory Value</span>
+            </div>
+            <div class="card-body p-3">
+              <div class="d-flex flex-column gap-3">
+                <!-- 0-30 Days -->
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1 font-size-12">
+                    <span class="fw-semibold text-dark">
+                      <span class="badge bg-success-subtle text-success border border-success-subtle me-1">0-30 Days</span>
+                      Fresh Stock
+                    </span>
+                    <span class="text-muted">
+                      {{ getAgingBracketCount('0-30') }} SKUs | ₹{{ getAgingBracketValuation('0-30') | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div
+                      class="progress-bar bg-success"
+                      [style.width.%]="kpis.totalInventoryValuation > 0 ? (getAgingBracketValuation('0-30') / kpis.totalInventoryValuation * 100) : 0"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 31-60 Days -->
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1 font-size-12">
+                    <span class="fw-semibold text-dark">
+                      <span class="badge bg-info-subtle text-info border border-info-subtle me-1">31-60 Days</span>
+                      Moderate Stock
+                    </span>
+                    <span class="text-muted">
+                      {{ getAgingBracketCount('31-60') }} SKUs | ₹{{ getAgingBracketValuation('31-60') | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div
+                      class="progress-bar bg-info"
+                      [style.width.%]="kpis.totalInventoryValuation > 0 ? (getAgingBracketValuation('31-60') / kpis.totalInventoryValuation * 100) : 0"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 61-90 Days -->
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1 font-size-12">
+                    <span class="fw-semibold text-dark">
+                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle me-1">61-90 Days</span>
+                      Slow-Moving Stock
+                    </span>
+                    <span class="text-muted">
+                      {{ getAgingBracketCount('61-90') }} SKUs | ₹{{ getAgingBracketValuation('61-90') | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div
+                      class="progress-bar bg-warning"
+                      [style.width.%]="kpis.totalInventoryValuation > 0 ? (getAgingBracketValuation('61-90') / kpis.totalInventoryValuation * 100) : 0"
+                    ></div>
+                  </div>
+                </div>
+
+                <!-- 90+ Days -->
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1 font-size-12">
+                    <span class="fw-semibold text-dark">
+                      <span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">90+ Days</span>
+                      Critical Dead Stock
+                    </span>
+                    <span class="text-muted">
+                      {{ getAgingBracketCount('90+') }} SKUs | ₹{{ getAgingBracketValuation('90+') | number: '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div
+                      class="progress-bar bg-danger"
+                      [style.width.%]="kpis.totalInventoryValuation > 0 ? (getAgingBracketValuation('90+') / kpis.totalInventoryValuation * 100) : 0"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FSN Velocity & Operational Health -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <h6 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-speedometer text-purple me-2"></i>FSN Velocity & Queue Status
+              </h6>
+              <span class="font-size-11 text-muted">Movement Efficiency</span>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 mb-3">
+                <div class="col-4">
+                  <div class="p-2 border rounded text-center bg-light">
+                    <span class="badge bg-success mb-1">Fast-Moving (F)</span>
+                    <div class="fw-bold text-dark font-size-16">{{ getFsnCount('Fast') }}</div>
+                    <span class="font-size-11 text-muted">High turnover</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded text-center bg-light">
+                    <span class="badge bg-warning text-dark mb-1">Slow-Moving (S)</span>
+                    <div class="fw-bold text-dark font-size-16">{{ getFsnCount('Slow') }}</div>
+                    <span class="font-size-11 text-muted">Regular pace</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded text-center bg-light">
+                    <span class="badge bg-danger mb-1">Non-Moving (N)</span>
+                    <div class="fw-bold text-dark font-size-16">{{ getFsnCount('Non') }}</div>
+                    <span class="font-size-11 text-muted">Dead inventory</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Operational Queues -->
+              <h6 class="font-size-11 text-uppercase text-muted fw-bold mb-2">Live Fulfillment Queues</h6>
+              <div class="d-flex flex-column gap-2 font-size-12">
+                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span><i class="bi bi-truck text-primary me-2"></i>Pending Inbound Receipts</span>
+                  <span class="badge bg-primary">{{ kpis.pendingInboundOrders }} Orders</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span><i class="bi bi-send text-warning me-2"></i>Pending Outbound Shipments</span>
+                  <span class="badge bg-warning text-dark">{{ kpis.pendingOutboundOrders }} Orders</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                  <span><i class="bi bi-recycle text-danger me-2"></i>Scrap & Salvage Write-Off Value</span>
+                  <span class="fw-bold text-danger">₹{{ kpis.totalSalvageOrScrapValue | number: '1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top High-Value SKUs Snapshot Table -->
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-star text-amber me-2"></i>Top High-Value Inventory Holdings
+          </h6>
+          <button type="button" class="btn btn-link btn-sm text-primary p-0" (click)="setTab('aging')">
+            View Complete Aging Report <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">SKU & Product</th>
+                <th>Category</th>
+                <th>Facility</th>
+                <th class="text-center">On-Hand Qty</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Total Valuation</th>
+                <th class="text-center">Age (Days)</th>
+                <th class="text-center pe-3">FSN Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of (agingList | slice: 0: 7)">
+                <td class="ps-3">
+                  <span class="fw-bold text-dark d-block">{{ item.sku }}</span>
+                  <span class="text-muted font-size-11">{{ item.productName }}</span>
+                </td>
+                <td><span class="badge bg-light text-dark border">{{ item.categoryName }}</span></td>
+                <td>{{ item.warehouseName }}</td>
+                <td class="text-center fw-bold">{{ item.quantityOnHand }}</td>
+                <td class="text-end">₹{{ item.unitPrice | number: '1.2-2' }}</td>
+                <td class="text-end fw-bold text-primary">₹{{ item.totalValuation | number: '1.2-2' }}</td>
+                <td class="text-center">
+                  <span
+                    class="badge"
+                    [class.bg-success]="item.ageInDays <= 30"
+                    [class.bg-info]="item.ageInDays > 30 && item.ageInDays <= 60"
+                    [class.bg-warning]="item.ageInDays > 60 && item.ageInDays <= 90"
+                    [class.bg-danger]="item.ageInDays > 90"
+                  >
+                    {{ item.ageInDays }} Days
+                  </span>
+                </td>
+                <td class="text-center pe-3">
+                  <span
+                    class="badge"
+                    [class.bg-success-subtle]="item.fsnClassification.startsWith('Fast')"
+                    [class.text-success]="item.fsnClassification.startsWith('Fast')"
+                    [class.bg-warning-subtle]="item.fsnClassification.startsWith('Slow')"
+                    [class.text-warning]="item.fsnClassification.startsWith('Slow')"
+                    [class.bg-danger-subtle]="item.fsnClassification.startsWith('Non')"
+                    [class.text-danger]="item.fsnClassification.startsWith('Non')"
+                  >
+                    {{ item.fsnClassification }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="agingList.length === 0">
+                <td colspan="8" class="text-center py-4 text-muted">No inventory records found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: STOCK AGING & FSN CLASSIFICATION -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'aging'">
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <!-- Filter Toolbar -->
+        <div class="card-header bg-white border-bottom p-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light border-end-0 text-muted">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control form-control-sm border-start-0"
+                  placeholder="Filter by SKU, Product Name, Category, Bracket..."
+                  [(ngModel)]="searchQuery"
+                  (ngModelChange)="onSearch()"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-7 text-md-end font-size-12 text-muted">
+              Showing <strong>{{ filteredAgingList.length }}</strong> of <strong>{{ agingList.length }}</strong> inventory records
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">SKU & Product</th>
+                <th>Category</th>
+                <th>Warehouse</th>
+                <th class="text-center">On-Hand Qty</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-end">Total Valuation</th>
+                <th class="text-center">Oldest Batch</th>
+                <th class="text-center">Aging Bracket</th>
+                <th class="text-center">FSN Class</th>
+                <th class="text-center pe-3">90D Velocity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredAgingList">
+                <td class="ps-3">
+                  <span class="fw-bold text-dark d-block">{{ item.sku }}</span>
+                  <span class="text-muted font-size-11">{{ item.productName }}</span>
+                </td>
+                <td><span class="badge bg-light text-dark border">{{ item.categoryName }}</span></td>
+                <td>{{ item.warehouseName }}</td>
+                <td class="text-center fw-bold">{{ item.quantityOnHand }}</td>
+                <td class="text-end">₹{{ item.unitPrice | number: '1.2-2' }}</td>
+                <td class="text-end fw-bold text-primary">₹{{ item.totalValuation | number: '1.2-2' }}</td>
+                <td class="text-center text-muted font-size-11">
+                  {{ item.oldestReceivedDate | date: 'dd MMM yyyy' }}
+                  <span class="d-block font-size-10 text-muted">({{ item.ageInDays }} days)</span>
+                </td>
+                <td class="text-center">
+                  <span
+                    class="badge"
+                    [class.bg-success]="item.ageBracket.includes('0-30')"
+                    [class.bg-info]="item.ageBracket.includes('31-60')"
+                    [class.bg-warning]="item.ageBracket.includes('61-90')"
+                    [class.bg-danger]="item.ageBracket.includes('90+')"
+                  >
+                    {{ item.ageBracket }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span
+                    class="badge border"
+                    [class.bg-success-subtle]="item.fsnClassification.startsWith('Fast')"
+                    [class.text-success]="item.fsnClassification.startsWith('Fast')"
+                    [class.border-success-subtle]="item.fsnClassification.startsWith('Fast')"
+                    [class.bg-warning-subtle]="item.fsnClassification.startsWith('Slow')"
+                    [class.text-warning]="item.fsnClassification.startsWith('Slow')"
+                    [class.border-warning-subtle]="item.fsnClassification.startsWith('Slow')"
+                    [class.bg-danger-subtle]="item.fsnClassification.startsWith('Non')"
+                    [class.text-danger]="item.fsnClassification.startsWith('Non')"
+                    [class.border-danger-subtle]="item.fsnClassification.startsWith('Non')"
+                  >
+                    {{ item.fsnClassification }}
+                  </span>
+                </td>
+                <td class="text-center pe-3 fw-bold text-dark">
+                  {{ item.outboundShippedLast90Days }} Units
+                </td>
+              </tr>
+              <tr *ngIf="filteredAgingList.length === 0">
+                <td colspan="10" class="text-center py-5 text-muted">
+                  <i class="bi bi-inbox font-size-24 d-block mb-1"></i>
+                  No inventory records match the selected criteria.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: WAREHOUSE SPACE & CAPACITY -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'space'">
+      <div class="row g-3">
+        <div *ngFor="let wh of filteredSpaceList" class="col-12 col-xl-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-primary me-2">{{ wh.warehouseCode }}</span>
+                <h6 class="fw-bold text-dark d-inline mb-0">{{ wh.warehouseName }}</h6>
+                <span *ngIf="wh.city" class="text-muted font-size-11 ms-2"><i class="bi bi-geo-alt"></i> {{ wh.city }}</span>
+              </div>
+              <span class="fw-bold font-size-14" [class.text-success]="wh.utilizationPercentage <= 75" [class.text-danger]="wh.utilizationPercentage > 85">
+                {{ wh.utilizationPercentage }}% Occupied
+              </span>
+            </div>
+
+            <div class="card-body p-3">
+              <!-- Progress Bar -->
+              <div class="progress progress-sm mb-3">
+                <div
+                  class="progress-bar"
+                  [class.bg-success]="wh.utilizationPercentage <= 70"
+                  [class.bg-warning]="wh.utilizationPercentage > 70 && wh.utilizationPercentage <= 85"
+                  [class.bg-danger]="wh.utilizationPercentage > 85"
+                  [style.width.%]="wh.utilizationPercentage"
+                ></div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="row g-2 text-center mb-3 font-size-12">
+                <div class="col-3">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Zones</span>
+                    <strong class="text-dark">{{ wh.totalZones }}</strong>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Total Bins</span>
+                    <strong class="text-dark">{{ wh.totalBins }}</strong>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Occupied</span>
+                    <strong class="text-primary">{{ wh.occupiedBins }}</strong>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Units Stored</span>
+                    <strong class="text-success">{{ wh.totalStockUnitsStored | number }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone Breakdown List -->
+              <div *ngIf="wh.zoneBreakdown.length > 0">
+                <span class="font-size-11 text-uppercase text-muted fw-bold d-block mb-1.5">Zone-Level Occupancy</span>
+                <div class="d-flex flex-column gap-1.5">
+                  <div *ngFor="let z of wh.zoneBreakdown" class="p-2 border rounded bg-white font-size-11 d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong class="text-dark">{{ z.zoneName }}</strong>
+                      <span class="badge bg-light text-muted border ms-1">{{ z.storageType }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="text-muted">{{ z.occupiedBins }} / {{ z.totalBins }} Bins</span>
+                      <span class="badge" [class.bg-success]="z.utilizationPercentage <= 75" [class.bg-warning]="z.utilizationPercentage > 75 && z.utilizationPercentage <= 90" [class.bg-danger]="z.utilizationPercentage > 90">
+                        {{ z.utilizationPercentage }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: INBOUND LOGISTICS & SUPPLIER SLA -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'inbound'">
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light border-end-0 text-muted">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control form-control-sm border-start-0"
+                  placeholder="Search supplier name or vendor code..."
+                  [(ngModel)]="searchQuery"
+                  (ngModelChange)="onSearch()"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-7 text-md-end font-size-12 text-muted">
+              Monitoring <strong>{{ filteredSupplierList.length }}</strong> registered supply partners
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">Supplier / Vendor</th>
+                <th class="text-center">Total POs</th>
+                <th class="text-center">Completed POs</th>
+                <th class="text-center">Pending POs</th>
+                <th class="text-center">Units Expected</th>
+                <th class="text-center">Units Received</th>
+                <th class="text-center">Fulfillment Rate</th>
+                <th class="text-center pe-3">On-Time Delivery SLA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of filteredSupplierList">
+                <td class="ps-3">
+                  <span class="badge bg-light text-muted border me-1">{{ s.supplierCode }}</span>
+                  <span class="fw-bold text-dark">{{ s.supplierName }}</span>
+                </td>
+                <td class="text-center fw-bold">{{ s.totalPurchaseOrders }}</td>
+                <td class="text-center text-success fw-bold">{{ s.completedOrders }}</td>
+                <td class="text-center text-warning fw-bold">{{ s.pendingOrders }}</td>
+                <td class="text-center">{{ s.totalExpectedQuantity | number }}</td>
+                <td class="text-center fw-bold text-primary">{{ s.totalReceivedQuantity | number }}</td>
+                <td class="text-center">
+                  <span class="badge" [class.bg-success]="s.fulfillmentRatePercentage >= 95" [class.bg-warning]="s.fulfillmentRatePercentage < 95 && s.fulfillmentRatePercentage >= 80" [class.bg-danger]="s.fulfillmentRatePercentage < 80">
+                    {{ s.fulfillmentRatePercentage }}%
+                  </span>
+                </td>
+                <td class="text-center pe-3">
+                  <span class="badge" [class.bg-success-subtle]="s.onTimeDeliveryPercentage >= 90" [class.text-success]="s.onTimeDeliveryPercentage >= 90" [class.border]="true" [class.border-success-subtle]="s.onTimeDeliveryPercentage >= 90" [class.bg-danger-subtle]="s.onTimeDeliveryPercentage < 90" [class.text-danger]="s.onTimeDeliveryPercentage < 90">
+                    {{ s.onTimeDeliveryPercentage }}% On-Time ({{ s.onTimeDeliveries }} / {{ s.completedOrders }})
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredSupplierList.length === 0">
+                <td colspan="8" class="text-center py-5 text-muted">No inbound supplier data available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: OUTBOUND FULFILLMENT & DISPATCH SLA -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'outbound'">
+      <div *ngIf="outboundReport" class="row g-3 mb-4">
+        <div class="col-12 col-md-3">
+          <div class="p-3 border rounded bg-white shadow-sm text-center">
+            <span class="text-muted font-size-11 text-uppercase fw-semibold d-block mb-1">Total Outbound Orders</span>
+            <h3 class="fw-bold text-dark mb-0">{{ outboundReport.totalOutboundOrders }}</h3>
+            <span class="font-size-11 text-muted">{{ outboundReport.shippedOrders }} Shipped, {{ outboundReport.pendingOrders }} Pending</span>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="p-3 border rounded bg-white shadow-sm text-center">
+            <span class="text-muted font-size-11 text-uppercase fw-semibold d-block mb-1">Total Units Dispatched</span>
+            <h3 class="fw-bold text-primary mb-0">{{ outboundReport.totalUnitsShipped | number }}</h3>
+            <span class="font-size-11 text-muted">Across all completed shipments</span>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="p-3 border rounded bg-white shadow-sm text-center">
+            <span class="text-muted font-size-11 text-uppercase fw-semibold d-block mb-1">Order Fulfillment Rate</span>
+            <h3 class="fw-bold text-success mb-0">{{ outboundReport.fulfillmentRatePercentage }}%</h3>
+            <span class="font-size-11 text-muted">Shipped vs placed orders</span>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <div class="p-3 border rounded bg-white shadow-sm text-center">
+            <span class="text-muted font-size-11 text-uppercase fw-semibold d-block mb-1">On-Time Dispatch SLA</span>
+            <h3 class="fw-bold text-purple mb-0">{{ outboundReport.onTimeDispatchPercentage }}%</h3>
+            <span class="font-size-11 text-muted">Dispatched by required delivery date</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top B2B Clients Ranked -->
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3">
+          <h6 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-people text-primary me-2"></i>Top B2B Customer Fulfillment Volume
+          </h6>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">Customer Account</th>
+                <th class="text-center">Orders Placed</th>
+                <th class="text-center">Total Units Shipped</th>
+                <th class="text-end pe-3">Total Sales Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of outboundReport?.topCustomers">
+                <td class="ps-3">
+                  <span class="badge bg-light text-muted border me-1">{{ c.customerCode }}</span>
+                  <span class="fw-bold text-dark">{{ c.customerName }}</span>
+                </td>
+                <td class="text-center fw-bold">{{ c.totalOrders }}</td>
+                <td class="text-center fw-bold text-primary">{{ c.totalUnitsDelivered | number }} Units</td>
+                <td class="text-end pe-3 fw-bold text-dark">₹{{ c.totalOrderValue | number: '1.2-2' }}</td>
+              </tr>
+              <tr *ngIf="!outboundReport?.topCustomers || outboundReport?.topCustomers?.length === 0">
+                <td colspan="4" class="text-center py-4 text-muted">No outbound customer data available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: QUALITY AUDITS & REVERSE LOGISTICS -->
+    <!-- ========================================== -->
+    <div *ngIf="activeTab === 'quality'">
+      <div *ngIf="qualityReport" class="row g-3 mb-4">
+        <!-- Cycle Counts Audit Scorecard -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom p-3">
+              <h6 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-clipboard-check text-success me-2"></i>Cycle Count & Stock Audit Accuracy
+              </h6>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 mb-3 text-center">
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Audits Conducted</span>
+                    <strong class="text-dark font-size-16">{{ qualityReport.totalAuditsConducted }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Units Counted</span>
+                    <strong class="text-dark font-size-16">{{ qualityReport.totalItemsAudited | number }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Audit Accuracy</span>
+                    <strong class="text-success font-size-16">{{ qualityReport.auditAccuracyRatePercentage }}%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center p-2.5 bg-light rounded font-size-12">
+                <span>Net Audit Quantity Variance:</span>
+                <span class="fw-bold" [class.text-danger]="qualityReport.netVarianceUnits < 0" [class.text-success]="qualityReport.netVarianceUnits >= 0">
+                  {{ qualityReport.netVarianceUnits }} Units
+                </span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center p-2.5 bg-light rounded font-size-12 mt-2">
+                <span>Net Variance Cost Impact:</span>
+                <span class="fw-bold" [class.text-danger]="qualityReport.netVarianceCostValue < 0" [class.text-success]="qualityReport.netVarianceCostValue >= 0">
+                  ₹{{ qualityReport.netVarianceCostValue | number: '1.2-2' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reverse Logistics & RMA Returns -->
+        <div class="col-12 col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom p-3">
+              <h6 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-arrow-return-left text-primary me-2"></i>Reverse Logistics (RMA) & Restock Rate
+              </h6>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 mb-3 text-center">
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">RMA Claims</span>
+                    <strong class="text-dark font-size-16">{{ qualityReport.totalRmaReturns }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Units Returned</span>
+                    <strong class="text-dark font-size-16">{{ qualityReport.totalReturnedUnits | number }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 border rounded bg-light">
+                    <span class="text-muted font-size-11 d-block">Restock Recovery</span>
+                    <strong class="text-purple font-size-16">{{ qualityReport.restockRecoveryRatePercentage }}%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center p-2.5 bg-light rounded font-size-12">
+                <span>Total Refund / Credit Issued:</span>
+                <span class="fw-bold text-dark">₹{{ qualityReport.totalRefundValue | number: '1.2-2' }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center p-2.5 bg-light rounded font-size-12 mt-2">
+                <span>Restocked to Inventory:</span>
+                <span class="fw-bold text-success">{{ qualityReport.totalRestockedUnits }} Units</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center p-2.5 bg-light rounded font-size-12 mt-2">
+                <span>Scrapped & Written-off:</span>
+                <span class="fw-bold text-danger">{{ qualityReport.totalScrappedUnits }} Units</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Return Reasons Breakdown -->
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom p-3">
+          <h6 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-pie-chart text-warning me-2"></i>Return Reason & Defect Analysis
+          </h6>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted text-uppercase">
+              <tr>
+                <th class="ps-3">Defect / Return Reason</th>
+                <th class="text-center">Claim Incidents</th>
+                <th class="text-end pe-3">Percentage Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of qualityReport?.topReturnReasons">
+                <td class="ps-3 fw-bold text-dark">{{ r.reason }}</td>
+                <td class="text-center fw-bold text-primary">{{ r.count }} Claims</td>
+                <td class="text-end pe-3">
+                  <span class="badge bg-light text-muted border me-2">{{ r.percentage }}%</span>
+                  <div class="progress progress-sm d-inline-block align-middle" style="width: 100px;">
+                    <div class="progress-bar bg-warning" [style.width.%]="r.percentage"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!qualityReport?.topReturnReasons || qualityReport?.topReturnReasons?.length === 0">
+                <td colspan="3" class="text-center py-4 text-muted">No return claims registered.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

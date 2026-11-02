@@ -174,3 +174,4 @@ export interface ReturnDashboardMetricsDto {
   totalRefundValue: number;
   recoveryRatePercentage: number;
 }
+

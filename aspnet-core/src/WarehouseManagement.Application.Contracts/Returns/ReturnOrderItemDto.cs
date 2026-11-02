@@ -45,3 +45,4 @@ public class ReturnOrderItemDto : FullAuditedEntityDto<Guid>
 
     public string? InspectionNotes { get; set; }
 }
+

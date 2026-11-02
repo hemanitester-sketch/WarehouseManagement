@@ -28,3 +28,4 @@ public interface IReturnOrderAppService : IApplicationService
 
     Task<ReturnDashboardMetricsDto> GetDashboardMetricsAsync(Guid? warehouseId = null);
 }
+

@@ -36,3 +36,4 @@ public class CustomerFulfillmentSummaryDto
 
     public decimal TotalOrderValue { get; set; }
 }
+

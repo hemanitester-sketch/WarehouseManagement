@@ -42,3 +42,4 @@ public class ZoneUtilizationSummaryDto
 
     public double UtilizationPercentage { get; set; }
 }
+

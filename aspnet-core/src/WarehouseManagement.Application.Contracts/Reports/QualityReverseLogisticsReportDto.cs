@@ -38,3 +38,4 @@ public class ReasonBreakdownDto
 
     public double Percentage { get; set; }
 }
+

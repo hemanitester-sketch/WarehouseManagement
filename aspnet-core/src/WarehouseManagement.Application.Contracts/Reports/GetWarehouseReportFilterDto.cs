@@ -12,3 +12,4 @@ public class GetWarehouseReportFilterDto
 
     public string? Filter { get; set; }
 }
+

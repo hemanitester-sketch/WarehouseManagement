@@ -361,3 +361,4 @@ export class ReportsComponent implements OnInit {
     window.print();
   }
 }
+

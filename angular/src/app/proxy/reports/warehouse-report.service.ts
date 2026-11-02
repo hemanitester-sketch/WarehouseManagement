@@ -113,3 +113,4 @@ export class WarehouseReportService {
       { apiName: this.apiName, ...config }
     );
 }
+

@@ -26,3 +26,4 @@ public class InboundSupplierSlaReportItemDto
 
     public double OnTimeDeliveryPercentage { get; set; }
 }
+

@@ -7,3 +7,4 @@ export const reportsRoutes: Routes = [
     component: ReportsComponent,
   },
 ];
+

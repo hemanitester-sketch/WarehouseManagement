@@ -551,6 +551,15 @@ export class ReturnsComponent implements OnInit {
     return p ? `${p.sku} - ${p.name}` : 'Unknown Product';
   }
 
+  getTypeLabel(type?: ReturnType): string {
+    switch (type) {
+      case ReturnType.CustomerReturn: return 'Customer Return';
+      case ReturnType.VendorReturn: return 'Vendor (RTV)';
+      case ReturnType.InterBranchReturn: return 'Branch Return';
+      default: return 'Customer Return';
+    }
+  }
+
   getReasonLabel(reason: ReturnReason): string {
     switch (reason) {
       case ReturnReason.DefectiveItem: return 'Defective Item';

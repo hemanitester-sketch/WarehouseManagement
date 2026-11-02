@@ -32,3 +32,4 @@ public class ExecutiveWarehouseKpisDto
 
     public decimal TotalSalvageOrScrapValue { get; set; }
 }
+

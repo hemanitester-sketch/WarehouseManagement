@@ -116,3 +116,4 @@ export interface QualityReverseLogisticsReportDto {
   restockRecoveryRatePercentage: number;
   topReturnReasons: ReasonBreakdownDto[];
 }
+

@@ -1,99 +1,134 @@
-<div class="container-fluid px-3 px-md-4 py-3">
-  <!-- Page Header -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-    <div class="d-flex align-items-center gap-3">
-      <div class="page-icon-badge bg-gradient-primary text-white d-flex align-items-center justify-content-center shadow-sm">
-        <i class="bi bi-arrow-return-left fs-4"></i>
+<div class="returns-page-container container-fluid px-3 px-md-4 py-3">
+  <!-- Page Header (Standardized with other modules) -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h1 class="h4 font-weight-bold text-dark mb-0">Returns & Reverse Logistics (RMA)</h1>
+        <span class="wms-badge wms-badge-purple">RTO / RMA Hub</span>
       </div>
-      <div>
-        <div class="d-flex align-items-center gap-2">
-          <h4 class="fw-bold mb-0 text-dark">Returns & Reverse Logistics (RMA)</h4>
-          <span class="badge bg-purple-subtle text-purple border border-purple-subtle font-size-11 px-2 py-0.5">RTO / RMA Hub</span>
-        </div>
-        <p class="text-muted small mb-0 mt-0.5">
-          Process customer RMAs, manage reverse transit, perform QC condition grading, and automate restock putaway.
-        </p>
-      </div>
+      <p class="text-muted small mb-0 mt-0.5">
+        Process customer RMAs, manage reverse transit, perform QC condition grading, and automate restock putaway.
+      </p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" (click)="loadReturns(); loadMetrics()">
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" (click)="loadReturns(); loadMetrics()" title="Refresh live returns">
         <i class="bi bi-arrow-clockwise"></i>
         <span>Refresh</span>
       </button>
-      <button class="btn btn-primary btn-sm d-flex align-items-center gap-1.5 shadow-sm" (click)="openCreateModal()">
-        <i class="bi bi-plus-lg"></i>
+
+      <button class="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1.5 shadow-sm" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle"></i>
         <span>Authorize New Return (RMA)</span>
       </button>
     </div>
   </div>
 
-  <!-- KPI Cards -->
-  <div class="row g-3 mb-4">
+  <!-- Standardized WMS Metric KPI Cards -->
+  <div class="row g-3 mb-3">
+    <!-- Card 1: Total Return Orders -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card kpi-card border-0 shadow-sm h-100">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between">
-          <div>
-            <span class="text-muted font-size-11 fw-semibold text-uppercase d-block mb-1">Total Return Orders</span>
-            <h3 class="fw-bold mb-0 text-dark">{{ metrics.totalReturns }}</h3>
-            <span class="font-size-11 text-muted">Active & historical RMAs</span>
-          </div>
-          <div class="kpi-icon-box bg-primary-subtle text-primary">
-            <i class="bi bi-box-seam fs-4"></i>
-          </div>
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #eff6ff; color: #2563eb;">
+          <i class="bi bi-box-seam"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ totalCount }}</div>
+          <div class="metric-label">TOTAL RETURN ORDERS</div>
         </div>
       </div>
     </div>
 
+    <!-- Card 2: Awaiting Inspection / QC -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card kpi-card border-0 shadow-sm h-100">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between">
-          <div>
-            <span class="text-muted font-size-11 fw-semibold text-uppercase d-block mb-1">Awaiting Inspection / QC</span>
-            <h3 class="fw-bold mb-0 text-warning">{{ metrics.awaitingInspectionCount }}</h3>
-            <span class="font-size-11 text-muted">Received at dock, pending grading</span>
-          </div>
-          <div class="kpi-icon-box bg-warning-subtle text-warning">
-            <i class="bi bi-shield-check fs-4"></i>
-          </div>
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #fffbeb; color: #d97706;">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.awaitingInspectionCount }}</div>
+          <div class="metric-label">AWAITING INSPECTION / QC</div>
         </div>
       </div>
     </div>
 
+    <!-- Card 3: Restocked Inventory -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card kpi-card border-0 shadow-sm h-100">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between">
-          <div>
-            <span class="text-muted font-size-11 fw-semibold text-uppercase d-block mb-1">Restocked Inventory</span>
-            <h3 class="fw-bold mb-0 text-success">{{ metrics.totalRestockedUnits }} <span class="font-size-12 fw-normal text-muted">units</span></h3>
-            <span class="font-size-11 text-muted">Restored into storage bins</span>
-          </div>
-          <div class="kpi-icon-box bg-success-subtle text-success">
-            <i class="bi bi-arrow-repeat fs-4"></i>
-          </div>
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #ecfdf5; color: #059669;">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.totalRestockedUnits }} Units</div>
+          <div class="metric-label">RESTOCKED INVENTORY</div>
         </div>
       </div>
     </div>
 
+    <!-- Card 4: Stock Recovery Yield -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card kpi-card border-0 shadow-sm h-100">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between">
-          <div>
-            <span class="text-muted font-size-11 fw-semibold text-uppercase d-block mb-1">Stock Recovery Yield</span>
-            <h3 class="fw-bold mb-0 text-purple">{{ metrics.recoveryRatePercentage }}%</h3>
-            <span class="font-size-11 text-muted">Scrapped units: {{ metrics.totalScrappedUnits }}</span>
-          </div>
-          <div class="kpi-icon-box bg-purple-subtle text-purple">
-            <i class="bi bi-pie-chart fs-4"></i>
-          </div>
+      <div class="wms-metric-card">
+        <div class="metric-icon" style="background-color: #f5f3ff; color: #7c3aed;">
+          <i class="bi bi-pie-chart"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value">{{ metrics.recoveryRatePercentage }}%</div>
+          <div class="metric-label">STOCK RECOVERY YIELD</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Content Card with Unified Table Design -->
-  <div class="card border-0 shadow-sm overflow-hidden main-table-card">
-    <!-- Filter Toolbar -->
-    <div class="card-header bg-white border-bottom p-3">
+  <!-- Controls & Status Tabs Card -->
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-body p-2.5">
+      <!-- Status Tabs Row -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom pb-2 mb-2.5">
+        <div class="nav-tabs-wrapper d-flex align-items-center gap-1">
+          <button
+            type="button"
+            class="status-tab-btn"
+            [class.active]="selectedStatusTab === 'ALL'"
+            (click)="onStatusTabChange('ALL')"
+          >
+            All Returns <span class="tab-badge">{{ totalCount }}</span>
+          </button>
+          <button
+            type="button"
+            class="status-tab-btn"
+            [class.active]="selectedStatusTab === 'PENDING'"
+            (click)="onStatusTabChange('PENDING')"
+          >
+            <i class="bi bi-clock-history me-1 text-warning"></i>Pending Auth <span class="tab-badge">{{ metrics.pendingApprovalCount }}</span>
+          </button>
+          <button
+            type="button"
+            class="status-tab-btn"
+            [class.active]="selectedStatusTab === 'IN_TRANSIT'"
+            (click)="onStatusTabChange('IN_TRANSIT')"
+          >
+            <i class="bi bi-truck me-1 text-primary"></i>In-Transit / RTO <span class="tab-badge">{{ metrics.inTransitCount }}</span>
+          </button>
+          <button
+            type="button"
+            class="status-tab-btn"
+            [class.active]="selectedStatusTab === 'RECEIVED'"
+            (click)="onStatusTabChange('RECEIVED')"
+          >
+            <i class="bi bi-box-arrow-in-down me-1 text-info"></i>Awaiting Inspection <span class="tab-badge">{{ metrics.awaitingInspectionCount }}</span>
+          </button>
+          <button
+            type="button"
+            class="status-tab-btn"
+            [class.active]="selectedStatusTab === 'COMPLETED'"
+            (click)="onStatusTabChange('COMPLETED')"
+          >
+            <i class="bi bi-check2-circle me-1 text-success"></i>Completed <span class="tab-badge">{{ metrics.completedCount }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Row -->
       <div class="row g-2 align-items-center">
         <!-- Search Input -->
         <div class="col-12 col-md-4">
@@ -112,7 +147,7 @@
         </div>
 
         <!-- Type Filter -->
-        <div class="col-6 col-md-2">
+        <div class="col-6 col-md-3">
           <select class="form-select form-select-sm" [(ngModel)]="selectedTypeFilter" (ngModelChange)="onSearch()">
             <option value="">All Return Types</option>
             <option [ngValue]="ReturnType.CustomerReturn">Customer Sales Return</option>
@@ -130,88 +165,45 @@
         </div>
 
         <!-- Clear Button -->
-        <div class="col-12 col-md-3 text-md-end">
-          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
-            <i class="bi bi-x-circle me-1"></i> Clear Filters
+        <div class="col-12 col-md-2 text-md-end">
+          <button class="btn btn-outline-secondary btn-sm w-100" (click)="clearFilters()">
+            <i class="bi bi-x-circle me-1"></i>Clear Filters
           </button>
         </div>
       </div>
-
-      <!-- Status Tabs -->
-      <div class="status-tab-group mt-3 d-flex flex-wrap gap-1">
-        <button
-          type="button"
-          class="btn btn-sm status-tab-btn"
-          [class.active]="selectedStatusTab === 'ALL'"
-          (click)="onStatusTabChange('ALL')"
-        >
-          All Returns ({{ totalCount }})
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm status-tab-btn"
-          [class.active]="selectedStatusTab === 'PENDING'"
-          (click)="onStatusTabChange('PENDING')"
-        >
-          Pending Authorization ({{ metrics.pendingApprovalCount }})
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm status-tab-btn"
-          [class.active]="selectedStatusTab === 'IN_TRANSIT'"
-          (click)="onStatusTabChange('IN_TRANSIT')"
-        >
-          In-Transit / RTO ({{ metrics.inTransitCount }})
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm status-tab-btn"
-          [class.active]="selectedStatusTab === 'RECEIVED'"
-          (click)="onStatusTabChange('RECEIVED')"
-        >
-          Awaiting Inspection ({{ metrics.awaitingInspectionCount }})
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm status-tab-btn"
-          [class.active]="selectedStatusTab === 'COMPLETED'"
-          (click)="onStatusTabChange('COMPLETED')"
-        >
-          Completed & Closed ({{ metrics.completedCount }})
-        </button>
-      </div>
     </div>
+  </div>
 
-    <!-- Table -->
+  <!-- Standardized WMS Table Card -->
+  <div class="card returns-table-card products-table-card overflow-hidden mb-3">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0 custom-wms-table">
-        <thead class="table-light text-muted font-size-11 text-uppercase fw-semibold">
+      <table class="table table-hover align-middle mb-0 wms-table products-table returns-table">
+        <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 170px;">RMA NUMBER & TYPE</th>
-            <th>PARTY / CLIENT</th>
-            <th>RECEIVING FACILITY</th>
-            <th>ITEMS & VOLUME</th>
-            <th>STATUS</th>
-            <th>RESOLUTION DISPOSITION</th>
-            <th class="text-end pe-3" style="width: 190px;">ACTIONS</th>
+            <th class="ps-3" style="width: 170px;">RMA Number & Type</th>
+            <th>Party / Client</th>
+            <th>Facility & Courier</th>
+            <th>Items & Volume</th>
+            <th class="text-center" style="width: 140px;">Status</th>
+            <th>Resolution / Putaway</th>
+            <th class="text-end pe-3" style="width: 160px;">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngIf="isLoading">
             <td colspan="7" class="text-center py-5 text-muted">
-              <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-              <span>Loading RMA return orders...</span>
+              <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+              Loading reverse logistics & return orders...
             </td>
           </tr>
 
           <tr *ngIf="!isLoading && returns.length === 0">
-            <td colspan="7" class="text-center py-5">
-              <div class="empty-state text-muted">
-                <i class="bi bi-inbox fs-1 d-block mb-2 text-muted-subtle"></i>
-                <h6 class="fw-semibold mb-1">No return orders found</h6>
-                <p class="small text-muted mb-3">No return merchandise authorization (RMA) matches the selected criteria.</p>
-                <button class="btn btn-primary btn-sm" (click)="openCreateModal()">
-                  <i class="bi bi-plus-lg me-1"></i> Authorize First Return
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-box-arrow-in-left fs-2 d-block mb-2 text-slate-300"></i>
+              No return authorization records found matching your filters.
+              <div class="mt-2">
+                <button class="btn btn-sm btn-primary" (click)="openCreateModal()">
+                  <i class="bi bi-plus-circle me-1"></i>Authorize First Return (RMA)
                 </button>
               </div>
             </td>
@@ -220,142 +212,134 @@
           <tr *ngFor="let order of returns">
             <!-- RMA Number & Type -->
             <td class="ps-3">
-              <div class="d-flex align-items-center gap-2">
-                <span class="font-monospace fw-bold text-primary rma-pill">{{ order.rmaNumber }}</span>
-              </div>
-              <div class="d-flex align-items-center gap-1 font-size-11 text-muted mt-1">
-                <span class="badge bg-light text-dark border font-size-10">{{ order.returnTypeName }}</span>
-                <span>• {{ order.returnDate | date: 'dd MMM yyyy' }}</span>
+              <span class="product-cell-text d-block font-monospace fw-semibold text-primary text-nowrap">
+                {{ order.rmaNumber }}
+              </span>
+              <div class="d-flex align-items-center gap-1 mt-0.5">
+                <span class="badge bg-light text-muted border font-size-10">
+                  {{ getTypeLabel(order.returnType) }}
+                </span>
+                <span class="text-muted font-size-10">
+                  {{ order.returnDate | date: 'dd MMM' }}
+                </span>
               </div>
             </td>
 
             <!-- Party / Client -->
             <td>
-              <div *ngIf="order.returnType === ReturnType.CustomerReturn" class="d-flex align-items-center gap-2">
-                <i class="bi bi-person-badge text-purple fs-5"></i>
-                <div>
-                  <div class="fw-semibold text-dark">{{ order.customerName || 'Customer Not Specified' }}</div>
-                  <span *ngIf="order.outboundOrderNumber" class="font-size-11 text-muted">Ref SO: {{ order.outboundOrderNumber }}</span>
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-badge bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 11px;">
+                  <i class="bi" [class.bi-person]="order.returnType === ReturnType.CustomerReturn" [class.bi-shop]="order.returnType === ReturnType.VendorReturn" [class.bi-buildings]="order.returnType === ReturnType.InterBranchReturn"></i>
                 </div>
-              </div>
-              <div *ngIf="order.returnType === ReturnType.VendorReturn" class="d-flex align-items-center gap-2">
-                <i class="bi bi-shop text-primary fs-5"></i>
                 <div>
-                  <div class="fw-semibold text-dark">{{ order.supplierName || 'Vendor Not Specified' }}</div>
-                  <span *ngIf="order.inboundOrderNumber" class="font-size-11 text-muted">Ref PO: {{ order.inboundOrderNumber }}</span>
+                  <span class="fw-semibold text-dark d-block font-size-12">
+                    {{ order.customerName || order.supplierName || 'Internal Warehouse Branch' }}
+                  </span>
+                  <small *ngIf="order.outboundOrderNumber" class="text-muted font-size-11">
+                    Invoice: <span class="font-monospace text-dark">{{ order.outboundOrderNumber }}</span>
+                  </small>
                 </div>
-              </div>
-              <div *ngIf="order.returnType === ReturnType.InterBranchReturn" class="d-flex align-items-center gap-2">
-                <i class="bi bi-arrow-left-right text-info fs-5"></i>
-                <span class="fw-semibold text-dark">Branch Transfer Return</span>
               </div>
             </td>
 
-            <!-- Receiving Facility -->
+            <!-- Facility & Courier -->
             <td>
-              <div class="fw-semibold text-dark">{{ order.warehouseName || '-' }}</div>
-              <span class="badge bg-light text-muted border font-size-10">{{ order.warehouseCode || 'WH-MAIN' }}</span>
+              <span class="d-block fw-semibold text-dark font-size-12">
+                <i class="bi bi-building text-muted me-1"></i>{{ order.warehouseName }}
+              </span>
+              <div *ngIf="order.carrierName || order.trackingNumber" class="font-size-11 text-muted mt-0.5">
+                <span *ngIf="order.carrierName"><i class="bi bi-truck me-1"></i>{{ order.carrierName }}</span>
+                <span *ngIf="order.trackingNumber" class="font-monospace ms-1">({{ order.trackingNumber }})</span>
+              </div>
             </td>
 
             <!-- Items & Volume -->
             <td>
-              <div class="fw-bold text-dark">{{ (order.items || []).length }} SKU(s) • {{ order.totalQuantityExpected }} Units</div>
+              <div class="font-size-12 fw-semibold text-dark">
+                {{ order.items.length }} SKU(s) • {{ order.totalQuantityExpected }} Units
+              </div>
               <div class="font-size-11 text-muted">
-                Received: <span class="fw-semibold text-dark">{{ order.totalQuantityReceived }}</span> | 
-                Restocked: <span class="fw-semibold text-success">{{ order.totalQuantityRestocked }}</span>
+                <span>Dock: <strong class="text-dark">{{ order.totalQuantityReceived }}</strong></span>
+                <span class="ms-1.5">Restocked: <strong class="text-success">{{ order.totalQuantityRestocked }}</strong></span>
               </div>
             </td>
 
             <!-- Status -->
-            <td>
+            <td class="text-center">
               <span [class]="getStatusBadgeClass(order.status)">
                 {{ getStatusLabel(order.status) }}
               </span>
-              <div *ngIf="order.carrierName" class="font-size-10 text-muted mt-0.5">
-                <i class="bi bi-truck me-0.5"></i> {{ order.carrierName }}
-              </div>
             </td>
 
             <!-- Resolution Disposition -->
             <td>
-              <div *ngIf="order.status === ReturnOrderStatus.Completed">
-                <span class="badge bg-success-subtle text-success border border-success font-size-11">
-                  <i class="bi bi-check2-circle me-1"></i>{{ order.totalQuantityRestocked }} Restocked
+              <div class="d-flex flex-wrap gap-1">
+                <span *ngIf="order.totalQuantityRestocked > 0" class="badge bg-success-subtle text-success border border-success-subtle font-size-10">
+                  <i class="bi bi-box-arrow-in-down me-0.5"></i>{{ order.totalQuantityRestocked }} Restocked
                 </span>
-                <span *ngIf="order.totalQuantityScrapped > 0" class="badge bg-danger-subtle text-danger border border-danger font-size-11 ms-1">
-                  {{ order.totalQuantityScrapped }} Scrapped
+                <span *ngIf="order.totalQuantityScrapped > 0" class="badge bg-danger-subtle text-danger border border-danger-subtle font-size-10">
+                  <i class="bi bi-trash me-0.5"></i>{{ order.totalQuantityScrapped }} Scrapped
                 </span>
-              </div>
-              <div *ngIf="order.status !== ReturnOrderStatus.Completed" class="text-muted font-size-11">
-                <span *ngIf="order.status === ReturnOrderStatus.UnderInspection" class="text-warning fw-semibold">
-                  <i class="bi bi-clock-history me-1"></i>In Grading Bay
-                </span>
-                <span *ngIf="order.status === ReturnOrderStatus.Received" class="text-indigo fw-semibold">
-                  <i class="bi bi-box-arrow-in-down me-1"></i>At Receiving Dock
-                </span>
-                <span *ngIf="order.status === ReturnOrderStatus.InTransit" class="text-info fw-semibold">
-                  <i class="bi bi-truck me-1"></i>Reverse Transit
-                </span>
-                <span *ngIf="order.status === ReturnOrderStatus.Approved" class="text-primary fw-semibold">
-                  <i class="bi bi-file-earmark-check me-1"></i>Ready for Dispatch
-                </span>
-                <span *ngIf="order.status === ReturnOrderStatus.Draft || order.status === ReturnOrderStatus.Requested" class="text-muted">
-                  Pending Authorization
+                <span *ngIf="order.totalQuantityRestocked === 0 && order.totalQuantityScrapped === 0" class="text-muted font-size-11">
+                  Pending QC
                 </span>
               </div>
+              <small *ngIf="order.totalRefundOrCreditAmount > 0" class="text-muted font-size-10 d-block mt-0.5">
+                Credit: ₹{{ order.totalRefundOrCreditAmount | number: '1.2-2' }}
+              </small>
             </td>
 
-            <!-- Actions -->
+            <!-- Action Buttons (Standard Icon Buttons) -->
             <td class="text-end pe-3">
-              <div class="btn-group btn-group-sm">
+              <div class="d-inline-flex align-items-center gap-1">
                 <!-- Approve -->
                 <button
                   *ngIf="order.status === ReturnOrderStatus.Draft || order.status === ReturnOrderStatus.Requested"
                   type="button"
-                  class="btn btn-outline-primary btn-sm"
+                  class="btn-table-action text-success"
                   (click)="approveRma(order)"
-                  title="Authorize Return Order"
+                  title="Approve RMA Authorization"
                 >
-                  <i class="bi bi-check-lg me-1"></i>Approve
+                  <i class="bi bi-check2-circle"></i>
                 </button>
 
-                <!-- Mark Transit -->
+                <!-- Mark In-Transit -->
                 <button
                   *ngIf="order.status === ReturnOrderStatus.Approved"
                   type="button"
-                  class="btn btn-outline-info btn-sm"
+                  class="btn-table-action text-primary"
                   (click)="openTransitModal(order)"
-                  title="Add Carrier Tracking"
+                  title="Mark In-Transit / Dispatched"
                 >
-                  <i class="bi bi-truck me-1"></i>In-Transit
+                  <i class="bi bi-truck"></i>
                 </button>
 
-                <!-- Receive at Dock -->
+                <!-- Receive Dock -->
                 <button
                   *ngIf="order.status === ReturnOrderStatus.InTransit || order.status === ReturnOrderStatus.Approved"
                   type="button"
-                  class="btn btn-outline-success btn-sm"
+                  class="btn-table-action text-info"
                   (click)="openReceiveModal(order)"
                   title="Receive Returned Packages at Dock"
                 >
-                  <i class="bi bi-box-arrow-in-down me-1"></i>Receive Dock
+                  <i class="bi bi-box-arrow-in-down"></i>
                 </button>
 
-                <!-- QC Inspect & Restock -->
+                <!-- QC & Restock -->
                 <button
                   *ngIf="order.status === ReturnOrderStatus.Received || order.status === ReturnOrderStatus.UnderInspection"
                   type="button"
-                  class="btn btn-purple btn-sm text-white"
+                  class="btn-table-action text-purple"
                   (click)="openInspectModal(order)"
                   title="Grade items and route to storage bins"
                 >
-                  <i class="bi bi-shield-check me-1"></i>QC & Restock
+                  <i class="bi bi-shield-check"></i>
                 </button>
 
                 <!-- View Details / Slip -->
                 <button
                   type="button"
-                  class="btn btn-outline-secondary btn-sm"
+                  class="btn-table-action text-secondary"
                   (click)="openDetailsModal(order)"
                   title="View RMA Details & Slip"
                 >
@@ -369,7 +353,7 @@
     </div>
 
     <!-- Pagination Footer -->
-    <div class="card-footer bg-white border-top p-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+    <div class="card-footer bg-white border-top p-2.5 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
       <div class="font-size-12 text-muted">
         Showing <span class="fw-semibold text-dark">{{ paginationStart }}</span> to
         <span class="fw-semibold text-dark">{{ paginationEnd }}</span> of
@@ -403,234 +387,253 @@
     </div>
   </div>
 
-  <!-- Modal 1: Initiate Return Authorization (RMA Drawer) -->
-  <div *ngIf="isCreateModalOpen" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-gradient-primary text-white d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-2">
-            <div class="modal-header-icon bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
-              <i class="bi bi-arrow-return-left"></i>
-            </div>
-            <div>
-              <h5 class="modal-title fw-bold mb-0 text-white">Authorize Return Order (RMA)</h5>
-              <span class="font-size-11 text-white-50">Create new customer or vendor return request</span>
-            </div>
-          </div>
-          <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
+  <!-- RIGHT-SIDE SLIDE-OVER DRAWER MODAL: Authorize Return Order (RMA) -->
+  <div *ngIf="isCreateModalOpen" class="drawer-backdrop" (click)="closeCreateModal()"></div>
+
+  <div class="returns-drawer-panel" [class.open]="isCreateModalOpen">
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="drawer-header-info">
+        <span class="drawer-header-tag">Reverse Logistics</span>
+        <h4 class="drawer-title">Authorize Return Order (RMA)</h4>
+        <p class="drawer-subtitle">Create new customer sales return or vendor return authorization</p>
+      </div>
+      <button class="btn-drawer-close" (click)="closeCreateModal()" title="Close Drawer">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Body (Continuous Scrollable Form) -->
+    <div class="drawer-body p-3 font-size-12">
+      <!-- Section 1: Classification & Facility -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-diagram-3 text-primary me-2"></i>Return Classification & Destination
         </div>
-
-        <div class="modal-body p-3 p-md-4">
-          <!-- Return Header Details -->
-          <div class="row g-3 mb-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Return Order Type *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.returnType">
-                <option [ngValue]="ReturnType.CustomerReturn">Customer Sales Return (B2B)</option>
-                <option [ngValue]="ReturnType.VendorReturn">Return to Vendor (RTV)</option>
-                <option [ngValue]="ReturnType.InterBranchReturn">Branch Stock Return</option>
-              </select>
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Destination Receiving Warehouse *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.warehouseId">
-                <option value="" disabled>-- Select Facility --</option>
-                <option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.code }} - {{ wh.name }}</option>
-              </select>
-            </div>
-
-            <!-- Customer (If CustomerReturn) -->
-            <div *ngIf="newReturnModel.returnType === ReturnType.CustomerReturn" class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Client / Customer Account *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.customerId">
-                <option [ngValue]="undefined" disabled>-- Select Registered Customer --</option>
-                <option *ngFor="let c of customers" [value]="c.id">{{ c.code }} - {{ c.name }}</option>
-              </select>
-            </div>
-
-            <!-- Supplier (If VendorReturn) -->
-            <div *ngIf="newReturnModel.returnType === ReturnType.VendorReturn" class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Supplier / Vendor *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.supplierId">
-                <option [ngValue]="undefined" disabled>-- Select Registered Vendor --</option>
-                <option *ngFor="let s of suppliers" [value]="s.id">{{ s.code }} - {{ s.name }}</option>
-              </select>
-            </div>
-
-            <!-- Order Reference -->
-            <div class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Original Invoice / Sales Order #</label>
-              <input
-                type="text"
-                class="form-control form-control-sm font-monospace"
-                placeholder="e.g. SO-2026-0042 / INV-9912"
-                [(ngModel)]="newReturnModel.outboundOrderNumber"
-              />
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Reverse Logistics Courier</label>
-              <input
-                type="text"
-                class="form-control form-control-sm"
-                placeholder="e.g. Delhivery, BlueDart, Bluedart RTO"
-                [(ngModel)]="newReturnModel.carrierName"
-              />
-            </div>
-
-            <div class="col-12 col-md-6">
-              <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">AWB Tracking Number</label>
-              <input
-                type="text"
-                class="form-control form-control-sm font-monospace"
-                placeholder="e.g. AWB-RT-884920"
-                [(ngModel)]="newReturnModel.trackingNumber"
-              />
-            </div>
+        <div class="row g-2.5">
+          <div class="col-12 col-md-6">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Return Order Type *</label>
+            <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.returnType">
+              <option [ngValue]="ReturnType.CustomerReturn">Customer Sales Return (B2B)</option>
+              <option [ngValue]="ReturnType.VendorReturn">Return to Vendor (RTV)</option>
+              <option [ngValue]="ReturnType.InterBranchReturn">Branch Stock Return</option>
+            </select>
           </div>
 
-          <!-- Add Line Items Box -->
-          <div class="card bg-light border-0 p-3 mb-3">
-            <span class="font-size-11 fw-bold text-uppercase text-muted d-block mb-2">
-              <i class="bi bi-box-arrow-in-left me-1"></i>Add Returned Line Item
-            </span>
-            <div class="row g-2 align-items-end">
-              <div class="col-12 col-md-4">
-                <label class="form-label font-size-11 text-muted mb-0.5">Select Product SKU *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="newReturnLine.productId" (ngModelChange)="onProductSelected()">
-                  <option value="" disabled>-- Select Product --</option>
-                  <option *ngFor="let p of products" [value]="p.id">{{ p.sku }} - {{ p.name }}</option>
-                </select>
-              </div>
-
-              <div class="col-6 col-md-2">
-                <label class="form-label font-size-11 text-muted mb-0.5">Quantity *</label>
-                <input type="number" class="form-control form-control-sm text-center" [(ngModel)]="newReturnLine.expectedQuantity" min="1" />
-              </div>
-
-              <div class="col-6 col-md-3">
-                <label class="form-label font-size-11 text-muted mb-0.5">Return Reason *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="newReturnLine.returnReason">
-                  <option [ngValue]="ReturnReason.DefectiveItem">Defective / Malfunctioning</option>
-                  <option [ngValue]="ReturnReason.WrongItemShipped">Wrong SKU Shipped</option>
-                  <option [ngValue]="ReturnReason.DamagedInTransit">Damaged in Transit</option>
-                  <option [ngValue]="ReturnReason.CustomerCancellation">Customer Cancellation</option>
-                  <option [ngValue]="ReturnReason.QualityDiscrepancy">Quality Discrepancy</option>
-                  <option [ngValue]="ReturnReason.ExpiredProduct">Expired Product</option>
-                  <option [ngValue]="ReturnReason.ExcessStock">Excess Stock</option>
-                  <option [ngValue]="ReturnReason.Other">Other Reason</option>
-                </select>
-              </div>
-
-              <div class="col-8 col-md-2">
-                <label class="form-label font-size-11 text-muted mb-0.5">Refund Price (₹)</label>
-                <input type="number" class="form-control form-control-sm" [(ngModel)]="newReturnLine.unitRefundPrice" min="0" />
-              </div>
-
-              <div class="col-4 col-md-1">
-                <button type="button" class="btn btn-primary btn-sm w-100" (click)="addLineItem()" title="Add line item">
-                  <i class="bi bi-plus-lg"></i>
-                </button>
-              </div>
-            </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Receiving Facility *</label>
+            <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.warehouseId">
+              <option value="" disabled>-- Select Facility --</option>
+              <option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.code }} - {{ wh.name }}</option>
+            </select>
           </div>
 
-          <!-- Items Table -->
-          <div *ngIf="newReturnModel.items.length > 0" class="table-responsive border rounded mb-3">
-            <table class="table table-sm table-hover align-middle mb-0">
-              <thead class="table-light font-size-11 text-muted">
-                <tr>
-                  <th class="ps-2">SKU & PRODUCT</th>
-                  <th class="text-center">QUANTITY</th>
-                  <th>REASON</th>
-                  <th class="text-end">UNIT REFUND</th>
-                  <th class="text-center" style="width: 50px;">ACTION</th>
-                </tr>
-              </thead>
-              <tbody class="font-size-12">
-                <tr *ngFor="let itm of newReturnModel.items; let i = index">
-                  <td class="ps-2 fw-semibold text-dark">{{ getProductName(itm.productId) }}</td>
-                  <td class="text-center fw-bold text-primary">{{ itm.expectedQuantity }}</td>
-                  <td><span class="badge bg-light text-muted border">{{ getReasonLabel(itm.returnReason) }}</span></td>
-                  <td class="text-end">₹{{ itm.unitRefundPrice | number: '1.2-2' }}</td>
-                  <td class="text-center">
-                    <button type="button" class="btn btn-link text-danger p-0" (click)="removeLineItem(i)">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Customer (If CustomerReturn) -->
+          <div *ngIf="newReturnModel.returnType === ReturnType.CustomerReturn" class="col-12 col-md-6">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Client / Customer Account *</label>
+            <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.customerId">
+              <option [ngValue]="undefined" disabled>-- Select Registered Customer --</option>
+              <option *ngFor="let c of customers" [value]="c.id">{{ c.code }} - {{ c.name }}</option>
+            </select>
           </div>
 
-          <!-- Notes -->
-          <div>
-            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">RMA Instructions / Remarks</label>
-            <textarea
-              class="form-control form-control-sm"
-              rows="2"
-              placeholder="e.g. Client requested pickup; ensure original box packaging is retained."
-              [(ngModel)]="newReturnModel.notes"
-            ></textarea>
+          <!-- Supplier (If VendorReturn) -->
+          <div *ngIf="newReturnModel.returnType === ReturnType.VendorReturn" class="col-12 col-md-6">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Supplier / Vendor *</label>
+            <select class="form-select form-select-sm" [(ngModel)]="newReturnModel.supplierId">
+              <option [ngValue]="undefined" disabled>-- Select Registered Vendor --</option>
+              <option *ngFor="let s of suppliers" [value]="s.id">{{ s.code }} - {{ s.name }}</option>
+            </select>
           </div>
-        </div>
-
-        <div class="modal-footer bg-light p-2.5 d-flex justify-content-between">
-          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeCreateModal()">Cancel</button>
-          <button type="button" class="btn btn-primary btn-sm px-4" (click)="saveReturnOrder()" [disabled]="isSaving">
-            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
-            <span>Authorize & Generate RMA</span>
-          </button>
         </div>
       </div>
+
+      <!-- Section 2: Reference & Logistics -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-truck text-primary me-2"></i>Reference & Reverse Logistics
+        </div>
+        <div class="row g-2.5">
+          <div class="col-12 col-md-4">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Original Invoice / SO #</label>
+            <input
+              type="text"
+              class="form-control form-control-sm font-monospace"
+              placeholder="e.g. SO-2026-0042"
+              [(ngModel)]="newReturnModel.outboundOrderNumber"
+            />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">Courier Carrier</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="e.g. Delhivery, Blue Dart"
+              [(ngModel)]="newReturnModel.carrierName"
+            />
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label font-size-11 fw-semibold text-muted text-uppercase mb-1">AWB Tracking #</label>
+            <input
+              type="text"
+              class="form-control form-control-sm font-monospace"
+              placeholder="e.g. AWB-RT-884920"
+              [(ngModel)]="newReturnModel.trackingNumber"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Add Line Items -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-box-arrow-in-left text-primary me-2"></i>Add Returned SKU Items
+        </div>
+
+        <div class="card bg-light border-0 p-2.5 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label font-size-11 text-muted mb-0.5">Select Product SKU *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="newReturnLine.productId" (ngModelChange)="onProductSelected()">
+                <option value="" disabled>-- Select Product --</option>
+                <option *ngFor="let p of products" [value]="p.id">{{ p.sku }} - {{ p.name }}</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+              <label class="form-label font-size-11 text-muted mb-0.5">Quantity *</label>
+              <input type="number" class="form-control form-control-sm text-center" [(ngModel)]="newReturnLine.expectedQuantity" min="1" />
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label class="form-label font-size-11 text-muted mb-0.5">Return Reason *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="newReturnLine.returnReason">
+                <option [ngValue]="ReturnReason.DefectiveItem">Defective / Faulty</option>
+                <option [ngValue]="ReturnReason.WrongItemShipped">Wrong SKU Shipped</option>
+                <option [ngValue]="ReturnReason.DamagedInTransit">Damaged in Transit</option>
+                <option [ngValue]="ReturnReason.CustomerCancellation">Cancellation</option>
+                <option [ngValue]="ReturnReason.QualityDiscrepancy">Quality Discrepancy</option>
+                <option [ngValue]="ReturnReason.ExpiredProduct">Expired Product</option>
+                <option [ngValue]="ReturnReason.ExcessStock">Excess Stock</option>
+                <option [ngValue]="ReturnReason.Other">Other Reason</option>
+              </select>
+            </div>
+
+            <div class="col-8 col-md-2">
+              <label class="form-label font-size-11 text-muted mb-0.5">Refund (₹)</label>
+              <input type="number" class="form-control form-control-sm" [(ngModel)]="newReturnLine.unitRefundPrice" min="0" />
+            </div>
+
+            <div class="col-4 col-md-1">
+              <button type="button" class="btn btn-primary btn-sm w-100" (click)="addLineItem()" title="Add line item">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div *ngIf="newReturnModel.items.length > 0" class="table-responsive border rounded mb-2">
+          <table class="table table-sm table-hover align-middle mb-0 font-size-12">
+            <thead class="table-light font-size-11 text-muted">
+              <tr>
+                <th class="ps-2">SKU & Product</th>
+                <th class="text-center">Quantity</th>
+                <th>Reason</th>
+                <th class="text-end">Unit Refund</th>
+                <th class="text-center" style="width: 40px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let itm of newReturnModel.items; let i = index">
+                <td class="ps-2 fw-semibold text-dark">{{ getProductName(itm.productId) }}</td>
+                <td class="text-center fw-bold text-primary">{{ itm.expectedQuantity }}</td>
+                <td><span class="badge bg-light text-muted border">{{ getReasonLabel(itm.returnReason) }}</span></td>
+                <td class="text-end">₹{{ itm.unitRefundPrice | number: '1.2-2' }}</td>
+                <td class="text-center">
+                  <button type="button" class="btn btn-link text-danger p-0" (click)="removeLineItem(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 4: Remarks -->
+      <div class="form-section">
+        <div class="section-title">
+          <i class="bi bi-chat-left-text text-primary me-2"></i>Return Remarks & Reason Summary
+        </div>
+        <textarea
+          class="form-control form-control-sm"
+          rows="2"
+          placeholder="Customer feedback, unboxing issue description, carrier return notes..."
+          [(ngModel)]="newReturnModel.notes"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="drawer-footer py-2.5 px-3 bg-light d-flex justify-content-between align-items-center">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeCreateModal()" [disabled]="isSaving">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-primary btn-sm px-4" (click)="saveReturnOrder()" [disabled]="isSaving">
+        <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+        <span>Authorize & Save RMA</span>
+      </button>
     </div>
   </div>
 
-  <!-- Modal 2: Mark In-Transit Modal -->
+  <!-- Modal 1.5: Mark In-Transit Dispatch Modal -->
   <div *ngIf="isTransitModalOpen" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-info text-white">
-          <h5 class="modal-title fw-bold font-size-14 text-dark mb-0">
-            <i class="bi bi-truck me-1"></i>Update Reverse Logistics Transit
+      <div class="modal-content border-0 shadow rounded-3 overflow-hidden">
+        <div class="modal-header bg-primary text-white py-2.5 px-3">
+          <h5 class="modal-title fw-bold font-size-14 text-white mb-0">
+            <i class="bi bi-truck me-1"></i>Dispatch / Mark In-Transit
           </h5>
-          <button type="button" class="btn-close" (click)="closeTransitModal()"></button>
+          <button type="button" class="btn-close btn-close-white" (click)="closeTransitModal()"></button>
         </div>
-        <div class="modal-body p-3">
-          <p class="small text-muted mb-3">
-            Record carrier logistics details for incoming return <strong>{{ selectedReturnForTransit?.rmaNumber }}</strong>.
-          </p>
-          <div class="mb-2">
-            <label class="form-label font-size-11 text-muted">Carrier / Logistics Partner</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="transitCarrier" />
+        <div class="modal-body p-3 font-size-12">
+          <div class="alert alert-primary-subtle border-primary-subtle font-size-12 p-2 mb-3">
+            Dispatching shipment for RMA: <strong>{{ selectedReturnForTransit?.rmaNumber }}</strong>
           </div>
-          <div>
-            <label class="form-label font-size-11 text-muted">AWB Tracking Number</label>
-            <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="transitTrackingNumber" />
+          <div class="mb-3">
+            <label class="form-label font-size-11 text-muted">Courier / Logistics Carrier *</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="transitCarrier" placeholder="e.g. Delhivery, Blue Dart" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label font-size-11 text-muted">AWB Tracking Number *</label>
+            <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="transitTrackingNumber" placeholder="e.g. AWB-RT-884920" />
           </div>
         </div>
-        <div class="modal-footer p-2">
+        <div class="modal-footer py-2 px-3 bg-light">
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeTransitModal()">Cancel</button>
-          <button type="button" class="btn btn-info btn-sm text-dark px-3" (click)="submitTransit()" [disabled]="isSaving">
-            Mark In-Transit
+          <button type="button" class="btn btn-primary btn-sm px-3" (click)="submitTransit()" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+            Confirm In-Transit
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal 3: Dock Receiving Modal -->
+  <!-- Modal 2: Dock Receiving Modal -->
   <div *ngIf="isReceiveModalOpen" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-success text-white">
+      <div class="modal-content border-0 shadow rounded-3 overflow-hidden">
+        <div class="modal-header bg-success text-white py-2.5 px-3">
           <h5 class="modal-title fw-bold font-size-14 text-white mb-0">
             <i class="bi bi-box-arrow-in-down me-1"></i>Warehouse Dock Physical Receipt
           </h5>
           <button type="button" class="btn-close btn-close-white" (click)="closeReceiveModal()"></button>
         </div>
-        <div class="modal-body p-3">
+        <div class="modal-body p-3 font-size-12">
           <div class="alert alert-success-subtle border-success-subtle font-size-12 p-2 mb-3">
             Receiving items for RMA: <strong>{{ selectedReturnForReceive?.rmaNumber }}</strong> at warehouse dock.
           </div>
@@ -658,7 +661,7 @@
             <input type="text" class="form-control form-control-sm" [(ngModel)]="receiveModel.notes" />
           </div>
         </div>
-        <div class="modal-footer p-2">
+        <div class="modal-footer py-2 px-3 bg-light">
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeReceiveModal()">Cancel</button>
           <button type="button" class="btn btn-success btn-sm px-3" (click)="submitReceive()" [disabled]="isSaving">
             Confirm Dock Receipt
@@ -668,24 +671,22 @@
     </div>
   </div>
 
-  <!-- Modal 4: Quality Inspection, Grading & Restock Resolution Modal -->
+  <!-- Modal 3: Quality Inspection, Grading & Restock Resolution Modal -->
   <div *ngIf="isInspectModalOpen" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-gradient-purple text-white d-flex align-items-center justify-content-between">
+      <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+        <div class="modal-header bg-gradient-purple text-white py-2.5 px-3 d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-2">
-            <div class="modal-header-icon bg-white text-purple rounded-circle d-flex align-items-center justify-content-center">
-              <i class="bi bi-shield-check"></i>
-            </div>
+            <i class="bi bi-shield-check fs-5"></i>
             <div>
-              <h5 class="modal-title fw-bold mb-0 text-white">Quality Inspection & Restock Resolution</h5>
+              <h5 class="modal-title fw-bold mb-0 text-white font-size-15">Quality Inspection & Restock Resolution</h5>
               <span class="font-size-11 text-white-50">Assign condition grades and auto-route inventory to bins</span>
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="closeInspectModal()"></button>
         </div>
 
-        <div class="modal-body p-3 p-md-4">
+        <div class="modal-body p-3 font-size-12">
           <div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-2.5 rounded mb-3">
             <div>
               <span class="text-muted font-size-11">RMA Reference:</span>
@@ -701,7 +702,7 @@
 
           <!-- Grading Line Items -->
           <div *ngIf="selectedReturnForInspect">
-            <div *ngFor="let line of selectedReturnForInspect.items; let idx = index" class="card border p-3 mb-3 bg-white shadow-sm">
+            <div *ngFor="let line of selectedReturnForInspect.items; let idx = index" class="card border p-3 mb-3 bg-white shadow-sm rounded-3">
               <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 pb-2 border-bottom">
                 <div>
                   <span class="badge bg-primary me-2">Item #{{ idx + 1 }}</span>
@@ -767,7 +768,7 @@
           </div>
         </div>
 
-        <div class="modal-footer bg-light p-2.5 d-flex justify-content-between">
+        <div class="modal-footer bg-light py-2 px-3 d-flex justify-content-between">
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeInspectModal()">Cancel</button>
           <button type="button" class="btn btn-purple btn-sm text-white px-4" (click)="submitInspection()" [disabled]="isSaving">
             <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
@@ -778,14 +779,14 @@
     </div>
   </div>
 
-  <!-- Modal 5: Details & Slip Modal -->
+  <!-- Modal 4: Details & Slip Modal -->
   <div *ngIf="isDetailsModalOpen" class="modal fade show d-block modal-backdrop-custom" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-dark text-white d-flex align-items-center justify-content-between">
+      <div class="modal-content border-0 shadow rounded-3 overflow-hidden">
+        <div class="modal-header bg-dark text-white py-2.5 px-3 d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-file-earmark-text text-warning fs-5"></i>
-            <h5 class="modal-title fw-bold mb-0 text-white">Return Authorization Slip: {{ selectedReturnDetails?.rmaNumber }}</h5>
+            <h5 class="modal-title fw-bold mb-0 text-white font-size-14">Return Authorization Slip: {{ selectedReturnDetails?.rmaNumber }}</h5>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="closeDetailsModal()"></button>
         </div>
@@ -822,7 +823,7 @@
 
           <!-- Items Table -->
           <table class="table table-bordered table-sm font-size-12 mb-3">
-            <thead class="table-light">
+            <thead class="table-light font-size-11 text-muted">
               <tr>
                 <th>SKU</th>
                 <th>Product Description</th>
@@ -860,7 +861,7 @@
           </div>
         </div>
 
-        <div class="modal-footer p-2 d-flex justify-content-between">
+        <div class="modal-footer py-2 px-3 bg-light d-flex justify-content-between">
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeDetailsModal()">Close</button>
           <button type="button" class="btn btn-dark btn-sm d-flex align-items-center gap-1.5" (click)="printReturnChallan()">
             <i class="bi bi-printer"></i>

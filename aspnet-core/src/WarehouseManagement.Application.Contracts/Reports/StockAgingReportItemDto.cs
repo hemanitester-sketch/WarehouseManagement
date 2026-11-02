@@ -32,3 +32,4 @@ public class StockAgingReportItemDto
 
     public decimal OutboundShippedLast90Days { get; set; }
 }
+

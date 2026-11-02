@@ -18,3 +18,4 @@ public interface IWarehouseReportAppService : IApplicationService
 
     Task<QualityReverseLogisticsReportDto> GetQualityAndReturnsReportAsync(GetWarehouseReportFilterDto input);
 }
+

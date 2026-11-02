@@ -1,24 +1,108 @@
+/* Reports & Warehouse Analytics Styling (Standardized WMS Theme) */
+
 .reports-page-container {
   min-height: 100vh;
-  background-color: #f8fafc;
 }
 
-.bg-gradient-blue {
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+/* WMS Badges & Tags */
+.wms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  line-height: 1;
+
+  &.wms-badge-purple {
+    background-color: #f3e8ff;
+    color: #7c3aed;
+  }
 }
 
-.bg-gradient-emerald {
-  background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+/* Status Tabs Bar */
+.nav-tabs-wrapper {
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
-.bg-gradient-purple {
-  background: linear-gradient(135deg, #581c87 0%, #8b5cf6 100%);
+.status-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+
+  &.active {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+  }
 }
 
-.bg-gradient-amber {
-  background: linear-gradient(135deg, #9a3412 0%, #f97316 100%);
+/* Standardized Table Card (Exact Products / Customers / Returns replica) */
+.reports-table-card,
+.products-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
+.reports-table,
+.products-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th,
+  .table-light th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.64rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.95rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.65rem 0.95rem;
+      vertical-align: middle;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+}
+
+/* Secondary KPI Cards / Stats */
 .border-white-20 {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
@@ -27,50 +111,9 @@
   color: rgba(255, 255, 255, 0.75) !important;
 }
 
-.kpi-card {
-  border-radius: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
-  }
-}
-
-.kpi-icon-pill {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.report-nav-pills {
-  .nav-link {
-    color: #64748b;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-
-    &:hover {
-      background-color: #f1f5f9;
-      color: #1e293b;
-    }
-
-    &.active {
-      background-color: #4f46e5;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    }
-  }
-}
-
 .header-select {
-  max-width: 200px;
+  max-width: 220px;
+  font-size: 0.8125rem;
 }
 
 .progress-sm {
@@ -103,6 +146,9 @@
 .font-size-14 {
   font-size: 0.875rem;
 }
+.font-size-15 {
+  font-size: 0.9375rem;
+}
 .font-size-16 {
   font-size: 1rem;
 }
@@ -119,6 +165,7 @@
   border-color: #d8b4fe !important;
 }
 
+/* Print Stylesheet */
 @media print {
   .d-print-none {
     display: none !important;
@@ -130,17 +177,13 @@
     background: #ffffff !important;
     padding: 0 !important;
   }
-  .kpi-card {
+  .wms-metric-card {
     box-shadow: none !important;
     border: 1px solid #cbd5e1 !important;
     background: #f8fafc !important;
-    color: #0f172a !important;
-  }
-  .kpi-card h3, .kpi-card span {
     color: #0f172a !important;
   }
   .table {
     border-collapse: collapse !important;
   }
 }
-

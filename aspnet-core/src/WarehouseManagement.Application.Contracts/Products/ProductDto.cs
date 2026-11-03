@@ -12,9 +12,15 @@ public class ProductDto : FullAuditedEntityDto<Guid>
 
     public string? Barcode { get; set; }
 
+    public ProductType ProductType { get; set; } = ProductType.Simple;
+
+    public string? ManufacturerPartNumber { get; set; }
+
     public string? Description { get; set; }
 
     public string? Brand { get; set; }
+
+    public string? ImageUrl { get; set; }
 
     public ProductCategory Category { get; set; }
 
@@ -32,15 +38,15 @@ public class ProductDto : FullAuditedEntityDto<Guid>
 
     public bool IsSerialTracked { get; set; }
 
-    public double WeightKg { get; set; }
+    public decimal WeightKg { get; set; }
 
-    public double VolumeCm3 { get; set; }
+    public decimal VolumeCm3 { get; set; }
 
-    public double? LengthCm { get; set; }
+    public decimal? LengthCm { get; set; }
 
-    public double? WidthCm { get; set; }
+    public decimal? WidthCm { get; set; }
 
-    public double? HeightCm { get; set; }
+    public decimal? HeightCm { get; set; }
 
     public WarehouseZoneStorageType RequiredStorageType { get; set; }
 
@@ -55,4 +61,6 @@ public class ProductDto : FullAuditedEntityDto<Guid>
     public decimal UnitPrice { get; set; }
 
     public bool IsActive { get; set; }
+
+    public int VariantCount { get; set; }
 }

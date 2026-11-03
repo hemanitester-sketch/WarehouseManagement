@@ -14,6 +14,8 @@ public class AdjustStockDto
     [Required]
     public Guid ProductId { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+
     [Required]
     public decimal QuantityDelta { get; set; }
 

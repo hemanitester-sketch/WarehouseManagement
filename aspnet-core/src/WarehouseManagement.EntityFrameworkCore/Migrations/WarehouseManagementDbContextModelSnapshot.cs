@@ -2050,6 +2050,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ReasonNotes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -2072,9 +2075,265 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("CycleCountAuditId", "ProductId", "LocationId");
 
+                    b.HasIndex("CycleCountAuditId", "ProductVariantId", "LocationId");
+
                     b.ToTable("AppCycleCountAuditItems", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.BarcodeIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BarcodeKind")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BarcodeTargetType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<Guid?>("InventoryLotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("InventorySerialId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid?>("LicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NormalizedBarcode")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Symbology")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<Guid?>("WarehouseLocationId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryLotId");
+
+                    b.HasIndex("InventorySerialId");
+
+                    b.HasIndex("LicensePlateId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("WarehouseLocationId");
+
+                    b.HasIndex("TenantId", "InventoryLotId");
+
+                    b.HasIndex("TenantId", "InventorySerialId");
+
+                    b.HasIndex("TenantId", "LicensePlateId");
+
+                    b.HasIndex("TenantId", "NormalizedBarcode")
+                        .IsUnique()
+                        .HasFilter("\"IsActive\" = TRUE");
+
+                    b.HasIndex("TenantId", "ProductVariantId");
+
+                    b.HasIndex("TenantId", "WarehouseLocationId");
+
+                    b.ToTable("AppBarcodeIdentities", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.ProductBarcode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BarcodeIdentityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<DateTime?>("LastPrintedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PackagingLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PrintFormat")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PrintedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BarcodeIdentityId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("TenantId", "BarcodeIdentityId");
+
+                    b.HasIndex("TenantId", "ProductVariantId")
+                        .IsUnique()
+                        .HasFilter("\"IsPrimary\" = TRUE");
+
+                    b.ToTable("AppProductBarcodes", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.SupplierBarcodeMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BarcodeIdentityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SupplierPartNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BarcodeIdentityId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("TenantId", "ProductVariantId");
+
+                    b.HasIndex("TenantId", "SupplierId", "BarcodeIdentityId")
+                        .IsUnique()
+                        .HasFilter("\"IsActive\" = TRUE");
+
+                    b.ToTable("AppSupplierBarcodeMappings", (string)null);
                 });
 
             modelBuilder.Entity("WarehouseManagement.Customers.Customer", b =>
@@ -2155,8 +2414,7 @@ namespace WarehouseManagement.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<string>("Industry")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -2476,6 +2734,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("ReceivedQuantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
@@ -2494,7 +2755,11 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("TenantId", "InboundOrderId", "ProductId");
+
+                    b.HasIndex("TenantId", "InboundOrderId", "ProductVariantId");
 
                     b.ToTable("AppInboundOrderLines", (string)null);
                 });
@@ -2549,12 +2814,18 @@ namespace WarehouseManagement.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<Guid?>("LicensePlateId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("LocationId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("LotBatchNumber")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("LotId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Lpn")
                         .HasMaxLength(64)
@@ -2564,6 +2835,9 @@ namespace WarehouseManagement.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProductVariantId")
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("QuantityAllocated")
@@ -2576,6 +2850,9 @@ namespace WarehouseManagement.Migrations
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SerialId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(64)
@@ -2596,25 +2873,293 @@ namespace WarehouseManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LicensePlateId");
+
                     b.HasIndex("LocationId");
 
+                    b.HasIndex("LotId");
+
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SerialId");
 
                     b.HasIndex("WarehouseId");
 
                     b.HasIndex("ZoneId");
 
+                    b.HasIndex("TenantId", "LicensePlateId");
+
                     b.HasIndex("TenantId", "LotBatchNumber");
+
+                    b.HasIndex("TenantId", "LotId");
 
                     b.HasIndex("TenantId", "Lpn");
 
                     b.HasIndex("TenantId", "ProductId");
 
+                    b.HasIndex("TenantId", "ProductVariantId");
+
+                    b.HasIndex("TenantId", "SerialId");
+
                     b.HasIndex("TenantId", "SerialNumber");
 
                     b.HasIndex("TenantId", "WarehouseId", "LocationId", "ProductId");
 
+                    b.HasIndex("TenantId", "WarehouseId", "LocationId", "ProductVariantId");
+
                     b.ToTable("AppInventoryItems", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventoryLot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CertificateUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("LotNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("ManufactureDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SupplierLotNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("TenantId", "ProductVariantId", "LotNumber")
+                        .IsUnique();
+
+                    b.ToTable("AppInventoryLots", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventorySerial", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("CurrentLicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CurrentLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CurrentWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<DateTime?>("WarrantyExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentLicensePlateId");
+
+                    b.HasIndex("CurrentLocationId");
+
+                    b.HasIndex("CurrentWarehouseId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("TenantId", "ProductVariantId", "SerialNumber")
+                        .IsUnique();
+
+                    b.ToTable("AppInventorySerials", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventorySerialHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<DateTime>("EventTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("FromLicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("FromLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("ReferenceDocumentNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("SerialId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<Guid?>("ToLicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ToLocationId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SerialId");
+
+                    b.HasIndex("TenantId", "EventTime");
+
+                    b.HasIndex("TenantId", "SerialId");
+
+                    b.ToTable("AppInventorySerialHistories", (string)null);
                 });
 
             modelBuilder.Entity("WarehouseManagement.Inventory.InventoryTransaction", b =>
@@ -2633,9 +3178,15 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid?>("FromLocationId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("LicensePlateId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("LotBatchNumber")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("LotId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Lpn")
                         .HasMaxLength(64)
@@ -2648,6 +3199,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
@@ -2655,6 +3209,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<string>("ReferenceNumber")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("SerialId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(64)
@@ -2678,13 +3235,252 @@ namespace WarehouseManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FromLocationId");
+
+                    b.HasIndex("LicensePlateId");
+
+                    b.HasIndex("LotId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SerialId");
+
+                    b.HasIndex("ToLocationId");
+
+                    b.HasIndex("WarehouseId");
+
                     b.HasIndex("TenantId", "ReferenceNumber");
 
                     b.HasIndex("TenantId", "TransactionTime");
 
                     b.HasIndex("TenantId", "WarehouseId", "ProductId");
 
+                    b.HasIndex("TenantId", "WarehouseId", "ProductVariantId");
+
                     b.ToTable("AppInventoryTransactions", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("CurrentLocationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CurrentWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("LpnCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("MaxWeightKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TareWeightKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentLocationId");
+
+                    b.HasIndex("CurrentWarehouseId");
+
+                    b.HasIndex("TenantId", "LpnCode")
+                        .IsUnique();
+
+                    b.ToTable("AppLicensePlates", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlateItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("LicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("LotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("QuantityOnHand")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<int>("Uom")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicensePlateId");
+
+                    b.HasIndex("LotId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("TenantId", "LicensePlateId", "ProductVariantId", "LotId")
+                        .IsUnique();
+
+                    b.ToTable("AppLicensePlateItems", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlateSerial", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("LicensePlateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SerialId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LicensePlateId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SerialId");
+
+                    b.HasIndex("TenantId", "LicensePlateId");
+
+                    b.HasIndex("TenantId", "SerialId")
+                        .IsUnique();
+
+                    b.ToTable("AppLicensePlateSerials", (string)null);
                 });
 
             modelBuilder.Entity("WarehouseManagement.Outbound.OutboundOrder", b =>
@@ -2837,6 +3633,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("TenantId");
@@ -2851,7 +3650,11 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("TenantId", "OutboundOrderId", "ProductId");
+
+                    b.HasIndex("TenantId", "OutboundOrderId", "ProductVariantId");
 
                     b.ToTable("AppOutboundOrderLines", (string)null);
                 });
@@ -2939,6 +3742,69 @@ namespace WarehouseManagement.Migrations
                     b.ToTable("AppCategories", (string)null);
                 });
 
+            modelBuilder.Entity("WarehouseManagement.Products.CategoryAttributeTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("ProductAttributeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ProductAttributeId");
+
+                    b.HasIndex("TenantId", "CategoryId", "ProductAttributeId")
+                        .IsUnique();
+
+                    b.ToTable("AppCategoryAttributeTemplates", (string)null);
+                });
+
             modelBuilder.Entity("WarehouseManagement.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2990,8 +3856,9 @@ namespace WarehouseManagement.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<double?>("HeightCm")
-                        .HasColumnType("double precision");
+                    b.Property<decimal?>("HeightCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -3019,13 +3886,21 @@ namespace WarehouseManagement.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<double?>("LengthCm")
-                        .HasColumnType("double precision");
+                    b.Property<decimal?>("LengthCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("ManufacturerPartNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
+
+                    b.Property<int>("ProductType")
+                        .HasColumnType("integer");
 
                     b.Property<int>("ReorderLevel")
                         .HasColumnType("integer");
@@ -3058,14 +3933,17 @@ namespace WarehouseManagement.Migrations
                     b.Property<int>("Uom")
                         .HasColumnType("integer");
 
-                    b.Property<double>("VolumeCm3")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("VolumeCm3")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
 
-                    b.Property<double>("WeightKg")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
 
-                    b.Property<double?>("WidthCm")
-                        .HasColumnType("double precision");
+                    b.Property<decimal?>("WidthCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
 
                     b.HasKey("Id");
 
@@ -3077,10 +3955,333 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("TenantId", "CategoryId");
 
+                    b.HasIndex("TenantId", "ProductType");
+
                     b.HasIndex("TenantId", "Sku")
                         .IsUnique();
 
                     b.ToTable("AppProducts", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductAttribute", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsVariantDefining")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("AppProductAttributes", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductAttributeValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ColorHexCode")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("DisplayCode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("ProductAttributeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductAttributeId");
+
+                    b.HasIndex("TenantId", "ProductAttributeId", "Value")
+                        .IsUnique();
+
+                    b.ToTable("AppProductAttributeValues", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CombinationHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<decimal?>("HeightCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<decimal?>("LengthCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PurchaseCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("VariantName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("VariantSku")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<decimal?>("WidthCm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId", "ProductId")
+                        .IsUnique()
+                        .HasFilter("\"IsDefault\" = TRUE");
+
+                    b.HasIndex("TenantId", "VariantSku")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "ProductId", "CombinationHash")
+                        .IsUnique();
+
+                    b.ToTable("AppProductVariants", (string)null);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductVariantAttributeValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("CustomValue")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<Guid>("ProductAttributeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProductAttributeValueId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductAttributeId");
+
+                    b.HasIndex("ProductAttributeValueId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("TenantId", "ProductVariantId", "ProductAttributeId")
+                        .IsUnique();
+
+                    b.ToTable("AppProductVariantAttributeValues", (string)null);
                 });
 
             modelBuilder.Entity("WarehouseManagement.Returns.ReturnOrder", b =>
@@ -3303,6 +4504,9 @@ namespace WarehouseManagement.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("ReceivedQuantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
@@ -3338,7 +4542,11 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("ReturnOrderId", "ProductId");
+
+                    b.HasIndex("ReturnOrderId", "ProductVariantId");
 
                     b.ToTable("AppReturnOrderItems", (string)null);
                 });
@@ -3455,7 +4663,7 @@ namespace WarehouseManagement.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.HasIndex("TenantId", "IsActive");
+                    b.HasIndex("TenantId", "Name");
 
                     b.ToTable("AppSuppliers", (string)null);
                 });
@@ -3606,6 +4814,9 @@ namespace WarehouseManagement.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("QuantityRequested")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
@@ -3628,7 +4839,11 @@ namespace WarehouseManagement.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("StockTransferId", "ProductId");
+
+                    b.HasIndex("StockTransferId", "ProductVariantId");
 
                     b.ToTable("AppStockTransferItems", (string)null);
                 });
@@ -4174,17 +5389,120 @@ namespace WarehouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", null)
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.BarcodeIdentity", b =>
+                {
+                    b.HasOne("WarehouseManagement.Inventory.InventoryLot", "InventoryLot")
+                        .WithMany()
+                        .HasForeignKey("InventoryLotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Inventory.InventorySerial", "InventorySerial")
+                        .WithMany()
+                        .HasForeignKey("InventorySerialId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "LicensePlate")
+                        .WithMany()
+                        .HasForeignKey("LicensePlateId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "WarehouseLocation")
+                        .WithMany()
+                        .HasForeignKey("WarehouseLocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("InventoryLot");
+
+                    b.Navigation("InventorySerial");
+
+                    b.Navigation("LicensePlate");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("WarehouseLocation");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.ProductBarcode", b =>
+                {
+                    b.HasOne("WarehouseManagement.Barcodes.BarcodeIdentity", "BarcodeIdentity")
+                        .WithMany()
+                        .HasForeignKey("BarcodeIdentityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BarcodeIdentity");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Barcodes.SupplierBarcodeMapping", b =>
+                {
+                    b.HasOne("WarehouseManagement.Barcodes.BarcodeIdentity", "BarcodeIdentity")
+                        .WithMany()
+                        .HasForeignKey("BarcodeIdentityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Suppliers.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BarcodeIdentity");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Faculty.FacultyMember", b =>
@@ -4212,38 +5530,284 @@ namespace WarehouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Inventory.InventoryItem", b =>
                 {
-                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", null)
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "LicensePlate")
+                        .WithMany()
+                        .HasForeignKey("LicensePlateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Inventory.InventoryLot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", null)
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Inventory.InventorySerial", "Serial")
+                        .WithMany()
+                        .HasForeignKey("SerialId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", "Warehouse")
                         .WithMany()
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Warehouses.WarehouseZone", null)
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseZone", "Zone")
                         .WithMany()
                         .HasForeignKey("ZoneId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("LicensePlate");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Lot");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Serial");
+
+                    b.Navigation("Warehouse");
+
+                    b.Navigation("Zone");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventoryLot", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventorySerial", b =>
+                {
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "CurrentLicensePlate")
+                        .WithMany()
+                        .HasForeignKey("CurrentLicensePlateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "CurrentLocation")
+                        .WithMany()
+                        .HasForeignKey("CurrentLocationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", "CurrentWarehouse")
+                        .WithMany()
+                        .HasForeignKey("CurrentWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CurrentLicensePlate");
+
+                    b.Navigation("CurrentLocation");
+
+                    b.Navigation("CurrentWarehouse");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventorySerialHistory", b =>
+                {
+                    b.HasOne("WarehouseManagement.Inventory.InventorySerial", "Serial")
+                        .WithMany()
+                        .HasForeignKey("SerialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Serial");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.InventoryTransaction", b =>
+                {
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "FromLocation")
+                        .WithMany()
+                        .HasForeignKey("FromLocationId");
+
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "LicensePlate")
+                        .WithMany()
+                        .HasForeignKey("LicensePlateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WarehouseManagement.Inventory.InventoryLot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Inventory.InventorySerial", "Serial")
+                        .WithMany()
+                        .HasForeignKey("SerialId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "ToLocation")
+                        .WithMany()
+                        .HasForeignKey("ToLocationId");
+
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FromLocation");
+
+                    b.Navigation("LicensePlate");
+
+                    b.Navigation("Lot");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Serial");
+
+                    b.Navigation("ToLocation");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlate", b =>
+                {
+                    b.HasOne("WarehouseManagement.Warehouses.WarehouseLocation", "CurrentLocation")
+                        .WithMany()
+                        .HasForeignKey("CurrentLocationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WarehouseManagement.Warehouses.Warehouse", "CurrentWarehouse")
+                        .WithMany()
+                        .HasForeignKey("CurrentWarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CurrentLocation");
+
+                    b.Navigation("CurrentWarehouse");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlateItem", b =>
+                {
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "LicensePlate")
+                        .WithMany("Items")
+                        .HasForeignKey("LicensePlateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Inventory.InventoryLot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LicensePlate");
+
+                    b.Navigation("Lot");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlateSerial", b =>
+                {
+                    b.HasOne("WarehouseManagement.Inventory.LicensePlate", "LicensePlate")
+                        .WithMany("Serials")
+                        .HasForeignKey("LicensePlateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Inventory.InventorySerial", "Serial")
+                        .WithMany()
+                        .HasForeignKey("SerialId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LicensePlate");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Serial");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Outbound.OutboundOrder", b =>
@@ -4263,11 +5827,20 @@ namespace WarehouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Products.Category", b =>
@@ -4278,12 +5851,79 @@ namespace WarehouseManagement.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("WarehouseManagement.Products.CategoryAttributeTemplate", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductAttribute", "ProductAttribute")
+                        .WithMany()
+                        .HasForeignKey("ProductAttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ProductAttribute");
+                });
+
             modelBuilder.Entity("WarehouseManagement.Products.Product", b =>
                 {
                     b.HasOne("WarehouseManagement.Products.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductAttributeValue", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.ProductAttribute", "ProductAttribute")
+                        .WithMany("Values")
+                        .HasForeignKey("ProductAttributeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductAttribute");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductVariant", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductVariantAttributeValue", b =>
+                {
+                    b.HasOne("WarehouseManagement.Products.ProductAttribute", "ProductAttribute")
+                        .WithMany()
+                        .HasForeignKey("ProductAttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductAttributeValue", "ProductAttributeValue")
+                        .WithMany()
+                        .HasForeignKey("ProductAttributeValueId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany("AttributeValues")
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductAttribute");
+
+                    b.Navigation("ProductAttributeValue");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Returns.ReturnOrder", b =>
@@ -4302,17 +5942,26 @@ namespace WarehouseManagement.Migrations
                         .HasForeignKey("DestinationLocationId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WarehouseManagement.Returns.ReturnOrder", null)
                         .WithMany("Items")
                         .HasForeignKey("ReturnOrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Transfers.StockTransfer", b =>
@@ -4332,17 +5981,26 @@ namespace WarehouseManagement.Migrations
 
             modelBuilder.Entity("WarehouseManagement.Transfers.StockTransferItem", b =>
                 {
-                    b.HasOne("WarehouseManagement.Products.Product", null)
+                    b.HasOne("WarehouseManagement.Products.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("WarehouseManagement.Transfers.StockTransfer", null)
                         .WithMany("Items")
                         .HasForeignKey("StockTransferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Warehouses.Warehouse", b =>
@@ -4431,9 +6089,31 @@ namespace WarehouseManagement.Migrations
                     b.Navigation("Lines");
                 });
 
+            modelBuilder.Entity("WarehouseManagement.Inventory.LicensePlate", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Serials");
+                });
+
             modelBuilder.Entity("WarehouseManagement.Outbound.OutboundOrder", b =>
                 {
                     b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.Product", b =>
+                {
+                    b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductAttribute", b =>
+                {
+                    b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("WarehouseManagement.Products.ProductVariant", b =>
+                {
+                    b.Navigation("AttributeValues");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Returns.ReturnOrder", b =>

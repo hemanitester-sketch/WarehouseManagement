@@ -19,6 +19,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
     private readonly IRepository<WarehouseZone, Guid> _zoneRepository;
     private readonly IRepository<WarehouseLocation, Guid> _locationRepository;
     private readonly IRepository<Product, Guid> _productRepository;
+    private readonly IRepository<ProductVariant, Guid> _productVariantRepository;
 
     public InventoryAppService(
         IRepository<InventoryItem, Guid> inventoryRepository,
@@ -26,7 +27,8 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
         IRepository<Warehouse, Guid> warehouseRepository,
         IRepository<WarehouseZone, Guid> zoneRepository,
         IRepository<WarehouseLocation, Guid> locationRepository,
-        IRepository<Product, Guid> productRepository)
+        IRepository<Product, Guid> productRepository,
+        IRepository<ProductVariant, Guid> productVariantRepository)
     {
         _inventoryRepository = inventoryRepository;
         _transactionRepository = transactionRepository;
@@ -34,6 +36,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
         _zoneRepository = zoneRepository;
         _locationRepository = locationRepository;
         _productRepository = productRepository;
+        _productVariantRepository = productVariantRepository;
     }
 
     public async Task<PagedResultDto<InventoryItemDto>> GetListAsync(GetInventoryListDto input)
@@ -51,6 +54,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             .WhereIf(input.ZoneId.HasValue, x => x.ZoneId == input.ZoneId!.Value)
             .WhereIf(input.LocationId.HasValue, x => x.LocationId == input.LocationId!.Value)
             .WhereIf(input.ProductId.HasValue, x => x.ProductId == input.ProductId!.Value)
+            .WhereIf(input.ProductVariantId.HasValue, x => x.ProductVariantId == input.ProductVariantId!.Value)
             .WhereIf(!string.IsNullOrWhiteSpace(input.LotBatchNumber), x => x.LotBatchNumber == input.LotBatchNumber!)
             .WhereIf(!string.IsNullOrWhiteSpace(input.SerialNumber), x => x.SerialNumber == input.SerialNumber!)
             .WhereIf(!string.IsNullOrWhiteSpace(input.Lpn), x => x.Lpn == input.Lpn!)
@@ -123,6 +127,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             x.WarehouseId == input.WarehouseId &&
             x.LocationId == input.LocationId &&
             x.ProductId == input.ProductId &&
+            x.ProductVariantId == input.ProductVariantId &&
             x.LotBatchNumber == normalizedLot &&
             x.SerialNumber == normalizedSerial &&
             x.Lpn == normalizedLpn);
@@ -149,7 +154,8 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
                 lpn: normalizedLpn,
                 expiryDate: input.ExpiryDate,
                 manufactureDate: input.ManufactureDate,
-                status: input.Status
+                status: input.Status,
+                productVariantId: input.ProductVariantId
             );
 
             await _inventoryRepository.InsertAsync(item, autoSave: true);
@@ -176,7 +182,8 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             serialNumber: normalizedSerial,
             lpn: normalizedLpn,
             referenceNumber: input.Reason,
-            notes: input.Notes
+            notes: input.Notes,
+            productVariantId: input.ProductVariantId
         );
 
         await _transactionRepository.InsertAsync(transaction, autoSave: true);
@@ -213,6 +220,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             x.WarehouseId == input.DestinationWarehouseId &&
             x.LocationId == input.DestinationLocationId &&
             x.ProductId == sourceItem.ProductId &&
+            x.ProductVariantId == sourceItem.ProductVariantId &&
             x.LotBatchNumber == sourceItem.LotBatchNumber &&
             x.SerialNumber == sourceItem.SerialNumber &&
             x.Lpn == sourceItem.Lpn);
@@ -234,7 +242,8 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
                 lpn: sourceItem.Lpn,
                 expiryDate: sourceItem.ExpiryDate,
                 manufactureDate: sourceItem.ManufactureDate,
-                status: sourceItem.Status
+                status: sourceItem.Status,
+                productVariantId: sourceItem.ProductVariantId
             );
             await _inventoryRepository.InsertAsync(destItem, autoSave: true);
         }
@@ -258,7 +267,8 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             serialNumber: sourceItem.SerialNumber,
             lpn: sourceItem.Lpn,
             referenceNumber: input.ReferenceNumber ?? "BIN-TRANSFER",
-            notes: input.Notes
+            notes: input.Notes,
+            productVariantId: sourceItem.ProductVariantId
         );
 
         await _transactionRepository.InsertAsync(transaction, autoSave: true);
@@ -284,21 +294,38 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
 
         var transactions = await AsyncExecuter.ToListAsync(pagedQuery);
 
-        var dtos = transactions.Select(x => new InventoryTransactionDto
+        var variantIds = transactions.Where(x => x.ProductVariantId.HasValue).Select(x => x.ProductVariantId!.Value).Distinct().ToList();
+        var variants = variantIds.Any()
+            ? (await _productVariantRepository.GetListAsync(x => variantIds.Contains(x.Id))).ToDictionary(x => x.Id)
+            : new Dictionary<Guid, ProductVariant>();
+
+        var dtos = transactions.Select(x =>
         {
-            Id = x.Id,
-            WarehouseId = x.WarehouseId,
-            ProductId = x.ProductId,
-            FromLocationId = x.FromLocationId,
-            ToLocationId = x.ToLocationId,
-            Quantity = x.Quantity,
-            LotBatchNumber = x.LotBatchNumber,
-            SerialNumber = x.SerialNumber,
-            Lpn = x.Lpn,
-            TransactionType = x.TransactionType,
-            ReferenceNumber = x.ReferenceNumber,
-            Notes = x.Notes,
-            TransactionTime = x.TransactionTime
+            ProductVariant? variant = null;
+            if (x.ProductVariantId.HasValue)
+            {
+                variants.TryGetValue(x.ProductVariantId.Value, out variant);
+            }
+
+            return new InventoryTransactionDto
+            {
+                Id = x.Id,
+                WarehouseId = x.WarehouseId,
+                ProductId = x.ProductId,
+                ProductVariantId = x.ProductVariantId,
+                VariantSku = variant?.VariantSku,
+                VariantName = variant?.VariantName,
+                FromLocationId = x.FromLocationId,
+                ToLocationId = x.ToLocationId,
+                Quantity = x.Quantity,
+                LotBatchNumber = x.LotBatchNumber,
+                SerialNumber = x.SerialNumber,
+                Lpn = x.Lpn,
+                TransactionType = x.TransactionType,
+                ReferenceNumber = x.ReferenceNumber,
+                Notes = x.Notes,
+                TransactionTime = x.TransactionTime
+            };
         }).ToList();
 
         return new PagedResultDto<InventoryTransactionDto>(totalCount, dtos);
@@ -312,11 +339,17 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
         var zoneIds = items.Select(x => x.ZoneId).Distinct().ToList();
         var locationIds = items.Select(x => x.LocationId).Distinct().ToList();
         var productIds = items.Select(x => x.ProductId).Distinct().ToList();
+        var variantIds = items.Where(x => x.ProductVariantId.HasValue).Select(x => x.ProductVariantId!.Value).Distinct().ToList();
 
         var warehouses = (await _warehouseRepository.GetListAsync(x => warehouseIds.Contains(x.Id))).ToDictionary(x => x.Id);
         var zones = (await _zoneRepository.GetListAsync(x => zoneIds.Contains(x.Id))).ToDictionary(x => x.Id);
         var locations = (await _locationRepository.GetListAsync(x => locationIds.Contains(x.Id))).ToDictionary(x => x.Id);
         var products = (await _productRepository.GetListAsync(x => productIds.Contains(x.Id))).ToDictionary(x => x.Id);
+        var variants = variantIds.Any()
+            ? (await _productVariantRepository.GetListAsync(x => variantIds.Contains(x.Id))).ToDictionary(x => x.Id)
+            : new Dictionary<Guid, ProductVariant>();
+
+        var now = DateTime.UtcNow;
 
         return items.Select(item =>
         {
@@ -324,6 +357,17 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             zones.TryGetValue(item.ZoneId, out var zn);
             locations.TryGetValue(item.LocationId, out var loc);
             products.TryGetValue(item.ProductId, out var prod);
+
+            ProductVariant? variant = null;
+            if (item.ProductVariantId.HasValue)
+            {
+                variants.TryGetValue(item.ProductVariantId.Value, out variant);
+            }
+
+            var effectiveSku = variant?.VariantSku ?? prod?.Sku;
+            var isExpired = item.ExpiryDate.HasValue && item.ExpiryDate.Value < now;
+            var isNearExpiry = item.ExpiryDate.HasValue && !isExpired && item.ExpiryDate.Value <= now.AddDays(30);
+            var daysUntilExpiry = item.ExpiryDate.HasValue ? (int?)(item.ExpiryDate.Value.Date - now.Date).TotalDays : null;
 
             return new InventoryItemDto
             {
@@ -337,8 +381,11 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
                 LocationBarcode = loc?.Barcode,
                 LocationCoordinates = loc != null ? $"{loc.Aisle}-{loc.Rack}-{loc.Shelf}-{loc.Bin}" : null,
                 ProductId = item.ProductId,
-                ProductSku = prod?.Sku,
+                ProductSku = effectiveSku,
                 ProductName = prod?.Name,
+                ProductVariantId = item.ProductVariantId,
+                VariantSku = variant?.VariantSku,
+                VariantName = variant?.VariantName,
                 QuantityOnHand = item.QuantityOnHand,
                 QuantityAllocated = item.QuantityAllocated,
                 QuantityAvailable = item.QuantityAvailable,
@@ -347,6 +394,9 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
                 Lpn = item.Lpn,
                 ExpiryDate = item.ExpiryDate,
                 ManufactureDate = item.ManufactureDate,
+                IsExpired = isExpired,
+                IsNearExpiry = isNearExpiry,
+                DaysUntilExpiry = daysUntilExpiry,
                 Status = item.Status,
                 ReceivedDate = item.ReceivedDate,
                 CreationTime = item.CreationTime,

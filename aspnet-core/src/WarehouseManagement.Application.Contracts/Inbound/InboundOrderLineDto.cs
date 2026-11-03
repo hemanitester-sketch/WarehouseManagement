@@ -11,6 +11,10 @@ public class InboundOrderLineDto : EntityDto<Guid>
     public string? ProductSku { get; set; }
     public string? ProductName { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+    public string? VariantSku { get; set; }
+    public string? VariantName { get; set; }
+
     public decimal ExpectedQuantity { get; set; }
     public decimal ReceivedQuantity { get; set; }
     public decimal RemainingQuantity => Math.Max(0, ExpectedQuantity - ReceivedQuantity);

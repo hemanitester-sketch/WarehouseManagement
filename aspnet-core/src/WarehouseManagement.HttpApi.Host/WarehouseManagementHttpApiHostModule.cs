@@ -314,6 +314,7 @@ HJAkGMBxHn7U1+uwBylrF5QNmDlWy5ocaOLOoFLq8p2nIRQEeSyLzyEsneLygwcI
 
         app.UseAbpRequestLocalization();
         app.UseCorrelationId();
+        app.UseStaticFiles();
         app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();  

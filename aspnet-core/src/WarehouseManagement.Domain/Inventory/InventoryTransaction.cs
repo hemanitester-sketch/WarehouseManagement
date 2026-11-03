@@ -1,6 +1,8 @@
 using System;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
+using WarehouseManagement.Products;
+using WarehouseManagement.Warehouses;
 
 namespace WarehouseManagement.Inventory;
 
@@ -11,6 +13,14 @@ public class InventoryTransaction : CreationAuditedEntity<Guid>, IMultiTenant
     public Guid WarehouseId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public Guid? ProductVariantId { get; set; }
+
+    public Guid? LotId { get; set; }
+
+    public Guid? SerialId { get; set; }
+
+    public Guid? LicensePlateId { get; set; }
 
     public Guid? FromLocationId { get; set; }
 
@@ -32,6 +42,22 @@ public class InventoryTransaction : CreationAuditedEntity<Guid>, IMultiTenant
 
     public DateTime TransactionTime { get; set; }
 
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
+
+    public InventoryLot? Lot { get; set; }
+
+    public InventorySerial? Serial { get; set; }
+
+    public LicensePlate? LicensePlate { get; set; }
+
+    public Warehouse Warehouse { get; set; } = null!;
+
+    public WarehouseLocation? FromLocation { get; set; }
+
+    public WarehouseLocation? ToLocation { get; set; }
+
     public InventoryTransaction()
     {
     }
@@ -50,7 +76,11 @@ public class InventoryTransaction : CreationAuditedEntity<Guid>, IMultiTenant
         string? lpn = null,
         string? referenceNumber = null,
         string? notes = null,
-        DateTime? transactionTime = null)
+        DateTime? transactionTime = null,
+        Guid? productVariantId = null,
+        Guid? lotId = null,
+        Guid? serialId = null,
+        Guid? licensePlateId = null)
         : base(id)
     {
         WarehouseId = warehouseId;
@@ -66,5 +96,9 @@ public class InventoryTransaction : CreationAuditedEntity<Guid>, IMultiTenant
         ReferenceNumber = referenceNumber?.Trim();
         Notes = notes?.Trim();
         TransactionTime = transactionTime ?? DateTime.UtcNow;
+        ProductVariantId = productVariantId;
+        LotId = lotId;
+        SerialId = serialId;
+        LicensePlateId = licensePlateId;
     }
 }

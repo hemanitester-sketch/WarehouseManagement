@@ -2,6 +2,8 @@ using System;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
+using WarehouseManagement.Products;
+using WarehouseManagement.Warehouses;
 
 namespace WarehouseManagement.Inventory;
 
@@ -16,6 +18,14 @@ public class InventoryItem : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public Guid LocationId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public Guid? ProductVariantId { get; set; }
+
+    public Guid? LotId { get; set; }
+
+    public Guid? SerialId { get; set; }
+
+    public Guid? LicensePlateId { get; set; }
 
     public decimal QuantityOnHand { get; set; }
 
@@ -37,6 +47,22 @@ public class InventoryItem : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public decimal QuantityAvailable => Math.Max(0, QuantityOnHand - QuantityAllocated);
 
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
+
+    public InventoryLot? Lot { get; set; }
+
+    public InventorySerial? Serial { get; set; }
+
+    public LicensePlate? LicensePlate { get; set; }
+
+    public Warehouse Warehouse { get; set; } = null!;
+
+    public WarehouseZone Zone { get; set; } = null!;
+
+    public WarehouseLocation Location { get; set; } = null!;
+
     public InventoryItem()
     {
     }
@@ -56,7 +82,11 @@ public class InventoryItem : FullAuditedAggregateRoot<Guid>, IMultiTenant
         DateTime? manufactureDate = null,
         InventoryStatus status = InventoryStatus.Available,
         DateTime? receivedDate = null,
-        decimal quantityAllocated = 0)
+        decimal quantityAllocated = 0,
+        Guid? productVariantId = null,
+        Guid? lotId = null,
+        Guid? serialId = null,
+        Guid? licensePlateId = null)
         : base(id)
     {
         WarehouseId = warehouseId;
@@ -73,6 +103,10 @@ public class InventoryItem : FullAuditedAggregateRoot<Guid>, IMultiTenant
         ManufactureDate = manufactureDate;
         Status = status;
         ReceivedDate = receivedDate ?? DateTime.UtcNow;
+        ProductVariantId = productVariantId;
+        LotId = lotId;
+        SerialId = serialId;
+        LicensePlateId = licensePlateId;
     }
 
     public void AdjustQuantity(decimal delta)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -14,11 +15,17 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public string Name { get; set; } = null!;
 
+    public ProductType ProductType { get; set; } = ProductType.Simple;
+
     public string? Barcode { get; set; }
+
+    public string? ManufacturerPartNumber { get; set; }
 
     public string? Description { get; set; }
 
     public string? Brand { get; set; }
+
+    public string? ImageUrl { get; set; }
 
     public ProductCategory Category { get; set; }
 
@@ -32,15 +39,15 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public bool IsSerialTracked { get; set; }
 
-    public double WeightKg { get; set; }
+    public decimal WeightKg { get; set; }
 
-    public double VolumeCm3 { get; set; }
+    public decimal VolumeCm3 { get; set; }
 
-    public double? LengthCm { get; set; }
+    public decimal? LengthCm { get; set; }
 
-    public double? WidthCm { get; set; }
+    public decimal? WidthCm { get; set; }
 
-    public double? HeightCm { get; set; }
+    public decimal? HeightCm { get; set; }
 
     public WarehouseZoneStorageType RequiredStorageType { get; set; }
 
@@ -55,6 +62,8 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public decimal UnitPrice { get; set; }
 
     public bool IsActive { get; set; }
+
+    public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
 
     public Product()
     {
@@ -73,11 +82,11 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
         bool isLotTracked = false,
         bool isExpiryTracked = false,
         bool isSerialTracked = false,
-        double weightKg = 0,
-        double volumeCm3 = 0,
-        double? lengthCm = null,
-        double? widthCm = null,
-        double? heightCm = null,
+        decimal weightKg = 0,
+        decimal volumeCm3 = 0,
+        decimal? lengthCm = null,
+        decimal? widthCm = null,
+        decimal? heightCm = null,
         WarehouseZoneStorageType requiredStorageType = WarehouseZoneStorageType.Ambient,
         double? temperatureMinCelsius = null,
         double? temperatureMaxCelsius = null,
@@ -85,7 +94,9 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
         int targetStockLevel = 100,
         decimal unitPrice = 0,
         bool isActive = true,
-        Guid? categoryId = null)
+        Guid? categoryId = null,
+        ProductType productType = ProductType.Simple,
+        string? manufacturerPartNumber = null)
         : base(id)
     {
         TenantId = tenantId;
@@ -112,6 +123,8 @@ public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
         UnitPrice = unitPrice;
         IsActive = isActive;
         CategoryId = categoryId;
+        ProductType = productType;
+        ManufacturerPartNumber = manufacturerPartNumber?.Trim();
     }
 
     public void SetSku(string sku)

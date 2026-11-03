@@ -1,5 +1,6 @@
 using System;
 using Volo.Abp.Domain.Entities.Auditing;
+using WarehouseManagement.Products;
 
 namespace WarehouseManagement.Returns;
 
@@ -8,6 +9,8 @@ public class ReturnOrderItem : FullAuditedEntity<Guid>
     public Guid ReturnOrderId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public Guid? ProductVariantId { get; set; }
 
     public string ProductSku { get; set; } = null!;
 
@@ -37,6 +40,10 @@ public class ReturnOrderItem : FullAuditedEntity<Guid>
 
     public string? InspectionNotes { get; set; }
 
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
+
     public ReturnOrderItem()
     {
     }
@@ -51,7 +58,8 @@ public class ReturnOrderItem : FullAuditedEntity<Guid>
         decimal unitRefundPrice = 0,
         ReturnReason returnReason = ReturnReason.DefectiveItem,
         string? lotBatchNumber = null,
-        string? serialNumber = null)
+        string? serialNumber = null,
+        Guid? productVariantId = null)
         : base(id)
     {
         ReturnOrderId = returnOrderId;
@@ -67,6 +75,6 @@ public class ReturnOrderItem : FullAuditedEntity<Guid>
         ResolutionAction = ItemResolutionAction.PendingInspection;
         LotBatchNumber = lotBatchNumber;
         SerialNumber = serialNumber;
+        ProductVariantId = productVariantId;
     }
 }
-

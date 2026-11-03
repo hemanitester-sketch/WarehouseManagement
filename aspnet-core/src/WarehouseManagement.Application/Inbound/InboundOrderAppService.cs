@@ -19,6 +19,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
     private readonly IRepository<Warehouse, Guid> _warehouseRepository;
     private readonly IRepository<WarehouseLocation, Guid> _locationRepository;
     private readonly IRepository<Product, Guid> _productRepository;
+    private readonly IRepository<ProductVariant, Guid> _productVariantRepository;
     private readonly IRepository<InventoryItem, Guid> _inventoryRepository;
     private readonly IRepository<InventoryTransaction, Guid> _transactionRepository;
 
@@ -27,6 +28,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
         IRepository<Warehouse, Guid> warehouseRepository,
         IRepository<WarehouseLocation, Guid> locationRepository,
         IRepository<Product, Guid> productRepository,
+        IRepository<ProductVariant, Guid> productVariantRepository,
         IRepository<InventoryItem, Guid> inventoryRepository,
         IRepository<InventoryTransaction, Guid> transactionRepository)
     {
@@ -34,6 +36,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
         _warehouseRepository = warehouseRepository;
         _locationRepository = locationRepository;
         _productRepository = productRepository;
+        _productVariantRepository = productVariantRepository;
         _inventoryRepository = inventoryRepository;
         _transactionRepository = transactionRepository;
     }
@@ -101,7 +104,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
         {
             foreach (var lineDto in input.Lines)
             {
-                order.AddLine(GuidGenerator.Create(), lineDto.ProductId, lineDto.ExpectedQuantity, lineDto.UnitPrice);
+                order.AddLine(GuidGenerator.Create(), lineDto.ProductId, lineDto.ExpectedQuantity, lineDto.UnitPrice, lineDto.ProductVariantId);
             }
         }
 
@@ -197,6 +200,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
             x.WarehouseId == order.WarehouseId &&
             x.LocationId == input.DestinationLocationId &&
             x.ProductId == line.ProductId &&
+            x.ProductVariantId == line.ProductVariantId &&
             x.LotBatchNumber == normalizedLot &&
             x.SerialNumber == normalizedSerial &&
             x.Lpn == normalizedLpn);
@@ -213,6 +217,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
                 line.ProductId,
                 input.ReceivedQuantity,
                 CurrentTenant.Id,
+                productVariantId: line.ProductVariantId,
                 lotBatchNumber: normalizedLot,
                 serialNumber: normalizedSerial,
                 lpn: normalizedLpn,
@@ -242,6 +247,7 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
             CurrentTenant.Id,
             fromLocationId: null,
             toLocationId: input.DestinationLocationId,
+            productVariantId: line.ProductVariantId,
             lotBatchNumber: normalizedLot,
             serialNumber: normalizedSerial,
             lpn: normalizedLpn,
@@ -260,9 +266,17 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
 
         var warehouseIds = orders.Select(x => x.WarehouseId).Distinct().ToList();
         var productIds = orders.SelectMany(x => x.Lines).Select(l => l.ProductId).Distinct().ToList();
+        var variantIds = orders.SelectMany(x => x.Lines)
+            .Where(l => l.ProductVariantId.HasValue)
+            .Select(l => l.ProductVariantId!.Value)
+            .Distinct()
+            .ToList();
 
         var warehouses = (await _warehouseRepository.GetListAsync(x => warehouseIds.Contains(x.Id))).ToDictionary(x => x.Id);
         var products = (await _productRepository.GetListAsync(x => productIds.Contains(x.Id))).ToDictionary(x => x.Id);
+        var variants = variantIds.Any()
+            ? (await _productVariantRepository.GetListAsync(x => variantIds.Contains(x.Id))).ToDictionary(x => x.Id)
+            : new Dictionary<Guid, ProductVariant>();
 
         return orders.Select(order =>
         {
@@ -271,14 +285,27 @@ public class InboundOrderAppService : ApplicationService, IInboundOrderAppServic
             var lineDtos = order.Lines.Select(line =>
             {
                 products.TryGetValue(line.ProductId, out var prod);
+                ProductVariant? variant = null;
+                if (line.ProductVariantId.HasValue)
+                {
+                    variants.TryGetValue(line.ProductVariantId.Value, out variant);
+                }
+
+                var effectiveSku = variant?.VariantSku ?? prod?.Sku;
+                var effectiveName = variant != null && !string.IsNullOrWhiteSpace(variant.VariantName)
+                    ? $"{prod?.Name} ({variant.VariantName})"
+                    : prod?.Name;
 
                 return new InboundOrderLineDto
                 {
                     Id = line.Id,
                     InboundOrderId = line.InboundOrderId,
                     ProductId = line.ProductId,
-                    ProductSku = prod?.Sku,
-                    ProductName = prod?.Name,
+                    ProductSku = effectiveSku,
+                    ProductName = effectiveName,
+                    ProductVariantId = line.ProductVariantId,
+                    VariantSku = variant?.VariantSku,
+                    VariantName = variant?.VariantName,
                     ExpectedQuantity = line.ExpectedQuantity,
                     ReceivedQuantity = line.ReceivedQuantity,
                     UnitPrice = line.UnitPrice,

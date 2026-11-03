@@ -74,7 +74,7 @@ public class InboundOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
         SupplierName = supplierName.Trim();
     }
 
-    public InboundOrderLine AddLine(Guid id, Guid productId, decimal expectedQuantity, decimal unitPrice = 0)
+    public InboundOrderLine AddLine(Guid id, Guid productId, decimal expectedQuantity, decimal unitPrice = 0, Guid? productVariantId = null)
     {
         if (expectedQuantity <= 0)
         {
@@ -87,7 +87,8 @@ public class InboundOrder : FullAuditedAggregateRoot<Guid>, IMultiTenant
             productId,
             expectedQuantity,
             unitPrice,
-            TenantId
+            TenantId,
+            productVariantId: productVariantId
         );
 
         Lines.Add(line);

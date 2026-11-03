@@ -1,5 +1,7 @@
 using System;
 using Volo.Abp.Domain.Entities;
+using WarehouseManagement.Products;
+using WarehouseManagement.Warehouses;
 
 namespace WarehouseManagement.Audits;
 
@@ -8,6 +10,8 @@ public class CycleCountAuditItem : Entity<Guid>
     public Guid CycleCountAuditId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public Guid? ProductVariantId { get; set; }
 
     public Guid LocationId { get; set; }
 
@@ -33,6 +37,12 @@ public class CycleCountAuditItem : Entity<Guid>
 
     public DateTime? CountedAt { get; set; }
 
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
+
+    public WarehouseLocation Location { get; set; } = null!;
+
     public CycleCountAuditItem()
     {
     }
@@ -45,7 +55,8 @@ public class CycleCountAuditItem : Entity<Guid>
         decimal systemQuantity,
         decimal unitCost,
         string? lotBatchNumber = null,
-        string? serialNumber = null)
+        string? serialNumber = null,
+        Guid? productVariantId = null)
         : base(id)
     {
         CycleCountAuditId = cycleCountAuditId;
@@ -56,6 +67,6 @@ public class CycleCountAuditItem : Entity<Guid>
         LotBatchNumber = lotBatchNumber;
         SerialNumber = serialNumber;
         DiscrepancyReason = DiscrepancyReason.None;
+        ProductVariantId = productVariantId;
     }
 }
-

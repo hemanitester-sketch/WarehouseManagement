@@ -20,6 +20,10 @@ public class InventoryItemDto : FullAuditedEntityDto<Guid>
     public string? ProductSku { get; set; }
     public string? ProductName { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+    public string? VariantSku { get; set; }
+    public string? VariantName { get; set; }
+
     public decimal QuantityOnHand { get; set; }
     public decimal QuantityAllocated { get; set; }
     public decimal QuantityAvailable { get; set; }
@@ -30,6 +34,9 @@ public class InventoryItemDto : FullAuditedEntityDto<Guid>
 
     public DateTime? ExpiryDate { get; set; }
     public DateTime? ManufactureDate { get; set; }
+    public bool IsExpired { get; set; }
+    public bool IsNearExpiry { get; set; }
+    public int? DaysUntilExpiry { get; set; }
     public InventoryStatus Status { get; set; }
     public DateTime ReceivedDate { get; set; }
 }

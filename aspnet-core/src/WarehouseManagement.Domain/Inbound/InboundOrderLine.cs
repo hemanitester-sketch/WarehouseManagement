@@ -1,6 +1,7 @@
 using System;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
+using WarehouseManagement.Products;
 
 namespace WarehouseManagement.Inbound;
 
@@ -12,6 +13,8 @@ public class InboundOrderLine : Entity<Guid>, IMultiTenant
 
     public Guid ProductId { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+
     public decimal ExpectedQuantity { get; set; }
 
     public decimal ReceivedQuantity { get; set; }
@@ -19,6 +22,10 @@ public class InboundOrderLine : Entity<Guid>, IMultiTenant
     public decimal UnitPrice { get; set; }
 
     public bool IsCompleted => ReceivedQuantity >= ExpectedQuantity;
+
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
 
     public InboundOrderLine()
     {
@@ -31,7 +38,8 @@ public class InboundOrderLine : Entity<Guid>, IMultiTenant
         decimal expectedQuantity,
         decimal unitPrice = 0,
         Guid? tenantId = null,
-        decimal receivedQuantity = 0)
+        decimal receivedQuantity = 0,
+        Guid? productVariantId = null)
         : base(id)
     {
         InboundOrderId = inboundOrderId;
@@ -40,6 +48,7 @@ public class InboundOrderLine : Entity<Guid>, IMultiTenant
         UnitPrice = unitPrice;
         TenantId = tenantId;
         ReceivedQuantity = Math.Max(0, receivedQuantity);
+        ProductVariantId = productVariantId;
     }
 
     public void AddReceivedQuantity(decimal quantity)

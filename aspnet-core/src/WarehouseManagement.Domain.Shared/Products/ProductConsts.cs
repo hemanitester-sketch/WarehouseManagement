@@ -7,4 +7,5 @@ public static class ProductConsts
     public const int MaxBarcodeLength = 64;
     public const int MaxDescriptionLength = 512;
     public const int MaxBrandLength = 64;
+    public const int MaxManufacturerPartNumberLength = 64;
 }

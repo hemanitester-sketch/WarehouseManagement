@@ -15,6 +15,8 @@ public class GetInventoryListDto : PagedAndSortedResultRequestDto
 
     public Guid? ProductId { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+
     public string? LotBatchNumber { get; set; }
 
     public string? SerialNumber { get; set; }

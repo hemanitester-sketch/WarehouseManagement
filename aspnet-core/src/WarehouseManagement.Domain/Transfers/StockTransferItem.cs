@@ -1,5 +1,6 @@
 using System;
 using Volo.Abp.Domain.Entities;
+using WarehouseManagement.Products;
 
 namespace WarehouseManagement.Transfers;
 
@@ -8,6 +9,8 @@ public class StockTransferItem : Entity<Guid>
     public Guid StockTransferId { get; set; }
 
     public Guid ProductId { get; set; }
+
+    public Guid? ProductVariantId { get; set; }
 
     public Guid? SourceLocationId { get; set; }
 
@@ -23,6 +26,10 @@ public class StockTransferItem : Entity<Guid>
 
     public string? Lpn { get; set; }
 
+    public Product Product { get; set; } = null!;
+
+    public ProductVariant? ProductVariant { get; set; }
+
     public StockTransferItem()
     {
     }
@@ -37,7 +44,8 @@ public class StockTransferItem : Entity<Guid>
         decimal? quantityTransferred = null,
         string? lotBatchNumber = null,
         string? serialNumber = null,
-        string? lpn = null)
+        string? lpn = null,
+        Guid? productVariantId = null)
         : base(id)
     {
         StockTransferId = stockTransferId;
@@ -49,6 +57,6 @@ public class StockTransferItem : Entity<Guid>
         LotBatchNumber = lotBatchNumber?.Trim();
         SerialNumber = serialNumber?.Trim();
         Lpn = lpn?.Trim();
+        ProductVariantId = productVariantId;
     }
 }
-

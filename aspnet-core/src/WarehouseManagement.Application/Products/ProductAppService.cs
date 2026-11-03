@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using WarehouseManagement.Barcodes;
 using WarehouseManagement.Permissions;
 
 namespace WarehouseManagement.Products;
@@ -20,13 +21,25 @@ public class ProductAppService :
     IProductAppService
 {
     private readonly IRepository<Category, Guid> _categoryRepository;
+    private readonly IRepository<ProductVariant, Guid> _variantRepository;
+    private readonly IRepository<BarcodeIdentity, Guid> _barcodeIdentityRepository;
+    private readonly IRepository<ProductBarcode, Guid> _productBarcodeRepository;
+    private readonly IBarcodeGenerator _barcodeGenerator;
 
     public ProductAppService(
         IRepository<Product, Guid> repository,
-        IRepository<Category, Guid> categoryRepository)
+        IRepository<Category, Guid> categoryRepository,
+        IRepository<ProductVariant, Guid> variantRepository,
+        IRepository<BarcodeIdentity, Guid> barcodeIdentityRepository,
+        IRepository<ProductBarcode, Guid> productBarcodeRepository,
+        IBarcodeGenerator barcodeGenerator)
         : base(repository)
     {
         _categoryRepository = categoryRepository;
+        _variantRepository = variantRepository;
+        _barcodeIdentityRepository = barcodeIdentityRepository;
+        _productBarcodeRepository = productBarcodeRepository;
+        _barcodeGenerator = barcodeGenerator;
         GetPolicyName = null;
         GetListPolicyName = null;
         CreatePolicyName = null;
@@ -58,6 +71,62 @@ public class ProductAppService :
         var entity = await MapToEntityAsync(input);
         TryToSetTenantId(entity);
         await Repository.InsertAsync(entity, autoSave: true);
+
+        // For Simple products, automatically ensure a default variant exists
+        if (entity.ProductType == ProductType.Simple)
+        {
+            var defaultVariant = new ProductVariant(
+                GuidGenerator.Create(),
+                entity.Id,
+                entity.Sku,
+                entity.Name,
+                "DEFAULT",
+                unitPrice: entity.UnitPrice,
+                purchaseCost: 0,
+                weightKg: entity.WeightKg,
+                lengthCm: entity.LengthCm,
+                widthCm: entity.WidthCm,
+                heightCm: entity.HeightCm,
+                imageUrl: entity.ImageUrl,
+                isDefault: true,
+                isActive: entity.IsActive,
+                tenantId: CurrentTenant.Id
+            );
+            await _variantRepository.InsertAsync(defaultVariant, autoSave: true);
+
+            var barcodeVal = !string.IsNullOrWhiteSpace(entity.Barcode)
+                ? _barcodeGenerator.NormalizeBarcode(entity.Barcode)
+                : await _barcodeGenerator.GenerateInternalCode128Async(BarcodeTargetType.ProductVariant, CurrentTenant.Id);
+
+            if (string.IsNullOrWhiteSpace(entity.Barcode))
+            {
+                entity.Barcode = barcodeVal;
+                await Repository.UpdateAsync(entity, autoSave: true);
+            }
+
+            var identity = new BarcodeIdentity(
+                GuidGenerator.Create(),
+                barcodeVal,
+                BarcodeTargetType.ProductVariant,
+                BarcodeKind.InternalCode128,
+                _barcodeGenerator.DetectSymbology(barcodeVal),
+                productVariantId: defaultVariant.Id,
+                tenantId: CurrentTenant.Id
+            );
+            await _barcodeIdentityRepository.InsertAsync(identity, autoSave: true);
+
+            var productBarcode = new ProductBarcode(
+                GuidGenerator.Create(),
+                identity.Id,
+                entity.Id,
+                defaultVariant.Id,
+                BarcodePackagingLevel.Each,
+                isPrimary: true,
+                LabelPrintFormat.Zpl_4x6,
+                CurrentTenant.Id
+            );
+            await _productBarcodeRepository.InsertAsync(productBarcode, autoSave: true);
+        }
 
         return MapToGetOutputDto(entity);
     }
@@ -200,8 +269,12 @@ public class ProductAppService :
             createInput.TargetStockLevel,
             createInput.UnitPrice,
             createInput.IsActive,
-            createInput.CategoryId
+            createInput.CategoryId,
+            createInput.ProductType,
+            createInput.ManufacturerPartNumber
         );
+
+        entity.ImageUrl = createInput.ImageUrl?.Trim();
 
         return Task.FromResult(entity);
     }
@@ -211,8 +284,11 @@ public class ProductAppService :
         entity.SetSku(updateInput.Sku);
         entity.SetName(updateInput.Name);
         entity.Barcode = updateInput.Barcode?.Trim();
+        entity.ProductType = updateInput.ProductType;
+        entity.ManufacturerPartNumber = updateInput.ManufacturerPartNumber?.Trim();
         entity.Description = updateInput.Description;
         entity.Brand = updateInput.Brand;
+        entity.ImageUrl = updateInput.ImageUrl?.Trim();
         entity.Category = updateInput.Category;
         entity.Uom = updateInput.Uom;
         entity.IsLotTracked = updateInput.IsLotTracked;
@@ -242,9 +318,12 @@ public class ProductAppService :
             Id = entity.Id,
             Sku = entity.Sku,
             Name = entity.Name,
+            ProductType = entity.ProductType,
+            ManufacturerPartNumber = entity.ManufacturerPartNumber,
             Barcode = entity.Barcode,
             Description = entity.Description,
             Brand = entity.Brand,
+            ImageUrl = entity.ImageUrl,
             Category = entity.Category,
             CategoryId = entity.CategoryId,
             Uom = entity.Uom,
@@ -263,6 +342,7 @@ public class ProductAppService :
             TargetStockLevel = entity.TargetStockLevel,
             UnitPrice = entity.UnitPrice,
             IsActive = entity.IsActive,
+            VariantCount = entity.Variants?.Count ?? 0,
             CreationTime = entity.CreationTime,
             CreatorId = entity.CreatorId,
             LastModificationTime = entity.LastModificationTime,
@@ -274,6 +354,7 @@ public class ProductAppService :
     {
         var entity = await Repository.GetAsync(id);
         var dto = MapToGetOutputDto(entity);
+        dto.VariantCount = await _variantRepository.CountAsync(v => v.ProductId == id);
         if (entity.CategoryId.HasValue)
         {
             var cat = await _categoryRepository.FindAsync(entity.CategoryId.Value);
@@ -305,6 +386,16 @@ public class ProductAppService :
 
         var catMap = categories.ToDictionary(c => c.Id);
 
+        var productIds = entities.Select(e => e.Id).ToList();
+        var variantQuery = await _variantRepository.GetQueryableAsync();
+        var countsList = await AsyncExecuter.ToListAsync(
+            variantQuery
+                .Where(v => productIds.Contains(v.ProductId))
+                .GroupBy(v => v.ProductId)
+                .Select(g => new { ProductId = g.Key, Count = g.Count() })
+        );
+        var variantCounts = countsList.ToDictionary(x => x.ProductId, x => x.Count);
+
         var dtos = entities.Select(e =>
         {
             var dto = MapToGetOutputDto(e);
@@ -312,6 +403,10 @@ public class ProductAppService :
             {
                 dto.CategoryName = cat.Name;
                 dto.CategoryCode = cat.Code;
+            }
+            if (variantCounts.TryGetValue(e.Id, out var count))
+            {
+                dto.VariantCount = count;
             }
             return dto;
         }).ToList();

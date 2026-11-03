@@ -28,18 +28,9 @@ public class WarehouseManagementDbContext :
 
     #region Entities from the modules
 
-    /* Notice: We only implemented IIdentityDbContext and ITenantManagementDbContext
-     * and replaced them for this DbContext. This allows you to perform JOIN
-     * queries for the entities of these modules over the repositories easily. You
-     * typically don't need that for other modules. But, if you need, you can
-     * implement the DbContext interface of the needed module and use ReplaceDbContext
-     * attribute just like IIdentityDbContext and ITenantManagementDbContext.
-     *
-     * More info: Replacing a DbContext of a module ensures that the related module
-     * uses this DbContext on runtime. Otherwise, it will use its own DbContext class.
-     */
+    /* Notice: We only list faculties here, other ABP module entities are added by ABP */
 
-    //Identity
+    // Identity
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
     public DbSet<IdentityClaimType> ClaimTypes { get; set; }
@@ -48,11 +39,16 @@ public class WarehouseManagementDbContext :
     public DbSet<IdentityLinkUser> LinkUsers { get; set; }
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
+
     // Tenant Management
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
-    // Warehouses
+    #endregion
+
+    #region Domain Aggregate Roots & Entities
+
+    // Warehouses & Storage Topology
     public DbSet<WarehouseManagement.Warehouses.Warehouse> Warehouses { get; set; }
     public DbSet<WarehouseManagement.Warehouses.WarehouseZone> WarehouseZones { get; set; }
     public DbSet<WarehouseManagement.Warehouses.WarehouseLocation> WarehouseLocations { get; set; }
@@ -66,13 +62,29 @@ public class WarehouseManagementDbContext :
     // Customers & B2B Clients
     public DbSet<WarehouseManagement.Customers.Customer> Customers { get; set; }
 
-    // Products
+    // Products & Categories
     public DbSet<WarehouseManagement.Products.Category> Categories { get; set; }
     public DbSet<WarehouseManagement.Products.Product> Products { get; set; }
+    public DbSet<WarehouseManagement.Products.ProductVariant> ProductVariants { get; set; }
+    public DbSet<WarehouseManagement.Products.ProductAttribute> ProductAttributes { get; set; }
+    public DbSet<WarehouseManagement.Products.ProductAttributeValue> ProductAttributeValues { get; set; }
+    public DbSet<WarehouseManagement.Products.CategoryAttributeTemplate> CategoryAttributeTemplates { get; set; }
+    public DbSet<WarehouseManagement.Products.ProductVariantAttributeValue> ProductVariantAttributeValues { get; set; }
 
-    // Inventory
+    // Barcode Master & Mapping
+    public DbSet<WarehouseManagement.Barcodes.BarcodeIdentity> BarcodeIdentities { get; set; }
+    public DbSet<WarehouseManagement.Barcodes.SupplierBarcodeMapping> SupplierBarcodeMappings { get; set; }
+    public DbSet<WarehouseManagement.Barcodes.ProductBarcode> ProductBarcodes { get; set; }
+
+    // Inventory, Lots, Serials & Handling Units (LPN)
     public DbSet<WarehouseManagement.Inventory.InventoryItem> InventoryItems { get; set; }
     public DbSet<WarehouseManagement.Inventory.InventoryTransaction> InventoryTransactions { get; set; }
+    public DbSet<WarehouseManagement.Inventory.InventoryLot> InventoryLots { get; set; }
+    public DbSet<WarehouseManagement.Inventory.InventorySerial> InventorySerials { get; set; }
+    public DbSet<WarehouseManagement.Inventory.InventorySerialHistory> InventorySerialHistories { get; set; }
+    public DbSet<WarehouseManagement.Inventory.LicensePlate> LicensePlates { get; set; }
+    public DbSet<WarehouseManagement.Inventory.LicensePlateItem> LicensePlateItems { get; set; }
+    public DbSet<WarehouseManagement.Inventory.LicensePlateSerial> LicensePlateSerials { get; set; }
 
     // Inbound
     public DbSet<WarehouseManagement.Inbound.InboundOrder> InboundOrders { get; set; }
@@ -187,7 +199,7 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Suppliers.SupplierConsts.MaxNotesLength);
 
             b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
-            b.HasIndex(x => new { x.TenantId, x.IsActive });
+            b.HasIndex(x => new { x.TenantId, x.Name });
         });
 
         builder.Entity<WarehouseManagement.Customers.Customer>(b =>
@@ -196,7 +208,6 @@ public class WarehouseManagementDbContext :
             b.ConfigureByConvention();
             b.Property(x => x.Code).IsRequired().HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxCodeLength);
             b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxNameLength);
-            b.Property(x => x.Industry).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxIndustryLength);
             b.Property(x => x.ContactPerson).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxContactPersonLength);
             b.Property(x => x.Email).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxEmailLength);
             b.Property(x => x.PhoneNumber).HasMaxLength(WarehouseManagement.Customers.CustomerConsts.MaxPhoneLength);
@@ -232,6 +243,7 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Warehouses.WarehouseLocationConsts.MaxZoneNameLength);
 
             b.HasIndex(x => new { x.TenantId, x.WarehouseId, x.Code }).IsUnique();
+
             b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
                 .WithMany()
                 .HasForeignKey(x => x.WarehouseId)
@@ -290,20 +302,385 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Sku).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductConsts.MaxSkuLength);
             b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductConsts.MaxNameLength);
             b.Property(x => x.Barcode).HasMaxLength(WarehouseManagement.Products.ProductConsts.MaxBarcodeLength);
+            b.Property(x => x.ManufacturerPartNumber).HasMaxLength(64);
             b.Property(x => x.Description).HasMaxLength(WarehouseManagement.Products.ProductConsts.MaxDescriptionLength);
             b.Property(x => x.Brand).HasMaxLength(WarehouseManagement.Products.ProductConsts.MaxBrandLength);
+            b.Property(x => x.ImageUrl).HasMaxLength(512);
             b.Property(x => x.UnitPrice).HasPrecision(18, 2);
+            b.Property(x => x.WeightKg).HasPrecision(18, 4);
+            b.Property(x => x.VolumeCm3).HasPrecision(18, 4);
+            b.Property(x => x.LengthCm).HasPrecision(18, 3);
+            b.Property(x => x.WidthCm).HasPrecision(18, 3);
+            b.Property(x => x.HeightCm).HasPrecision(18, 3);
 
             b.HasIndex(x => new { x.TenantId, x.Sku }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.Barcode });
             b.HasIndex(x => new { x.TenantId, x.Category });
             b.HasIndex(x => new { x.TenantId, x.CategoryId });
+            b.HasIndex(x => new { x.TenantId, x.ProductType });
 
             b.HasOne<WarehouseManagement.Products.Category>()
                 .WithMany()
                 .HasForeignKey(x => x.CategoryId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WarehouseManagement.Products.ProductVariant>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ProductVariants", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.VariantSku).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductVariantConsts.MaxSkuLength);
+            b.Property(x => x.VariantName).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductVariantConsts.MaxNameLength);
+            b.Property(x => x.CombinationHash).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductVariantConsts.MaxCombinationHashLength);
+            b.Property(x => x.UnitPrice).HasPrecision(18, 2);
+            b.Property(x => x.PurchaseCost).HasPrecision(18, 2);
+            b.Property(x => x.WeightKg).HasPrecision(18, 4);
+            b.Property(x => x.LengthCm).HasPrecision(18, 3);
+            b.Property(x => x.WidthCm).HasPrecision(18, 3);
+            b.Property(x => x.HeightCm).HasPrecision(18, 3);
+            b.Property(x => x.ImageUrl).HasMaxLength(WarehouseManagement.Products.ProductVariantConsts.MaxImageUrlLength);
+
+            b.HasIndex(x => new { x.TenantId, x.VariantSku }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ProductId, x.CombinationHash }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.ProductId }).IsUnique().HasFilter("\"IsDefault\" = TRUE");
+
+            b.HasOne(x => x.Product)
+                .WithMany(x => x.Variants)
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Products.ProductAttribute>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ProductAttributes", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Code).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxCodeLength);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxNameLength);
+            b.Property(x => x.Description).HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxDescriptionLength);
+
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        });
+
+        builder.Entity<WarehouseManagement.Products.ProductAttributeValue>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ProductAttributeValues", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.Value).IsRequired().HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxValueLength);
+            b.Property(x => x.DisplayCode).HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxDisplayCodeLength);
+            b.Property(x => x.ColorHexCode).HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxColorHexCodeLength);
+
+            b.HasIndex(x => new { x.TenantId, x.ProductAttributeId, x.Value }).IsUnique();
+
+            b.HasOne(x => x.ProductAttribute)
+                .WithMany(x => x.Values)
+                .HasForeignKey(x => x.ProductAttributeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Products.CategoryAttributeTemplate>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "CategoryAttributeTemplates", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.HasIndex(x => new { x.TenantId, x.CategoryId, x.ProductAttributeId }).IsUnique();
+
+            b.HasOne(x => x.Category)
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.ProductAttribute)
+                .WithMany()
+                .HasForeignKey(x => x.ProductAttributeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Products.ProductVariantAttributeValue>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ProductVariantAttributeValues", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.CustomValue).HasMaxLength(WarehouseManagement.Products.ProductAttributeConsts.MaxCustomValueLength);
+
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId, x.ProductAttributeId }).IsUnique();
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany(x => x.AttributeValues)
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.ProductAttribute)
+                .WithMany()
+                .HasForeignKey(x => x.ProductAttributeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductAttributeValue)
+                .WithMany()
+                .HasForeignKey(x => x.ProductAttributeValueId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Barcodes.BarcodeIdentity>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "BarcodeIdentities", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.NormalizedBarcode).IsRequired().HasMaxLength(WarehouseManagement.Barcodes.BarcodeConsts.MaxBarcodeLength);
+
+            b.HasIndex(x => new { x.TenantId, x.NormalizedBarcode }).IsUnique().HasFilter("\"IsActive\" = TRUE");
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId });
+            b.HasIndex(x => new { x.TenantId, x.LicensePlateId });
+            b.HasIndex(x => new { x.TenantId, x.WarehouseLocationId });
+            b.HasIndex(x => new { x.TenantId, x.InventoryLotId });
+            b.HasIndex(x => new { x.TenantId, x.InventorySerialId });
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.LicensePlate)
+                .WithMany()
+                .HasForeignKey(x => x.LicensePlateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.WarehouseLocation)
+                .WithMany()
+                .HasForeignKey(x => x.WarehouseLocationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.InventoryLot)
+                .WithMany()
+                .HasForeignKey(x => x.InventoryLotId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.InventorySerial)
+                .WithMany()
+                .HasForeignKey(x => x.InventorySerialId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Barcodes.SupplierBarcodeMapping>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "SupplierBarcodeMappings", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.SupplierPartNumber).HasMaxLength(WarehouseManagement.Barcodes.BarcodeConsts.MaxSupplierPartNumberLength);
+
+            b.HasIndex(x => new { x.TenantId, x.SupplierId, x.BarcodeIdentityId }).IsUnique().HasFilter("\"IsActive\" = TRUE");
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId });
+
+            b.HasOne(x => x.Supplier)
+                .WithMany()
+                .HasForeignKey(x => x.SupplierId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.BarcodeIdentity)
+                .WithMany()
+                .HasForeignKey(x => x.BarcodeIdentityId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Barcodes.ProductBarcode>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "ProductBarcodes", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId }).IsUnique().HasFilter("\"IsPrimary\" = TRUE");
+            b.HasIndex(x => new { x.TenantId, x.BarcodeIdentityId });
+
+            b.HasOne(x => x.BarcodeIdentity)
+                .WithMany()
+                .HasForeignKey(x => x.BarcodeIdentityId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany(x => x.Barcodes)
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.InventoryLot>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "InventoryLots", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.LotNumber).IsRequired().HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLotBatchNumberLength);
+            b.Property(x => x.SupplierLotNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLotBatchNumberLength);
+            b.Property(x => x.CertificateUrl).HasMaxLength(512);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxNotesLength);
+
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId, x.LotNumber }).IsUnique();
+
+            b.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.InventorySerial>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "InventorySerials", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.SerialNumber).IsRequired().HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxSerialNumberLength);
+
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId, x.SerialNumber }).IsUnique();
+
+            b.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.CurrentWarehouse)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentWarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.CurrentLocation)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentLocationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne(x => x.CurrentLicensePlate)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentLicensePlateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.InventorySerialHistory>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "InventorySerialHistories", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.ReferenceDocumentNumber).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxReferenceNumberLength);
+            b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxNotesLength);
+
+            b.HasIndex(x => new { x.TenantId, x.SerialId });
+            b.HasIndex(x => new { x.TenantId, x.EventTime });
+
+            b.HasOne(x => x.Serial)
+                .WithMany()
+                .HasForeignKey(x => x.SerialId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.LicensePlate>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "LicensePlates", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.LpnCode).IsRequired().HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLpnLength);
+            b.Property(x => x.TareWeightKg).HasPrecision(18, 4);
+            b.Property(x => x.MaxWeightKg).HasPrecision(18, 4);
+
+            b.HasIndex(x => new { x.TenantId, x.LpnCode }).IsUnique();
+
+            b.HasOne(x => x.CurrentWarehouse)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentWarehouseId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.CurrentLocation)
+                .WithMany()
+                .HasForeignKey(x => x.CurrentLocationId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.LicensePlateItem>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "LicensePlateItems", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.QuantityOnHand).HasPrecision(18, 4);
+
+            b.HasIndex(x => new { x.TenantId, x.LicensePlateId, x.ProductVariantId, x.LotId }).IsUnique();
+
+            b.HasOne(x => x.LicensePlate)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.LicensePlateId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Lot)
+                .WithMany()
+                .HasForeignKey(x => x.LotId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<WarehouseManagement.Inventory.LicensePlateSerial>(b =>
+        {
+            b.ToTable(WarehouseManagementConsts.DbTablePrefix + "LicensePlateSerials", WarehouseManagementConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.HasIndex(x => new { x.TenantId, x.SerialId }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.LicensePlateId });
+
+            b.HasOne(x => x.LicensePlate)
+                .WithMany(x => x.Serials)
+                .HasForeignKey(x => x.LicensePlateId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Serial)
+                .WithMany()
+                .HasForeignKey(x => x.SerialId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<WarehouseManagement.Inventory.InventoryItem>(b =>
@@ -317,34 +694,63 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Lpn).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLpnLength);
 
             b.HasIndex(x => new { x.TenantId, x.WarehouseId, x.LocationId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.WarehouseId, x.LocationId, x.ProductVariantId });
             b.HasIndex(x => new { x.TenantId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.ProductVariantId });
+            b.HasIndex(x => new { x.TenantId, x.LotId });
+            b.HasIndex(x => new { x.TenantId, x.SerialId });
+            b.HasIndex(x => new { x.TenantId, x.LicensePlateId });
             b.HasIndex(x => new { x.TenantId, x.LotBatchNumber });
             b.HasIndex(x => new { x.TenantId, x.SerialNumber });
             b.HasIndex(x => new { x.TenantId, x.Lpn });
 
-            b.HasOne<WarehouseManagement.Warehouses.Warehouse>()
+            b.HasOne(x => x.Warehouse)
                 .WithMany()
                 .HasForeignKey(x => x.WarehouseId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne<WarehouseManagement.Warehouses.WarehouseZone>()
+            b.HasOne(x => x.Zone)
                 .WithMany()
                 .HasForeignKey(x => x.ZoneId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne<WarehouseManagement.Warehouses.WarehouseLocation>()
+            b.HasOne(x => x.Location)
                 .WithMany()
                 .HasForeignKey(x => x.LocationId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Lot)
+                .WithMany()
+                .HasForeignKey(x => x.LotId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Serial)
+                .WithMany()
+                .HasForeignKey(x => x.SerialId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.LicensePlate)
+                .WithMany()
+                .HasForeignKey(x => x.LicensePlateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<WarehouseManagement.Inventory.InventoryTransaction>(b =>
@@ -359,8 +765,39 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Notes).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxNotesLength);
 
             b.HasIndex(x => new { x.TenantId, x.WarehouseId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.WarehouseId, x.ProductVariantId });
             b.HasIndex(x => new { x.TenantId, x.TransactionTime });
             b.HasIndex(x => new { x.TenantId, x.ReferenceNumber });
+
+            b.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Lot)
+                .WithMany()
+                .HasForeignKey(x => x.LotId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Serial)
+                .WithMany()
+                .HasForeignKey(x => x.SerialId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.LicensePlate)
+                .WithMany()
+                .HasForeignKey(x => x.LicensePlateId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<WarehouseManagement.Inbound.InboundOrder>(b =>
@@ -398,11 +835,18 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.UnitPrice).HasPrecision(18, 2);
 
             b.HasIndex(x => new { x.TenantId, x.InboundOrderId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.InboundOrderId, x.ProductVariantId });
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -449,11 +893,18 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.UnitPrice).HasPrecision(18, 2);
 
             b.HasIndex(x => new { x.TenantId, x.OutboundOrderId, x.ProductId });
+            b.HasIndex(x => new { x.TenantId, x.OutboundOrderId, x.ProductVariantId });
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -505,11 +956,18 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.Lpn).HasMaxLength(WarehouseManagement.Inventory.InventoryConsts.MaxLpnLength);
 
             b.HasIndex(x => new { x.StockTransferId, x.ProductId });
+            b.HasIndex(x => new { x.StockTransferId, x.ProductVariantId });
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -552,14 +1010,21 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.ReasonNotes).HasMaxLength(WarehouseManagement.Audits.AuditConsts.MaxReasonNotesLength);
 
             b.HasIndex(x => new { x.CycleCountAuditId, x.ProductId, x.LocationId });
+            b.HasIndex(x => new { x.CycleCountAuditId, x.ProductVariantId, x.LocationId });
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne<WarehouseManagement.Warehouses.WarehouseLocation>()
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.Location)
                 .WithMany()
                 .HasForeignKey(x => x.LocationId)
                 .IsRequired()
@@ -621,11 +1086,18 @@ public class WarehouseManagementDbContext :
             b.Property(x => x.InspectionNotes).HasMaxLength(WarehouseManagement.Returns.RmaConsts.MaxInspectionNotesLength);
 
             b.HasIndex(x => new { x.ReturnOrderId, x.ProductId });
+            b.HasIndex(x => new { x.ReturnOrderId, x.ProductVariantId });
 
-            b.HasOne<WarehouseManagement.Products.Product>()
+            b.HasOne(x => x.Product)
                 .WithMany()
                 .HasForeignKey(x => x.ProductId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.ProductVariant)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             b.HasOne<WarehouseManagement.Warehouses.WarehouseLocation>()

@@ -8,6 +8,8 @@ public class CreateInboundOrderLineDto
     [Required]
     public Guid ProductId { get; set; }
 
+    public Guid? ProductVariantId { get; set; }
+
     [Required]
     [Range(0.0001, double.MaxValue, ErrorMessage = "Expected quantity must be greater than zero.")]
     public decimal ExpectedQuantity { get; set; }

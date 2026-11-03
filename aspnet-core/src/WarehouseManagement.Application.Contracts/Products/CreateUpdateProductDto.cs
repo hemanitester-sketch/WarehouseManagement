@@ -17,11 +17,19 @@ public class CreateUpdateProductDto
     [StringLength(ProductConsts.MaxBarcodeLength)]
     public string? Barcode { get; set; }
 
+    public ProductType ProductType { get; set; } = ProductType.Simple;
+
+    [StringLength(ProductConsts.MaxManufacturerPartNumberLength)]
+    public string? ManufacturerPartNumber { get; set; }
+
     [StringLength(ProductConsts.MaxDescriptionLength)]
     public string? Description { get; set; }
 
     [StringLength(ProductConsts.MaxBrandLength)]
     public string? Brand { get; set; }
+
+    [StringLength(512)]
+    public string? ImageUrl { get; set; }
 
     public ProductCategory Category { get; set; } = ProductCategory.General;
 
@@ -35,15 +43,15 @@ public class CreateUpdateProductDto
 
     public bool IsSerialTracked { get; set; } = false;
 
-    public double WeightKg { get; set; } = 0;
+    public decimal WeightKg { get; set; } = 0;
 
-    public double VolumeCm3 { get; set; } = 0;
+    public decimal VolumeCm3 { get; set; } = 0;
 
-    public double? LengthCm { get; set; }
+    public decimal? LengthCm { get; set; }
 
-    public double? WidthCm { get; set; }
+    public decimal? WidthCm { get; set; }
 
-    public double? HeightCm { get; set; }
+    public decimal? HeightCm { get; set; }
 
     public WarehouseZoneStorageType RequiredStorageType { get; set; } = WarehouseZoneStorageType.Ambient;
 

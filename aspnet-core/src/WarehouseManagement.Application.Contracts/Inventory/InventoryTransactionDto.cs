@@ -7,6 +7,9 @@ public class InventoryTransactionDto : EntityDto<Guid>
 {
     public Guid WarehouseId { get; set; }
     public Guid ProductId { get; set; }
+    public Guid? ProductVariantId { get; set; }
+    public string? VariantSku { get; set; }
+    public string? VariantName { get; set; }
     public Guid? FromLocationId { get; set; }
     public Guid? ToLocationId { get; set; }
     public decimal Quantity { get; set; }

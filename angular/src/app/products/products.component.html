@@ -1,19 +1,42 @@
-<div class="container-fluid products-container">
+<div class="container-fluid products-container" appBarcodeScanner (barcodeScanned)="onBarcodeScanned($event)">
   <!-- Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
       <div class="d-flex align-items-center gap-2">
-        <h2 class="h4 font-weight-bold text-dark mb-0">Product & SKU Master</h2>
+        <h2 class="h4 font-weight-bold text-dark mb-0">Product & Variant Master</h2>
         <span class="wms-badge wms-badge-primary products-badge-catalog">Multi-Industry Catalog</span>
-      </div>
-      <p class="text-muted small mb-0 mt-0.5 products-subtitle">
-        Manage item catalog, tracking parameters (Lot/Batch, Expiry, Serial numbers), and cold-chain temperature limits.
-      </p>
+      </div>     
     </div>
-    <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateModal()">
-      <i class="fas fa-plus pe-1"></i>
-      <span>Add New SKU</span>
-    </button>
+    
+    <div class="d-flex align-items-center gap-2">
+      <!-- Quick Barcode Scan & Lookup Input (Unified Integrated Control) -->
+      <div class="barcode-quick-scan-wrapper d-flex align-items-center">
+        <span class="barcode-scan-icon">
+          <i class="fas fa-barcode"></i>
+        </span>
+        <input
+          type="text"
+          class="barcode-scan-input flex-grow-1"
+          placeholder="Scan barcode (Wedge ready)..."
+          [(ngModel)]="quickScanInput"
+          (keydown.enter)="triggerQuickLookup()"
+        />
+        <button 
+          class="btn btn-barcode-lookup d-inline-flex align-items-center gap-1" 
+          type="button" 
+          (click)="triggerQuickLookup()" 
+          title="Resolve Barcode"
+        >
+          <i class="fas fa-search"></i>
+          <span>Lookup</span>
+        </button>
+      </div>
+
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openCreateModal()">
+        <i class="fas fa-plus pe-1"></i>
+        <span>Register New Product</span>
+      </button>
+    </div>
   </div>
 
   <!-- Metric KPI Cards -->
@@ -25,7 +48,7 @@
         </div>
         <div class="metric-content">
           <div class="metric-value kpi-value-compact">{{ products.length }}</div>
-          <div class="metric-label kpi-label-compact">Total SKUs in Catalog</div>
+          <div class="metric-label kpi-label-compact">Total Products in Catalog</div>
         </div>
       </div>
     </div>
@@ -33,11 +56,11 @@
     <div class="col-12 col-sm-6 col-xl-3">
       <div class="wms-metric-card kpi-card-compact">
         <div class="metric-icon kpi-icon-compact kpi-icon-blue">
-          <i class="fas fa-snowflake"></i>
+          <i class="fas fa-sitemap"></i>
         </div>
         <div class="metric-content">
-          <div class="metric-value kpi-value-compact">Cold-Chain</div>
-          <div class="metric-label kpi-label-compact">Pharma & Perishables (2°C-8°C)</div>
+          <div class="metric-value kpi-value-compact">Matrix Engine</div>
+          <div class="metric-label kpi-label-compact">Variant & Attribute Generation</div>
         </div>
       </div>
     </div>
@@ -48,8 +71,8 @@
           <i class="fas fa-barcode"></i>
         </div>
         <div class="metric-content">
-          <div class="metric-value kpi-value-compact">Barcoded</div>
-          <div class="metric-label kpi-label-compact">Automated Inbound Scanning</div>
+          <div class="metric-value kpi-value-compact">Code 128 / GS1</div>
+          <div class="metric-label kpi-label-compact">Canonical & Supplier Barcodes</div>
         </div>
       </div>
     </div>
@@ -60,17 +83,17 @@
           <i class="fas fa-calendar-check"></i>
         </div>
         <div class="metric-content">
-          <div class="metric-value kpi-value-compact">FEFO Ready</div>
-          <div class="metric-label kpi-label-compact">Lot & Expiry Tracking</div>
+          <div class="metric-value kpi-value-compact">FEFO & Cold Chain</div>
+          <div class="metric-label kpi-label-compact">Lot, Expiry & Serial Tracking</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Search & Filter -->
+  <!-- Search & Filter Row -->
   <div class="wms-card p-2 px-3 mb-3">
     <div class="row g-2 align-items-center">
-      <div class="col-12 col-md-6 col-lg-5">
+      <div class="col-12 col-md-5 col-lg-5">
         <div class="wms-search-input">
           <i class="fas fa-search"></i>
           <input 
@@ -82,14 +105,15 @@
           />
         </div>
       </div>
-      <div class="col-12 col-md-4 col-lg-3">
+      <div class="col-12 col-md-4 col-lg-4">
+        <!-- Category Filter Dropdown with matched width and styled active option -->
         <select 
-          class="form-select form-select-sm" 
+          class="form-select form-select-sm product-category-filter" 
           [(ngModel)]="selectedCategoryFilter" 
           (ngModelChange)="applyFilter()"
         >
           <option [ngValue]="null">All Categories</option>
-          <optgroup label="Custom Categories & Subcategories" *ngIf="categoryLookups.length > 0">
+          <optgroup label="Categories & Subcategories" *ngIf="categoryLookups.length > 0">
             <option *ngFor="let c of categoryLookups" [ngValue]="c.id">{{ c.displayName }}</option>
           </optgroup>
           <optgroup label="Default Categories">
@@ -97,7 +121,7 @@
           </optgroup>
         </select>
       </div>
-      <div class="col-12 col-md-2 col-lg-4 text-md-end">
+      <div class="col-12 col-md-3 col-lg-3 text-md-end">
         <span class="text-muted showing-count">
           Showing <strong>{{ filteredProducts.length }}</strong> of {{ products.length }} items
         </span>
@@ -105,87 +129,241 @@
     </div>
   </div>
 
-  <!-- Loading -->
+  <!-- Loading State -->
   <div *ngIf="isLoading" class="text-center py-4">
     <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
-    <p class="text-muted small mt-2 mb-0">Loading product catalog...</p>
+    <p class="text-muted small mt-2 mb-0">Loading product catalog & variants...</p>
   </div>
 
-  <!-- Table (Compact Grid Mode) -->
+  <!-- Table (Compact Grid Mode with Variant Support) -->
   <div *ngIf="!isLoading && filteredProducts.length > 0" class="card products-table-card overflow-hidden">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0 wms-table products-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 230px; min-width: 220px; white-space: nowrap;">SKU & Barcode</th>
-            <th>Product Name</th>
-            <th style="width: 140px;">Category</th>
+            <th class="ps-3 text-center" style="width: 38px; min-width: 38px;">
+              <input 
+                type="checkbox" 
+                class="form-check-input mt-0 cursor-pointer" 
+                [checked]="isAllSelected()" 
+                [indeterminate]="isPartiallySelected()" 
+                (change)="toggleSelectAll($event)" 
+                title="Select All"
+              />
+            </th>
+            <th class="text-center" style="width: 60px; min-width: 60px;">Image</th>
+            <th class="product-name-cell">Product / Variant</th>
+            <th style="width: 170px; min-width: 150px;">SKU</th>
+            <th style="width: 170px; min-width: 150px;">Barcode</th>
+            <th class="category-name-cell">Category</th>
+            <th style="width: 130px; min-width: 140px;">Variants</th>
             <th style="width: 110px;">Unit Price</th>
             <th style="width: 80px;">UOM</th>
-            <th style="width: 130px;">Tracking</th>
-            <th style="width: 140px;">Storage & Temp</th>
-            <th style="width: 110px;">Status</th>
-            <th class="text-end pe-3" style="width: 80px;">Action</th>
+            <th style="width: 150px; min-width: 150px;">Tracking</th>
+            <th style="width: 130px; min-width: 130px;">Storage & Temp</th>
+            <!-- Clean Status Column Header -->
+            <th style="width: 95px;">Status</th>
+            <th class="text-end pe-3" style="width: 95px;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of paginatedProducts">
-            <td class="ps-3" style="width: 230px; min-width: 220px; white-space: nowrap;">
-              <span class="product-cell-text d-block font-monospace fw-semibold text-nowrap">{{ p.sku }}</span>
-              <small class="product-cell-subtext text-nowrap"><i class="fas fa-barcode me-1"></i>{{ p.barcode || 'N/A' }}</small>
-            </td>
-            <td>
-              <span class="product-cell-text d-block">{{ p.name }}</span>
-              <small class="product-cell-subtext">{{ p.brand || 'Standard' }}</small>
-            </td>
-            <td>
-              <span class="product-cell-text">{{ p.categoryName || getCategoryLabel(p.category) }}</span>
-            </td>
-            <td>
-              <span class="product-cell-text font-monospace">₹{{ p.unitPrice | number:'1.2-2' }}</span>
-            </td>
-            <td>
-              <span class="product-cell-text">{{ getUomLabel(p.uom) }}</span>
-            </td>
-            <td>
-              <div class="d-flex gap-1 flex-wrap">
-                <span *ngIf="p.isLotTracked" class="badge-tag-lot">Lot</span>
-                <span *ngIf="p.isExpiryTracked" class="badge-tag-expiry">Expiry</span>
-                <span *ngIf="p.isSerialTracked" class="badge-tag-serial">Serial</span>
-                <span *ngIf="!p.isLotTracked && !p.isExpiryTracked && !p.isSerialTracked" class="product-cell-subtext">—</span>
-              </div>
-            </td>
-            <td>
-              <span class="product-cell-text d-block">{{ getStorageTypeLabel(p.requiredStorageType) }}</span>
-              <small class="product-cell-subtext" *ngIf="p.temperatureMinCelsius !== null">
-                ❄️ {{ p.temperatureMinCelsius }}° - {{ p.temperatureMaxCelsius }}°C
-              </small>
-              <small class="product-cell-subtext" *ngIf="p.temperatureMinCelsius === null">Ambient</small>
-            </td>
-            <td>
-              <span class="product-status-badge" [ngClass]="p.isActive ? 'active' : 'inactive'">
-                <i class="fas" [ngClass]="p.isActive ? 'fa-check-circle' : 'fa-minus-circle'"></i>
-                {{ p.isActive ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="text-end pe-3">
-              <div class="d-inline-flex align-items-center justify-content-end">
-                <button 
-                  type="button" 
-                  class="btn btn-table-action btn-edit"
-                  (click)="openEditModal(p)"
-                  title="Edit Product Details"
-                >
-                  <i class="fas fa-pen"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
+          <ng-container *ngFor="let p of paginatedProducts">
+            <tr>
+              <!-- 1. Multi-Select Checkbox -->
+              <td class="ps-3 text-center" style="width: 38px; min-width: 38px;">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input mt-0 cursor-pointer" 
+                  [checked]="isProductSelected(p.id)" 
+                  (change)="toggleSelectProduct(p.id)" 
+                />
+              </td>
+              <!-- 2. Image -->
+              <td class="text-center" style="width: 60px;">
+                <div class="product-grid-thumb">
+                  <img *ngIf="p.imageUrl" [src]="resolveImageUrl(p.imageUrl)" [alt]="p.name" class="img-fluid rounded" />
+                  <i *ngIf="!p.imageUrl" class="fas fa-box text-muted"></i>
+                </div>
+              </td>
+              <!-- 3. Product / Variant -->
+              <td class="product-name-cell">
+                <div>
+                  <span class="product-cell-text product-title-text fw-semibold" [title]="p.name">{{ p.name }}</span>
+                  <div class="d-flex align-items-center gap-1 mt-0" *ngIf="p.brand">                  
+                    <small class="product-cell-subtext product-brand-text" [title]="p.brand">• {{ p.brand }}</small>
+                  </div>
+                </div>
+              </td>
+              <!-- 4. SKU -->
+              <td style="width: 170px;">
+                <span class="product-cell-text font-monospace fw-semibold">{{ p.sku }}</span>
+              </td>
+              <!-- 5. Barcode -->
+              <td style="width: 170px;">
+                <span class="product-cell-subtext font-monospace text-nowrap">
+                  <i class="fas fa-barcode me-1 text-muted"></i>{{ p.barcode || 'Internal Code 128' }}
+                </span>
+              </td>
+              <!-- 6. Category -->
+              <td class="category-name-cell">
+                <span class="product-cell-text category-text" [title]="p.categoryName || getCategoryLabel(p.category)">
+                  {{ p.categoryName || getCategoryLabel(p.category) }}
+                </span>
+              </td>
+              <!-- 7. Variants Column (Clickable Count to expand/collapse) -->
+              <td style="width: 140px;">
+                <div *ngIf="p.productType === ProductType.VariantBased">
+                  <button 
+                    type="button" 
+                    class="btn btn-sm variant-toggle-badge d-inline-flex align-items-center gap-1"
+                    [class.active]="expandedProductId === p.id"
+                    (click)="toggleExpandVariants(p)"
+                    [title]="expandedProductId === p.id ? 'Collapse Variants' : 'Expand Variants'"
+                  >
+                    <span>{{ getVariantCount(p) }} {{ getVariantCount(p) === 1 ? 'Variant' : 'Variants' }}</span>
+                    <i class="fas" [ngClass]="expandedProductId === p.id ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                  </button>
+                </div>
+                <div *ngIf="p.productType !== ProductType.VariantBased">
+                  <span class="product-cell-subtext text-muted">—</span>
+                </div>
+              </td>
+              <!-- 8. Unit Price -->
+              <td style="width: 110px;">
+                <span class="product-cell-text font-monospace">₹{{ p.unitPrice | number:'1.2-2' }}</span>
+              </td>
+              <!-- 9. UOM -->
+              <td style="width: 80px;">
+                <span class="product-cell-text">{{ getUomLabel(p.uom) }}</span>
+              </td>
+              <!-- 10. Tracking -->
+              <td style="width: 150px; min-width: 150px;">
+                <div class="d-flex gap-1 flex-nowrap align-items-center">
+                  <span *ngIf="p.isLotTracked" class="badge-tag-lot">Lot</span>
+                  <span *ngIf="p.isExpiryTracked" class="badge-tag-expiry">Expiry</span>
+                  <span *ngIf="p.isSerialTracked" class="badge-tag-serial">Serial</span>
+                  <span *ngIf="!p.isLotTracked && !p.isExpiryTracked && !p.isSerialTracked" class="product-cell-subtext">—</span>
+                </div>
+              </td>
+              <!-- 11. Storage & Temp -->
+              <td style="width: 130px; min-width: 130px;">
+                <span class="product-cell-text d-block text-nowrap fw-medium">{{ getStorageTypeLabel(p.requiredStorageType) }}</span>
+                <small class="product-cell-subtext text-nowrap d-block" *ngIf="p.temperatureMinCelsius !== null">
+                  ❄️ {{ p.temperatureMinCelsius }}° - {{ p.temperatureMaxCelsius }}°C
+                </small>
+                <small class="product-cell-subtext text-nowrap d-block" *ngIf="p.temperatureMinCelsius === null">Ambient</small>
+              </td>
+              <!-- 12. Status -->
+              <td style="width: 95px;">
+                <span class="product-status-badge" [ngClass]="p.isActive ? 'active' : 'inactive'">
+                  {{ p.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <!-- 13. Action -->
+              <td class="text-end pe-3" style="width: 95px;">
+                <div class="d-inline-flex align-items-center gap-1">
+                  <!-- Print Barcode Label -->
+                  <button 
+                    type="button" 
+                    class="btn btn-table-action btn-print"
+                    (click)="openPrintLabelModal(p)"
+                    title="Print Barcode Label"
+                  >
+                    <i class="fas fa-print"></i>
+                  </button>
+                  <!-- Edit Product / Variants -->
+                  <button 
+                    type="button" 
+                    class="btn btn-table-action btn-edit"
+                    (click)="openEditModal(p)"
+                    title="Edit Product & Variants"
+                  >
+                    <i class="fas fa-pen"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Expanded Variants: Rendered Directly in Parent Grid Rows Using Parent Headers -->
+            <ng-container *ngIf="expandedProductId === p.id">
+              <tr *ngFor="let v of expandedProductVariants[p.id!]" class="variant-child-row">
+                <!-- 1. Multi-Select Checkbox Spacer -->
+                <td class="ps-3 text-center variant-child-cell"></td>
+                <!-- 2. Variant Thumbnail -->
+                <td class="text-center variant-child-cell">
+                  <div class="variant-grid-thumb">
+                    <img *ngIf="v.imageUrl || p.imageUrl" [src]="resolveImageUrl(v.imageUrl || p.imageUrl)" [alt]="v.variantName" class="img-fluid rounded" />
+                    <i *ngIf="!v.imageUrl && !p.imageUrl" class="fas fa-tags text-muted"></i>
+                  </div>
+                </td>
+                <!-- 3. Product / Variant -->
+                <td class="variant-child-cell product-name-cell">
+                  <div class="d-flex align-items-center gap-2">                    
+                    <span class="product-cell-text product-title-text fw-medium text-dark" [title]="v.variantName || 'Default Variant'">{{ v.variantName || 'Default Variant' }}</span>
+                    <span *ngIf="v.isDefault" class="badge bg-light text-secondary border font-monospace flex-shrink-0" style="font-size: 0.62rem;">Default</span>
+                  </div>
+                </td>
+                <!-- 4. SKU -->
+                <td class="variant-child-cell">
+                  <span class="product-cell-text font-monospace text-primary fw-medium">{{ v.sku }}</span>
+                </td>
+                <!-- 5. Barcode -->
+                <td class="variant-child-cell">
+                  <span class="product-cell-subtext font-monospace text-nowrap">
+                    <i class="fas fa-barcode me-1 text-muted"></i>{{ v.primaryBarcode || 'N/A' }}
+                  </span>
+                </td>
+                <!-- 6. Category -->
+                <td class="variant-child-cell text-muted small category-name-cell">—</td>
+                <!-- 7. Variants Column -->
+                <td class="variant-child-cell text-muted small">—</td>
+                <!-- 8. Unit Price -->
+                <td class="variant-child-cell">
+                  <span class="product-cell-text font-monospace">₹{{ v.sellingPrice | number:'1.2-2' }}</span>
+                </td>
+                <!-- 9. UOM -->
+                <td class="variant-child-cell text-muted small">{{ getUomLabel(p.uom) }}</td>
+                <!-- 10. Tracking -->
+                <td class="variant-child-cell text-muted small" style="width: 220px; min-width: 200px;">—</td>
+                <!-- 11. Storage & Temp -->
+                <td class="variant-child-cell text-muted small" style="width: 190px; min-width: 185px;">—</td>
+                <!-- 12. Status -->
+                <td class="variant-child-cell">
+                  <span class="product-status-badge" [ngClass]="v.isActive ? 'active' : 'inactive'">
+                    {{ v.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <!-- 13. Action -->
+                <td class="variant-child-cell text-end pe-3">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <button 
+                      type="button" 
+                      class="btn btn-table-action btn-print"
+                      (click)="openPrintLabelModal(p, v)"
+                      title="Print Variant Barcode Label"
+                    >
+                      <i class="fas fa-print"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- If no variants exist yet -->
+              <tr *ngIf="!expandedProductVariants[p.id!] || expandedProductVariants[p.id!].length === 0" class="variant-child-row">
+                <td colspan="13" class="py-2 text-center text-muted small bg-light">
+                  <i class="fas fa-info-circle me-1 text-primary"></i>No variants registered yet.
+                  <a href="javascript:void(0)" class="text-primary text-decoration-none fw-semibold ms-1" (click)="openEditModal(p); switchDrawerTab('variants')">
+                    <i class="fas fa-plus me-1"></i>Add Variants
+                  </a>
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
         </tbody>
       </table>
     </div>
 
-    <!-- Universal Table Pagination Footer (50 Limit default) -->
+    <!-- Universal Table Pagination Footer -->
     <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
       <div class="d-flex align-items-center gap-2">
         <span class="pagination-info">
@@ -204,7 +382,6 @@
         </div>
       </div>
 
-      <!-- Pagination Controls -->
       <div class="d-flex align-items-center gap-1">
         <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
           <i class="fas fa-chevron-left me-1"></i> Prev
@@ -224,220 +401,714 @@
     <i class="fas fa-boxes text-muted fa-3x mb-3"></i>
     <h5 class="font-weight-bold text-dark">No products found</h5>
     <p class="text-muted small mx-auto empty-state-desc">
-      Your catalog is currently empty or no items match your search filter. Register your first SKU to get started.
+      Your catalog is currently empty or no items match your search filter. Register your first product to get started.
     </p>
     <button class="btn btn-wms-primary btn-sm" (click)="openCreateModal()">
-      <i class="fas fa-plus me-1"></i> Register New SKU
+      <i class="fas fa-plus me-1"></i> Register New Product
     </button>
   </div>
 
-  <!-- Modal: Create / Edit Product (Right-Side Full-Height Drawer) -->
+  <!-- Modal: Create / Edit Product (Full-Height Enterprise Drawer) -->
   <div *ngIf="isCreateModalOpen" class="modal fade show d-block product-drawer-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closeCreateModal()">
     <div class="modal-dialog product-drawer-dialog" role="document" (click)="$event.stopPropagation()">
       <div class="modal-content border-0 product-modal-content">
         
-        <!-- Header (Purple / Indigo Gradient - NO BLACK) -->
-        <div class="wms-modal-header d-flex justify-content-between align-items-center product-modal-header">
-          <div class="d-flex align-items-center gap-3">
-            <div class="wms-modal-icon-badge">
-              <i class="fas" [ngClass]="editingProductId ? 'fa-edit text-white' : 'fa-box-open text-white'"></i>
-            </div>
+        <!-- Header -->
+        <div class="wms-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">           
             <div>
               <h5 class="modal-title font-weight-bold text-white mb-0">
-                {{ editingProductId ? 'Edit SKU Product' : 'Register New SKU Product' }}
-              </h5>
-              <p class="small text-white-50 mb-0 mt-0.5">
-                {{ editingProductId ? 'Update item details, pricing, storage criteria, and active status' : 'Configure item identity, pricing, storage requirements, and tracking rules' }}
-              </p>
+                {{ editingProductId ? 'Edit Product & Variants' : 'Add New Product' }}
+              </h5>              
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="closeCreateModal()"></button>
         </div>
 
+        <!-- Drawer Navigation Tabs (Buttons Style, No Icons) -->
+        <div class="drawer-tabs-bar bg-white px-3 py-2">
+          <div class="d-flex align-items-center gap-2">
+            <button 
+              type="button" 
+              class="btn drawer-tab-btn" 
+              [class.active]="activeDrawerTab === 'basic'" 
+              (click)="switchDrawerTab('basic')"
+            >
+              Basic Info
+            </button>
+            <button 
+              *ngIf="newProduct.productType === ProductType.VariantBased || (editingProductId && existingVariants.length > 0)"
+              type="button" 
+              class="btn drawer-tab-btn" 
+              [class.active]="activeDrawerTab === 'variants'" 
+              (click)="switchDrawerTab('variants')"
+            >
+              <span>Attributes & Variants</span>
+              <span *ngIf="existingVariants.length > 0" class="tab-count-badge ms-1">{{ existingVariants.length }}</span>
+            </button>
+            <button 
+              *ngIf="editingProductId"
+              type="button" 
+              class="btn drawer-tab-btn" 
+              [class.active]="activeDrawerTab === 'barcodes'" 
+              (click)="switchDrawerTab('barcodes')"
+            >
+              <span>Supplier Barcodes</span>
+              <span *ngIf="supplierMappings.length > 0" class="tab-count-badge ms-1">{{ supplierMappings.length }}</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Body -->
-        <div class="modal-body px-4 py-3 product-modal-body">
+        <div class="modal-body px-4 py-2 product-modal-body">
           
-          <!-- Section 1: Identification -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-tag text-primary"></i>
-            <span>Product Identification</span>
-          </div>
+          <!-- TAB 1: BASIC PRODUCT INFORMATION -->
+          <div *ngIf="activeDrawerTab === 'basic'">
+            <!-- Product Architecture Type (Heading + Two Radio Cards in One Row) -->
+            <div class="mb-2">
+              <label class="wms-compact-label font-weight-bold mb-1">Product Architecture Type*</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div 
+                    class="product-arch-card d-flex align-items-center" 
+                    [class.selected]="newProduct.productType === ProductType.Simple"
+                    (click)="newProduct.productType = ProductType.Simple"
+                  >
+                    <input 
+                      class="form-check-input mt-0 me-2 cursor-pointer" 
+                      type="radio" 
+                      name="prodType" 
+                      id="typeSimple" 
+                      [value]="ProductType.Simple" 
+                      [(ngModel)]="newProduct.productType"
+                    />
+                    <label class="form-check-label text-dark small fw-medium cursor-pointer mb-0" for="typeSimple">
+                      Simple Product (Single SKU)
+                    </label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div 
+                    class="product-arch-card d-flex align-items-center" 
+                    [class.selected]="newProduct.productType === ProductType.VariantBased"
+                    (click)="newProduct.productType = ProductType.VariantBased"
+                  >
+                    <input 
+                      class="form-check-input mt-0 me-2 cursor-pointer" 
+                      type="radio" 
+                      name="prodType" 
+                      id="typeVariant" 
+                      [value]="ProductType.VariantBased" 
+                      [(ngModel)]="newProduct.productType"
+                    />
+                    <label class="form-check-label text-dark small fw-medium cursor-pointer mb-0" for="typeVariant">
+                      Variant-Based Product
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <!-- Active Status Switch on Edit -->
-          <div *ngIf="editingProductId" class="mb-2 p-2 px-3 rounded border d-flex justify-content-between align-items-center tracking-rules-card">
-            <div class="d-flex align-items-center gap-2">
-              <span class="font-weight-bold text-dark small">Status:</span>
-              <span class="wms-badge" [ngClass]="newProduct.isActive ? 'wms-badge-success' : 'wms-badge-danger'">
-                {{ newProduct.isActive ? 'Active' : 'Inactive' }}
-              </span>
-            </div>
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input" type="checkbox" id="chkActive" [(ngModel)]="newProduct.isActive" />
-              <label class="form-check-label small font-weight-bold text-dark" for="chkActive">
-                {{ newProduct.isActive ? 'Available for Inventory & Orders' : 'Archived / Deactivated' }}
-              </label>
-            </div>
-          </div>
-          <div class="row g-2 mb-3">
-            <div class="col-md-4">
-              <label class="wms-compact-label">SKU Code *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-barcode input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. MED-PARA-650" [(ngModel)]="newProduct.sku" />
+            <!-- Active Status Switch on Edit -->
+            <div *ngIf="editingProductId" class="mb-3 p-2 px-3 rounded border d-flex justify-content-between align-items-center tracking-rules-card">
+              <div class="d-flex align-items-center gap-2">
+                <span class="font-weight-bold text-dark small">Catalog Status:</span>
+                <span class="product-status-badge" [ngClass]="newProduct.isActive ? 'active' : 'inactive'">
+                  {{ newProduct.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="chkActive" [(ngModel)]="newProduct.isActive" />
+                <label class="form-check-label small font-weight-bold text-dark" for="chkActive">
+                  {{ newProduct.isActive ? 'Available for Inventory & Orders' : 'Archived / Deactivated' }}
+                </label>
               </div>
             </div>
-            <div class="col-md-8">
-              <label class="wms-compact-label">Product Name *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-tag input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Paracetamol 650mg Dolo Tablets" [(ngModel)]="newProduct.name" />
+
+            <!-- SECTION 1: Product Identity -->           
+            <div class="row g-2 mb-2">
+              <!-- Product Image (Left) -->
+              <div class="col-md-3 d-flex flex-column">
+                <label class="wms-compact-label">Product Image</label>
+                <div class="product-image-upload-box flex-grow-1 position-relative">
+                  <img *ngIf="newProduct.imageUrl" [src]="resolveImageUrl(newProduct.imageUrl)" alt="Preview" class="uploaded-product-preview" />
+                  <div *ngIf="!newProduct.imageUrl" class="empty-upload-placeholder d-flex flex-column align-items-center justify-content-center h-100">
+                    <i class="fas fa-camera text-muted mb-1" style="font-size: 1.3rem;"></i>
+                    <span class="text-muted" style="font-size: 0.68rem;">Upload Image</span>
+                  </div>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    class="product-image-file-input" 
+                    (change)="onProductImageSelected($event)" 
+                    title="Upload Image"
+                  />
+                  <button 
+                    *ngIf="newProduct.imageUrl" 
+                    type="button" 
+                    class="btn btn-sm btn-danger btn-remove-image" 
+                    (click)="removeProductImage()"
+                    title="Remove Image"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div *ngIf="isUploadingImage" class="uploading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SKU & Barcode (Stacked on Right of Image) -->
+              <div class="col-md-9 d-flex flex-column justify-content-between">
+                <div class="mb-2">
+                  <label class="wms-compact-label">
+                    SKU / Master Code <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="form-control text-uppercase" 
+                      [class.has-trailing]="isCheckingSku || (skuTouched && !!newProduct.sku?.trim())"
+                      placeholder="e.g. MED-PARA-650" 
+                      [(ngModel)]="newProduct.sku" 
+                      (input)="onSkuInput()"
+                      (blur)="onSkuBlur()"
+                    />
+                    <span *ngIf="isCheckingSku || (skuTouched && newProduct.sku?.trim())" class="input-group-text input-group-trailing">
+                      <span *ngIf="isCheckingSku" class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                      <i *ngIf="!isCheckingSku && skuTouched && isSkuDuplicate" class="fas fa-times-circle status-anim-icon text-danger"></i>
+                      <i *ngIf="!isCheckingSku && skuTouched && !isSkuDuplicate && newProduct.sku?.trim()" class="fas fa-check-circle status-anim-icon text-success"></i>
+                    </span>
+                  </div>
+                  <div *ngIf="!isCheckingSku && skuTouched && isSkuDuplicate" class="short-feedback-msg text-danger">
+                    SKU already exists in catalog
+                  </div>
+                </div>
+                <div>
+                  <label class="wms-compact-label">Retail Barcode / GTIN (Optional)</label>
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [class.has-trailing]="isCheckingBarcode || (barcodeTouched && !!newProduct.barcode?.trim())"
+                      placeholder="890123456789" 
+                      [(ngModel)]="newProduct.barcode" 
+                      (input)="onBarcodeValidationInput()"
+                      (blur)="onBarcodeValidationBlur()"
+                    />
+                    <span *ngIf="isCheckingBarcode || (barcodeTouched && newProduct.barcode?.trim())" class="input-group-text input-group-trailing">
+                      <span *ngIf="isCheckingBarcode" class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                      <i *ngIf="!isCheckingBarcode && barcodeTouched && isBarcodeDuplicate" class="fas fa-times-circle status-anim-icon text-danger"></i>
+                      <i *ngIf="!isCheckingBarcode && barcodeTouched && !isBarcodeDuplicate && newProduct.barcode?.trim()" class="fas fa-check-circle status-anim-icon text-success"></i>
+                    </span>
+                  </div>
+                  <div *ngIf="!isCheckingBarcode && barcodeTouched && isBarcodeDuplicate" class="short-feedback-msg text-danger">
+                    Barcode already assigned to another product
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Barcode / UPC</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-qrcode input-icon"></i>
-                <input type="text" class="form-control" placeholder="890123456789" [(ngModel)]="newProduct.barcode" />
+
+            <!-- Product Name & Brand (2 Columns) -->
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="wms-compact-label">
+                  Product Name <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [class.has-trailing]="isCheckingName || (nameTouched && !!newProduct.name?.trim())"
+                    placeholder="e.g. Paracetamol 650mg" 
+                    [(ngModel)]="newProduct.name" 
+                    (input)="onProductNameInput()"
+                    (blur)="onProductNameBlur()"
+                  />
+                  <span *ngIf="isCheckingName || (nameTouched && newProduct.name?.trim())" class="input-group-text input-group-trailing">
+                    <span *ngIf="isCheckingName" class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                    <i *ngIf="!isCheckingName && nameTouched && isProductNameDuplicate" class="fas fa-times-circle status-anim-icon text-danger"></i>
+                    <i *ngIf="!isCheckingName && nameTouched && !isProductNameDuplicate && newProduct.name?.trim()" class="fas fa-check-circle status-anim-icon text-success"></i>
+                  </span>
+                </div>
+                <div *ngIf="!isCheckingName && nameTouched && isProductNameDuplicate" class="short-feedback-msg text-danger">
+                  Product with this Name, Brand & Category already exists
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="wms-compact-label">Brand</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="e.g. Micro Labs" 
+                  [(ngModel)]="newProduct.brand" 
+                  (input)="onBrandInput()"
+                />
               </div>
             </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Brand</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-certificate input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Micro Labs" [(ngModel)]="newProduct.brand" />
-              </div>
-            </div>
-            <div class="col-md-4">
+
+            <!-- Description (Full Width) -->
+            <div class="mb-2">
               <label class="wms-compact-label">Description</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-align-left input-icon"></i>
-                <input type="text" class="form-control" placeholder="Brief specification" [(ngModel)]="newProduct.description" />
-              </div>
+              <input type="text" class="form-control" placeholder="Brief specification" [(ngModel)]="newProduct.description" />
             </div>
-          </div>
 
-          <!-- Section 2: Classification & Pricing -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-layer-group text-success"></i>
-            <span>Classification & Inventory Parameters</span>
-          </div>
-          <div class="row g-2 mb-3">
-            <div class="col-md-4">
-              <label class="wms-compact-label d-flex justify-content-between align-items-center">
-                <span>Product Category</span>
-                <a routerLink="/categories" target="_blank" class="text-primary text-decoration-none small" title="Manage Categories">
-                  <i class="fas fa-plus-circle me-1"></i>New
-                </a>
-              </label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-tags input-icon"></i>
-                <select class="form-select" [(ngModel)]="newProduct.categoryId">
-                  <option [ngValue]="null">Select Category / Subcategory...</option>
-                  <option *ngFor="let c of categoryLookups" [ngValue]="c.id">
-                    {{ c.displayName }}
+            <!-- SECTION 2: Product Classification & Pricing -->
+             
+            <div class="row g-2 mb-2">
+              <div class="col-md-5">
+                <label class="wms-compact-label d-flex justify-content-between align-items-center">
+                  <span>Product Category</span>
+                  <a routerLink="/categories" target="_blank" class="text-primary text-decoration-none small" title="Manage Categories">
+                    <i class="fas fa-plus-circle me-1"></i>New
+                  </a>
+                </label>
+                <select 
+                  class="form-select modal-category-select" 
+                  [(ngModel)]="newProduct.categoryId"
+                  (ngModelChange)="onCategoryChange()"
+                >
+                  <option [ngValue]="null">Select Category</option>
+                  <option *ngFor="let c of categoryLookups" [ngValue]="c.id" [title]="c.displayName">
+                    {{ formatCategoryOption(c) }}
                   </option>
                 </select>
               </div>
-            </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Unit of Measure (UOM)</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-ruler input-icon"></i>
+              <div class="col-md-4">
+                <label class="wms-compact-label">Unit of Measure (UOM)</label>
                 <select class="form-select" [(ngModel)]="newProduct.uom">
                   <option *ngFor="let u of uomOptions" [ngValue]="u.value">{{ u.key }}</option>
                 </select>
               </div>
-            </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Unit Price (₹)</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-rupee-sign input-icon"></i>
-                <input type="number" class="form-control" [(ngModel)]="newProduct.unitPrice" min="0" />
+              <div class="col-md-3">
+                <label class="wms-compact-label">Unit Price (₹)</label>
+                <input type="number" class="form-control" [(ngModel)]="newProduct.unitPrice" min="0" placeholder="150" />
               </div>
             </div>
-            <div class="col-md-6">
-              <label class="wms-compact-label">Reorder Alert Level</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-bell input-icon"></i>
+
+            <!-- SECTION 3: Inventory Management -->
+            
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label class="wms-compact-label">Reorder Alert Level</label>
                 <input type="number" class="form-control" [(ngModel)]="newProduct.reorderLevel" min="0" placeholder="50" />
               </div>
-            </div>
-            <div class="col-md-6">
-              <label class="wms-compact-label">Target Maximum Stock</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-boxes input-icon"></i>
+              <div class="col-md-6">
+                <label class="wms-compact-label">Target Maximum Stock</label>
                 <input type="number" class="form-control" [(ngModel)]="newProduct.targetStockLevel" min="0" placeholder="500" />
               </div>
             </div>
-          </div>
 
-          <!-- Section 3: Storage & Temperature Requirements -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-snowflake text-info"></i>
-            <span>Warehouse Storage & Cold-Chain Criteria</span>
-          </div>
-          <div class="row g-2 mb-3">
-            <div class="col-md-4">
-              <label class="wms-compact-label">Required Storage Zone Type</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-warehouse input-icon"></i>
+            <!-- SECTION 4: Storage Requirements -->
+       
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <label class="wms-compact-label">Required Storage Zone Type</label>
                 <select class="form-select" [(ngModel)]="newProduct.requiredStorageType">
                   <option *ngFor="let s of storageTypeOptions" [ngValue]="s.value">{{ s.key }}</option>
                 </select>
               </div>
-            </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Min Temp (°C, optional)</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-temperature-low input-icon"></i>
+              <div class="col-md-4">
+                <label class="wms-compact-label">Min Temp (°C, optional)</label>
                 <input type="number" class="form-control" placeholder="2" [(ngModel)]="newProduct.temperatureMinCelsius" />
               </div>
-            </div>
-            <div class="col-md-4">
-              <label class="wms-compact-label">Max Temp (°C, optional)</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-temperature-high input-icon"></i>
+              <div class="col-md-4">
+                <label class="wms-compact-label">Max Temp (°C, optional)</label>
                 <input type="number" class="form-control" placeholder="8" [(ngModel)]="newProduct.temperatureMaxCelsius" />
+              </div>
+            </div>
+
+            <!-- SECTION 5: Product Tracking -->
+            <h6 class="wms-compact-label">Product Tracking</h6>
+            <div class="d-flex flex-column gap-2 mb-3">
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="chkLot" [(ngModel)]="newProduct.isLotTracked" />
+                <label class="form-check-label font-weight-bold text-dark small cursor-pointer" for="chkLot">
+                  Lot / Batch Tracked
+                </label>
+              </div>
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="chkExp" [(ngModel)]="newProduct.isExpiryTracked" />
+                <label class="form-check-label font-weight-bold text-dark small cursor-pointer" for="chkExp">
+                  Expiry Tracked (FEFO)
+                </label>
+              </div>
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="chkSerial" [(ngModel)]="newProduct.isSerialTracked" />
+                <label class="form-check-label font-weight-bold text-dark small cursor-pointer" for="chkSerial">
+                  Serial Tracked
+                </label>
               </div>
             </div>
           </div>
 
-          <!-- Section 4: Multi-Industry Tracking Rules -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-check-double text-warning"></i>
-            <span>Multi-Industry Tracking Rules</span>
-          </div>
-          <div class="p-3 rounded border mb-2 tracking-rules-card">
-            <div class="row g-3">
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="chkLot" [(ngModel)]="newProduct.isLotTracked" />
-                  <label class="form-check-label font-weight-bold text-dark small" for="chkLot">
-                    Lot / Batch Tracked
-                  </label>
-                  <div class="text-muted tracking-rule-desc">Batch numbers assigned during inbound GRN</div>
+          <!-- TAB 2: ATTRIBUTES & VARIANT MATRIX GENERATOR -->
+          <div *ngIf="activeDrawerTab === 'variants'">
+            <div class="alert alert-primary py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+              <i class="fas fa-magic fa-lg"></i>
+              <div>
+                <strong>Variant Matrix Generator:</strong> Select defining attributes (Size, Color, etc.), choose or enter options, and click <em>Generate Preview</em> to create unique SKUs.
+              </div>
+            </div>
+
+            <!-- Attribute Selection Section -->
+            <div class="attr-main-wrapper p-3 mb-3 rounded border">
+              <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                <div>
+                  <h6 class="fw-bold" style="font-size: 0.82rem;">1. Select Defining Attributes</h6>
+                   
+                </div>
+                <button 
+                  type="button" 
+                  class="btn btn-create-attr"
+                  *ngIf="!isAddingCustomAttribute"
+                  (click)="openAddCustomAttribute()"
+                >
+                  <i class="fas fa-plus-circle me-1 text-primary"></i>
+                  <span>Create New Attribute</span>
+                </button>
+              </div>
+
+              <!-- Inline New Attribute Creation Form -->
+              <div *ngIf="isAddingCustomAttribute" class="attr-new-form">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="attr-new-title"> Create New Product Attribute</span>
+                  <button type="button" class="btn-close btn-sm" (click)="cancelAddCustomAttribute()"></button>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <label class="wms-compact-label">Attribute Name *</label>
+                    <input 
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      placeholder="e.g. Fabric, Material, Sleeve" 
+                      [(ngModel)]="newCustomAttribute.name" 
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="wms-compact-label">Predefined Values (Comma Separated)</label>
+                    <input 
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      placeholder="e.g. Cotton, Denim, Linen, Polyester" 
+                      [(ngModel)]="newCustomAttribute.valuesText" 
+                    />
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-light px-2" (click)="cancelAddCustomAttribute()">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-primary px-3" (click)="saveCustomAttribute()">
+                    <i class="fas fa-check me-1"></i> Save & Select Attribute
+                  </button>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="chkExp" [(ngModel)]="newProduct.isExpiryTracked" />
-                  <label class="form-check-label font-weight-bold text-dark small" for="chkExp">
-                    Expiry Tracked (FEFO)
-                  </label>
-                  <div class="text-muted tracking-rule-desc">First-Expiry-First-Out picking logic</div>
+
+              <!-- Attribute Toggle Pills Row -->
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <button
+                  *ngFor="let attr of availableAttributes"
+                  type="button"
+                  class="btn attribute-pill-btn"
+                  [class.active]="isAttributeSelected(attr.id!)"
+                  (click)="toggleAttributeSelection(attr.id!)"
+                >
+                  <i class="fas pill-icon" [ngClass]="isAttributeSelected(attr.id!) ? 'fa-check' : 'fa-plus'"></i>
+                  <span>{{ attr.name }} ({{ attr.code }})</span>
+                </button>
+              </div>
+
+              <!-- Value Pickers for Selected Attributes -->
+              <div *ngFor="let attrId of selectedAttributeIds" class="attr-card-box">
+                <div class="attr-card-header">
+                  <div class="attr-card-title">
+                    <span class="attr-card-badge">Attribute</span>
+                    <span>{{ getAttributeName(attrId) }}</span>
+                  </div>
+                  <!-- Sleek remove button -->
+                  <button 
+                    type="button" 
+                    class="btn btn-remove-attr" 
+                    (click)="deselectAttribute(attrId)" 
+                    title="Remove this attribute from current product variants"
+                  >
+                    <i class="fas fa-times"></i>
+                    <span>Remove from Variants</span>
+                  </button>
+                </div>
+
+                <div class="text-muted small mb-1" style="font-size: 0.72rem;">
+                  Options selected for matrix combinations (click ✕ to exclude):
+                </div>
+
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  <span *ngFor="let val of attributeValuesMap[attrId]" class="attr-value-chip chip-blue">
+                    <span>{{ val }}</span>
+                    <i class="fas fa-times chip-remove" (click)="removeCustomAttributeValue(attrId, val)" title="Remove {{ val }}"></i>
+                  </span>
+                  <span *ngIf="!attributeValuesMap[attrId] || attributeValuesMap[attrId].length === 0" class="text-warning small fst-italic py-0.5">
+                    No values added yet. Add at least one value or click 'Remove from Variants' above.
+                  </span>
+                </div>
+
+                <div class="input-group input-group-lg attr-add-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Add custom value (e.g. 100% Cotton, XL, Red)..."
+                    [(ngModel)]="customAttrInputs[attrId]"
+                    (keydown.enter)="addCustomAttributeValue(attrId)"
+                  />
+                  <button class="btn btn-lg btn-outline-secondary" type="button" (click)="addCustomAttributeValue(attrId)">
+                    <i class="fas fa-plus me-1"></i> Add Value
+                  </button>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="chkSerial" [(ngModel)]="newProduct.isSerialTracked" />
-                  <label class="form-check-label font-weight-bold text-dark small" for="chkSerial">
-                    Serial Tracked
-                  </label>
-                  <div class="text-muted tracking-rule-desc">Individual serial scan per unit</div>
-                </div>
+
+              <!-- Matrix Generate Trigger -->
+              <div class="text-end pt-2 border-top">
+                <button 
+                  type="button" 
+                  class="btn btn-matrix-preview" 
+                  [disabled]="selectedAttributeIds.length === 0 || isGeneratingMatrix"
+                  (click)="generateVariantMatrix()"
+                >
+                  <span *ngIf="isGeneratingMatrix" class="spinner-border spinner-border-sm me-1"></span>
+                 
+                  <span>Generate Matrix Preview</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview Matrix -->
+            <div *ngIf="generatedVariantPreview.length > 0" class="card p-3 mb-3 border-info shadow-sm">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0 fw-bold d-flex align-items-center gap-1" style="font-size: 0.84rem;">
+                 
+                  <span>Generated Preview ({{ generatedVariantPreview.length }} combinations)</span>
+                </h6>
+                <button 
+                  type="button" 
+                  class="btn btn-save-variants" 
+                  [disabled]="isSaving"
+                  (click)="saveGeneratedVariants()"
+                >
+                  <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+                  <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+                  <span>Register & Save Variants</span>
+                </button>
+              </div>
+              <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="font-size: 0.7rem; width: 55px;">Image</th>
+                      <th style="font-size: 0.7rem;">Generated SKU</th>
+                      <th style="font-size: 0.7rem;">Variant Name</th>
+                      <th style="font-size: 0.7rem;">Combination Hash</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let pv of generatedVariantPreview">
+                      <td style="width: 55px;">
+                        <div class="position-relative variant-thumb-picker">
+                          <img *ngIf="pv.imageUrl || newProduct.imageUrl" [src]="resolveImageUrl(pv.imageUrl || newProduct.imageUrl)" class="variant-mini-thumb" />
+                          <span *ngIf="!pv.imageUrl && !newProduct.imageUrl" class="variant-empty-thumb text-muted">
+                            <i class="fas fa-camera"></i>
+                          </span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            class="variant-file-input" 
+                            (change)="onVariantImageSelected($event, pv)" 
+                            title="Upload Variant Image" 
+                          />
+                        </div>
+                      </td>
+                      <td class="font-monospace fw-semibold text-primary" style="font-size: 0.74rem;">{{ pv.generatedSku }}</td>
+                      <td style="font-size: 0.74rem;">{{ pv.generatedVariantName }}</td>
+                      <td><code class="small text-muted" style="font-size: 0.68rem;">{{ pv.combinationHash | slice:0:8 }}</code></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Existing Variants List -->
+            <div class="card p-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0 fw-bold ">
+                  Existing Registered Variants ({{ existingVariants.length }})
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="loadProductVariants(editingProductId!)">
+                  <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+              </div>
+
+              <div *ngIf="isLoadingVariants" class="text-center py-2">
+                <span class="spinner-border spinner-border-sm text-primary"></span>
+              </div>
+
+              <div *ngIf="!isLoadingVariants && existingVariants.length === 0" class="text-muted small py-2">
+                No variants registered yet.
+              </div>
+
+              <div *ngIf="!isLoadingVariants && existingVariants.length > 0" class="table-responsive wms-variants-table-responsive">
+                <table class="table table-sm table-striped align-middle mb-0 wms-existing-variants-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="col-var-img text-center">Image</th>
+                      <th class="col-var-sku">SKU</th>
+                      <th class="col-var-name">Variant Name</th>
+                      <th class="col-var-barcode">Barcode</th>
+                      <th class="col-var-price text-end">Price</th>
+                      <th class="col-var-status text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ev of existingVariants">
+                      <td class="col-var-img text-center">
+                        <div class="variant-grid-thumb">
+                          <img *ngIf="ev.imageUrl || newProduct.imageUrl" [src]="resolveImageUrl(ev.imageUrl || newProduct.imageUrl)" class="img-fluid rounded" />
+                          <i *ngIf="!ev.imageUrl && !newProduct.imageUrl" class="fas fa-tags text-muted"></i>
+                        </div>
+                      </td>
+                      <td class="col-var-sku font-monospace fw-semibold">{{ ev.sku }}</td>
+                      <td class="col-var-name small">
+                        <div class="d-flex align-items-center">
+                          <span class="variant-name-truncated" [title]="ev.variantName">{{ ev.variantName }}</span>
+                          <span *ngIf="ev.isDefault" class="badge bg-secondary ms-1 flex-shrink-0">Default</span>
+                        </div>
+                      </td>
+                      <td class="col-var-barcode font-monospace small text-muted">{{ ev.primaryBarcode || 'N/A' }}</td>
+                      <td class="col-var-price font-monospace small text-end">₹{{ ev.sellingPrice | number:'1.2-2' }}</td>
+                      <td class="col-var-status text-center">
+                        <span class="product-status-badge" [ngClass]="ev.isActive ? 'active' : 'inactive'">
+                          {{ ev.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
+
+          <!-- TAB 3: CLOSED-TRIANGLE SUPPLIER BARCODES -->
+          <div *ngIf="activeDrawerTab === 'barcodes'">
+            <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+              <i class="fas fa-shield-alt fa-lg"></i>
+              <div>
+                <strong>Closed-Triangle Rule:</strong> Multiple suppliers may supply the same variant under their own barcode, but a barcode can never point to multiple different variants.
+              </div>
+            </div>
+
+            <!-- Form: Map New Supplier Barcode -->
+            <div class="card p-3 mb-3 bg-light border">
+              <h6 class="fw-bold small mb-2">Map New Supplier Barcode</h6>
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <label class="wms-compact-label">Supplier *</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newSupplierMapping.supplierId">
+                    <option value="">Select Supplier...</option>
+                    <option *ngFor="let s of supplierLookups" [value]="s.id">{{ s.name }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="wms-compact-label">Variant *</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newSupplierMapping.productVariantId">
+                    <option value="">Select Variant...</option>
+                    <option *ngFor="let v of existingVariants" [value]="v.id">
+                      {{ v.sku }} - {{ v.variantName || 'Default' }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="wms-compact-label">Supplier Barcode Value *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    placeholder="Scan or enter barcode" 
+                    [(ngModel)]="newSupplierMapping.supplierBarcode" 
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="wms-compact-label">Supplier Item Code</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    placeholder="e.g. SUP-998811" 
+                    [(ngModel)]="newSupplierMapping.supplierProductCode" 
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="wms-compact-label">Packaging Level</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newSupplierMapping.packagingLevel">
+                    <option [value]="BarcodePackagingLevel.Each">Each (1 Unit)</option>
+                    <option [value]="BarcodePackagingLevel.InnerPack">Inner Pack</option>
+                    <option [value]="BarcodePackagingLevel.Case">Case / Box</option>
+                    <option [value]="BarcodePackagingLevel.Pallet">Pallet</option>
+                  </select>
+                </div>
+              </div>
+              <div class="text-end">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-primary" 
+                  [disabled]="isSavingSupplierMapping || !newSupplierMapping.supplierId || !newSupplierMapping.supplierBarcode"
+                  (click)="addSupplierBarcodeMapping()"
+                >
+                  <span *ngIf="isSavingSupplierMapping" class="spinner-border spinner-border-sm me-1"></span>
+                  <i *ngIf="!isSavingSupplierMapping" class="fas fa-link me-1"></i>
+                  <span>Map Supplier Barcode</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Existing Mappings Table -->
+            <div class="card p-3 mt-2">
+              <h6 class="fw-bold small mb-2">Active Supplier Mappings ({{ supplierMappings.length }})</h6>
+              
+              <div *ngIf="isLoadingSupplierMappings" class="text-center py-2">
+                <span class="spinner-border spinner-border-sm text-primary"></span>
+              </div>
+
+              <div *ngIf="!isLoadingSupplierMappings && supplierMappings.length === 0" class="text-muted small py-2">
+                No supplier barcodes mapped yet.
+              </div>
+
+              <div *ngIf="!isLoadingSupplierMappings && supplierMappings.length > 0" class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Supplier</th>
+                      <th>Variant SKU</th>
+                      <th>Supplier Barcode</th>
+                      <th>Level</th>
+                      <th class="text-end">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let sm of supplierMappings">
+                      <td class="fw-semibold">{{ sm.supplierName }}</td>
+                      <td class="font-monospace text-primary">{{ sm.variantSku }}</td>
+                      <td class="font-monospace fw-bold">{{ sm.supplierBarcode }}</td>
+                      <td>
+                        <span class="badge bg-light text-dark border">
+                          {{ sm.packagingLevel === 3 ? 'Case' : sm.packagingLevel === 4 ? 'Pallet' : 'Each' }}
+                        </span>
+                      </td>
+                      <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteSupplierMapping(sm.id!)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Footer -->
@@ -452,12 +1123,12 @@
             <button 
               type="button" 
               class="btn btn-wms-submit" 
-              [disabled]="!newProduct.sku || !newProduct.name || isSaving" 
+              [disabled]="!newProduct.sku || !newProduct.name || isSaving || isSkuDuplicate || isBarcodeDuplicate || isProductNameDuplicate || isCheckingSku || isCheckingName" 
               (click)="saveProduct()"
             >
               <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
               <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
-              <span>{{ editingProductId ? (isSaving ? 'Updating...' : 'Save Changes') : (isSaving ? 'Registering...' : 'Register Product SKU') }}</span>
+              <span>{{ editingProductId ? (isSaving ? 'Updating...' : 'Save Changes') : (isSaving ? 'Registering...' : 'Register Product') }}</span>
             </button>
           </div>
         </div>
@@ -465,4 +1136,155 @@
       </div>
     </div>
   </div>
+
+  <!-- Barcode Quick Lookup Result Modal -->
+  <div *ngIf="isLookupModalOpen" class="modal fade show d-block barcode-lookup-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closeLookupModal()">
+    <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white py-2 px-3">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-barcode text-success"></i>
+            <h6 class="modal-title mb-0 fw-bold">Barcode Lookup & Verification</h6>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeLookupModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div *ngIf="isResolvingBarcode" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted small mt-2 mb-0">Resolving barcode identity across warehouse entities...</p>
+          </div>
+
+          <div *ngIf="!isResolvingBarcode && lookupResult">
+            <div *ngIf="!lookupResult.isFound" class="text-center py-3">
+              <i class="fas fa-exclamation-triangle text-warning fa-3x mb-2"></i>
+              <h6 class="fw-bold text-dark">Barcode Not Found</h6>
+              <p class="text-muted small">
+                No active Product, Variant, LPN, Location, or Lot matches scanned value:
+                <br/><strong class="font-monospace text-dark">{{ lookupResult.scannedValue }}</strong>
+              </p>
+            </div>
+
+            <div *ngIf="lookupResult.isFound">
+              <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mb-3">
+                <div>
+                  <span class="text-muted small d-block">Target Entity Type</span>
+                  <span class="badge bg-primary fs-6">{{ getBarcodeTargetTypeName(lookupResult.targetType) }}</span>
+                </div>
+                <div class="text-end">
+                  <span class="text-muted small d-block">Normalized Barcode</span>
+                  <span class="font-monospace fw-bold text-dark">{{ lookupResult.normalizedValue }}</span>
+                </div>
+              </div>
+
+              <!-- Product / Variant Match Details -->
+              <div *ngIf="lookupResult.sku" class="p-3 rounded border mb-2 bg-white">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <span class="text-muted small d-block">SKU</span>
+                    <strong class="font-monospace text-primary fs-6">{{ lookupResult.sku }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted small d-block">Product Name</span>
+                    <strong class="text-dark">{{ lookupResult.productName }}</strong>
+                  </div>
+                  <div class="col-12" *ngIf="lookupResult.variantName">
+                    <span class="text-muted small d-block">Variant Combination</span>
+                    <span class="badge bg-info text-dark">{{ lookupResult.variantName }}</span>
+                  </div>
+                  <div class="col-12" *ngIf="lookupResult.isSupplierBarcode">
+                    <div class="p-2 rounded bg-light border mt-2 small">
+                      <i class="fas fa-truck text-secondary me-1"></i>
+                      <span>Supplier Mapped: <strong>{{ lookupResult.supplierName }}</strong> (Code: {{ lookupResult.supplierProductCode || 'N/A' }})</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location Match Details -->
+              <div *ngIf="lookupResult.locationDisplayName" class="p-3 rounded border mb-2 bg-white">
+                <span class="text-muted small d-block">Warehouse Location</span>
+                <strong class="text-success fs-6"><i class="fas fa-map-marker-alt me-1"></i>{{ lookupResult.locationDisplayName }}</strong>
+              </div>
+
+              <!-- LPN Match Details -->
+              <div *ngIf="lookupResult.licensePlateNumber" class="p-3 rounded border mb-2 bg-white">
+                <span class="text-muted small d-block">License Plate Number (LPN)</span>
+                <strong class="font-monospace text-dark fs-6">{{ lookupResult.licensePlateNumber }}</strong>
+              </div>
+
+              <!-- Lot Match Details -->
+              <div *ngIf="lookupResult.lotBatchNumber" class="p-3 rounded border mb-2 bg-white">
+                <span class="text-muted small d-block">Lot / Batch Number</span>
+                <strong class="font-monospace text-warning fs-6">{{ lookupResult.lotBatchNumber }}</strong>
+                <span *ngIf="lookupResult.expirationDate" class="text-muted small ms-2">
+                  (Exp: {{ lookupResult.expirationDate | date:'mediumDate' }})
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light py-2 px-3">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="closeLookupModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barcode Label Print Modal -->
+  <div *ngIf="isPrintModalOpen" class="modal fade show d-block label-print-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closePrintModal()">
+    <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-dark text-white py-2 px-3 no-print">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-print text-primary"></i>
+            <h6 class="modal-title mb-0 fw-bold">Barcode Label Print Center</h6>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closePrintModal()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <!-- Print Configuration Controls (Hidden during print) -->
+          <div class="no-print mb-3 p-3 bg-light rounded border">
+            <div class="row g-2 align-items-center">
+              <div class="col-6">
+                <label class="wms-compact-label">Label Size Format</label>
+                <select class="form-select form-select-sm" [(ngModel)]="printFormat">
+                  <option value="2x1">2" x 1" (Standard SKU / Bin)</option>
+                  <option value="4x6">4" x 6" (Master Carton / Pallet)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="wms-compact-label">Quantity</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="printQuantity" min="1" max="100" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Printable Barcode Label Card -->
+          <div class="printable-label-card text-center p-3 border rounded bg-white mx-auto" [ngClass]="'format-' + printFormat">
+            <div class="label-header mb-1">
+              <span class="label-company-name fw-bold text-uppercase d-block">WAREHOUSE INVENTORY SYSTEM</span>
+              <strong class="label-product-title d-block">{{ printTitle }}</strong>
+            </div>
+
+            <!-- Crisp SVG Barcode Component -->
+            <div class="my-2">
+              <app-barcode-visual [value]="printBarcodeValue" [height]="printFormat === '4x6' ? 70 : 45"></app-barcode-visual>
+            </div>
+
+            <div class="label-footer mt-1 font-monospace small d-flex justify-content-between px-2">
+              <span>SKU: <strong>{{ printSku }}</strong></span>
+              <span *ngIf="printVariant?.variantName">{{ printVariant?.variantName }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light py-2 px-3 no-print">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="closePrintModal()">Cancel</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="executePrint()">
+            <i class="fas fa-print me-1"></i> Print Label
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

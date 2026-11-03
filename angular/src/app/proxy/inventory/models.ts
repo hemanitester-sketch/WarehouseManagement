@@ -6,6 +6,7 @@ export interface AdjustStockDto {
   warehouseId: string;
   locationId: string;
   productId: string;
+  productVariantId?: string | null;
   quantityDelta: number;
   lotBatchNumber?: string | null;
   serialNumber?: string | null;
@@ -23,6 +24,7 @@ export interface GetInventoryListDto extends PagedAndSortedResultRequestDto {
   zoneId?: string | null;
   locationId?: string | null;
   productId?: string | null;
+  productVariantId?: string | null;
   lotBatchNumber?: string | null;
   serialNumber?: string | null;
   lpn?: string | null;
@@ -49,6 +51,9 @@ export interface InventoryItemDto extends FullAuditedEntityDto<string> {
   productId?: string;
   productSku?: string | null;
   productName?: string | null;
+  productVariantId?: string | null;
+  variantSku?: string | null;
+  variantName?: string | null;
   quantityOnHand?: number;
   quantityAllocated?: number;
   quantityAvailable?: number;
@@ -57,6 +62,9 @@ export interface InventoryItemDto extends FullAuditedEntityDto<string> {
   lpn?: string | null;
   expiryDate?: string | null;
   manufactureDate?: string | null;
+  isExpired?: boolean;
+  isNearExpiry?: boolean;
+  daysUntilExpiry?: number | null;
   status?: InventoryStatus;
   receivedDate?: string;
 }
@@ -78,6 +86,9 @@ export interface InventorySummaryDto {
 export interface InventoryTransactionDto extends EntityDto<string> {
   warehouseId?: string;
   productId?: string;
+  productVariantId?: string | null;
+  variantSku?: string | null;
+  variantName?: string | null;
   fromLocationId?: string | null;
   toLocationId?: string | null;
   quantity?: number;

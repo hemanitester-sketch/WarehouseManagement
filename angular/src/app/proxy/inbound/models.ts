@@ -3,6 +3,7 @@ import type { EntityDto, FullAuditedEntityDto, PagedAndSortedResultRequestDto } 
 
 export interface CreateInboundOrderLineDto {
   productId: string;
+  productVariantId?: string | null;
   expectedQuantity: number;
   unitPrice?: number;
 }
@@ -48,6 +49,9 @@ export interface InboundOrderLineDto extends EntityDto<string> {
   productId?: string;
   productSku?: string | null;
   productName?: string | null;
+  productVariantId?: string | null;
+  variantSku?: string | null;
+  variantName?: string | null;
   expectedQuantity?: number;
   receivedQuantity?: number;
   remainingQuantity?: number;

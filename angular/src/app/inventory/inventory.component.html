@@ -124,57 +124,89 @@
 
   <!-- Stock Ledger Table (Compact Grid) -->
   <div *ngIf="!isLoading && activeTab === 'stock' && filteredItems.length > 0" class="card inventory-table-card overflow-hidden">
-    <div class="table-responsive">
+    <div class="table-responsive wms-inventory-table-responsive">
       <table class="table table-hover align-middle mb-0 wms-table inventory-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 240px; min-width: 220px; white-space: nowrap;">Product / SKU</th>
-            <th style="width: 220px; min-width: 210px; white-space: nowrap;">Location / Bin</th>
-            <th style="width: 110px;">Lot / Batch</th>
-            <th style="width: 110px;">Expiry Date</th>
-            <th style="width: 90px;">On Hand</th>
-            <th style="width: 90px;">Allocated</th>
-            <th style="width: 90px;">Available</th>
-            <th style="width: 110px;">Status</th>
-            <th class="text-end pe-3" style="width: 85px;">Actions</th>
+            <th class="ps-3 col-inv-sku">Product SKU</th>
+            <th class="col-inv-name">Product Name</th>
+            <th class="col-inv-facility">Facility</th>
+            <th class="col-inv-loc">Bin Location</th>
+            <th class="col-inv-lot">Lot / Batch</th>
+            <th class="col-inv-expiry">Expiry Date</th>
+            <th class="col-inv-qty text-end">On Hand</th>
+            <th class="col-inv-qty text-end">Allocated</th>
+            <th class="col-inv-qty text-end">Available</th>
+            <th class="col-inv-status text-center">Status</th>
+            <th class="col-inv-action text-end pe-3">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of paginatedItems">
-            <td class="ps-3" style="width: 240px; min-width: 220px; white-space: nowrap;">
-              <span class="inventory-cell-text d-block font-monospace fw-semibold text-primary text-nowrap">{{ item.productSku }}</span>
-              <small class="inventory-cell-subtext text-nowrap d-block text-truncate" style="max-width: 220px;" [title]="item.productName">{{ item.productName }}</small>
-            </td>
-            <td style="width: 220px; min-width: 210px; white-space: nowrap;">
-              <span class="inventory-cell-text d-block text-nowrap">
-                <i class="fas fa-barcode text-primary me-1"></i>{{ item.locationBarcode }}
-              </span>
-              <small class="inventory-cell-subtext text-nowrap">{{ item.warehouseCode }} &bull; {{ item.locationCoordinates }}</small>
-            </td>
-            <td>
-              <span class="inventory-cell-text">{{ item.lotBatchNumber || '—' }}</span>
-            </td>
-            <td>
-              <span class="inventory-cell-text">
-                {{ item.expiryDate ? (item.expiryDate | date:'mediumDate') : '—' }}
+            <td class="ps-3 col-inv-sku">
+              <span class="inv-truncate-sku font-monospace fw-bold text-primary" [title]="item.variantSku || item.productSku">
+                {{ item.variantSku || item.productSku }}
               </span>
             </td>
-            <td>
+            <td class="col-inv-name">
+              <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                <span class="inv-truncate-name fw-semibold text-dark" [title]="item.productName">
+                  {{ item.productName }}
+                </span>
+                <span *ngIf="item.variantName" class="variant-pill-badge flex-shrink-0" [title]="'Variant: ' + item.variantName">
+                  <i class="fas fa-tag me-1"></i>{{ item.variantName }}
+                </span>
+              </div>
+            </td>
+            <td class="col-inv-facility">
+              <span class="inv-truncate-facility fw-medium text-dark" [title]="(item.warehouseCode || 'WH-01') + (item.warehouseName ? ' - ' + item.warehouseName : '')">
+                {{ item.warehouseCode || 'WH-01' }}
+                <span *ngIf="item.warehouseName" class="text-muted fw-normal ms-1">({{ item.warehouseName }})</span>
+              </span>
+            </td>
+            <td class="col-inv-loc">
+              <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                <span class="inv-truncate-loc font-monospace" [title]="(item.locationBarcode || 'LOC') + (item.locationCoordinates ? ' (' + item.locationCoordinates + ')' : '')">
+                  <i class="fas fa-barcode text-primary me-1"></i>{{ item.locationBarcode }}
+                  <span *ngIf="item.locationCoordinates" class="text-muted fw-normal ms-1">({{ item.locationCoordinates }})</span>
+                </span>
+                <span *ngIf="item.lpn" class="lpn-pill-badge flex-shrink-0" [title]="'License Plate / Pallet: ' + item.lpn">
+                  <i class="fas fa-pallet me-1"></i>{{ item.lpn }}
+                </span>
+              </div>
+            </td>
+            <td class="col-inv-lot">
+              <span class="inv-truncate-lot font-monospace text-muted" [title]="item.lotBatchNumber || '—'">
+                {{ item.lotBatchNumber || '—' }}
+              </span>
+            </td>
+            <td class="col-inv-expiry text-nowrap">
+              <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                <span class="inventory-cell-text">{{ item.expiryDate ? (item.expiryDate | date:'mediumDate') : '—' }}</span>
+                <span *ngIf="item.isExpired" class="expiry-pill-badge badge-expired flex-shrink-0" title="Expired Stock - Quality Hold Required">
+                  <i class="fas fa-ban me-1"></i>EXPIRED
+                </span>
+                <span *ngIf="item.isNearExpiry" class="expiry-pill-badge badge-near-expiry flex-shrink-0" [title]="'FEFO Priority: ' + item.daysUntilExpiry + ' days remaining'">
+                  <i class="fas fa-hourglass-half me-1"></i>{{ item.daysUntilExpiry }}d
+                </span>
+              </div>
+            </td>
+            <td class="col-inv-qty text-end">
               <span class="inventory-cell-text font-monospace">{{ item.quantityOnHand | number }}</span>
             </td>
-            <td>
+            <td class="col-inv-qty text-end">
               <span class="inventory-cell-text font-monospace text-warning">{{ item.quantityAllocated | number }}</span>
             </td>
-            <td>
-              <span class="inventory-cell-text font-monospace text-success font-weight-bold">{{ item.quantityAvailable | number }}</span>
+            <td class="col-inv-qty text-end">
+              <span class="inventory-cell-text font-monospace text-success fw-bold">{{ item.quantityAvailable | number }}</span>
             </td>
-            <td>
-              <span class="inventory-status-pill" [ngClass]="'status-' + (item.status === 1 ? 'available' : (item.status === 2 ? 'quarantined' : 'danger'))">
+            <td class="col-inv-status text-center">
+              <span class="inventory-status-pill text-nowrap" [ngClass]="'status-' + (item.status === 1 ? 'available' : (item.status === 2 ? 'quarantined' : 'danger'))">
                 <i class="fas" [ngClass]="item.status === 1 ? 'fa-check-circle' : (item.status === 2 ? 'fa-exclamation-triangle' : 'fa-times-circle')"></i>
                 {{ getStatusLabel(item.status) }}
               </span>
             </td>
-            <td class="text-end pe-3">
+            <td class="col-inv-action text-end pe-3">
               <div class="d-inline-flex align-items-center gap-1 justify-content-end">
                 <button 
                   type="button"
@@ -235,41 +267,43 @@
 
   <!-- Audit Transactions Tab -->
   <div *ngIf="activeTab === 'transactions'" class="card inventory-table-card overflow-hidden">
-    <div class="table-responsive">
+    <div class="table-responsive wms-inventory-table-responsive">
       <table class="table table-hover align-middle mb-0 wms-table inventory-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 140px;">Time</th>
-            <th style="width: 160px;">Type</th>
-            <th style="width: 150px;">Ref Number</th>
-            <th style="width: 100px;">Quantity</th>
-            <th style="width: 150px;">Lot / Batch</th>
-            <th class="pe-3">Notes</th>
+            <th class="ps-3" style="min-width: 150px; width: 160px;">Time</th>
+            <th style="min-width: 160px; width: 170px;">Type</th>
+            <th style="min-width: 160px; width: 180px;">Ref Number</th>
+            <th class="text-end" style="min-width: 100px; width: 110px;">Quantity</th>
+            <th style="min-width: 150px; width: 160px;">Lot / Batch</th>
+            <th class="pe-3" style="min-width: 260px;">Notes</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let tx of transactions">
-            <td class="ps-3">
-              <span class="inventory-cell-text">{{ tx.transactionTime | date:'short' }}</span>
+            <td class="ps-3 text-nowrap">
+              <span class="inventory-cell-text">{{ tx.transactionTime | date:'medium' }}</span>
             </td>
-            <td>
+            <td class="text-nowrap">
               <span class="inventory-status-pill status-standard">
                 {{ getTransactionLabel(tx.transactionType) }}
               </span>
             </td>
-            <td>
-              <span class="inventory-cell-text font-monospace">{{ tx.referenceNumber || '—' }}</span>
+            <td class="text-nowrap">
+              <span class="inventory-cell-text font-monospace fw-semibold text-primary">{{ tx.referenceNumber || '—' }}</span>
             </td>
-            <td>
-              <span class="inventory-cell-text font-monospace" [ngClass]="isStockDeduction(tx.transactionType) ? 'text-danger' : 'text-success'">
+            <td class="text-end text-nowrap">
+              <span class="inventory-cell-text font-monospace fw-bold" [ngClass]="isStockDeduction(tx.transactionType) ? 'text-danger' : 'text-success'">
                 {{ isStockDeduction(tx.transactionType) ? '-' : '+' }}{{ tx.quantity | number }}
               </span>
             </td>
-            <td>
-              <span class="inventory-cell-text">{{ tx.lotBatchNumber || '—' }}</span>
+            <td class="text-nowrap">
+              <span class="inventory-cell-text font-monospace">{{ tx.lotBatchNumber || '—' }}</span>
             </td>
-            <td class="pe-3">
-              <span class="inventory-cell-subtext">{{ tx.notes || 'Automated WMS transaction' }}</span>
+            <td class="pe-3 text-nowrap">
+              <span class="d-inline-block text-truncate" style="max-width: 400px; vertical-align: middle;" [title]="tx.notes || 'Automated WMS transaction'">
+                {{ tx.notes || 'Automated WMS transaction' }}
+              </span>
             </td>
           </tr>
         </tbody>
@@ -312,8 +346,16 @@
           <div class="modal-item-summary-card mb-3">
             <div class="d-flex justify-content-between align-items-start mb-1">
               <div>
-                <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.productSku }}</span>
-                <h6 class="font-weight-bold text-dark mb-0 mt-0.5">{{ selectedItemForAction?.productName }}</h6>
+                <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                  <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.variantSku || selectedItemForAction?.productSku }}</span>
+                  <span *ngIf="selectedItemForAction?.variantName" class="variant-pill-badge">
+                    <i class="fas fa-tag me-1"></i>{{ selectedItemForAction?.variantName }}
+                  </span>
+                  <span *ngIf="selectedItemForAction?.lpn" class="lpn-pill-badge">
+                    <i class="fas fa-pallet me-1"></i>{{ selectedItemForAction?.lpn }}
+                  </span>
+                </div>
+                <h6 class="font-weight-bold text-dark mb-0 mt-1">{{ selectedItemForAction?.productName }}</h6>
               </div>
               <span class="wms-badge wms-badge-success">
                 Current On-Hand: {{ selectedItemForAction?.quantityOnHand }}
@@ -369,24 +411,19 @@
 
         <!-- Footer -->
         <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <span class="text-muted small">
-            <i class="fas fa-info-circle text-primary me-1"></i>Audited entry will be logged to transactions ledger
-          </span>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-wms-cancel" (click)="closeAdjustModal()">
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              class="btn btn-wms-submit" 
-              [disabled]="adjustModel.quantityDelta === 0 || !adjustModel.reason || isSaving" 
-              (click)="saveAdjust()"
-            >
-              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
-              <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
-              <span>{{ isSaving ? 'Saving...' : 'Confirm Adjustment' }}</span>
-            </button>
-          </div>
+          <button type="button" class="btn btn-category-cancel" (click)="closeAdjustModal()">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-category-save" 
+            [disabled]="adjustModel.quantityDelta === 0 || !adjustModel.reason || isSaving" 
+            (click)="saveAdjust()"
+          >
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+            <span>{{ isSaving ? 'Saving...' : 'Confirm Adjustment' }}</span>
+          </button>
         </div>
 
       </div>
@@ -419,8 +456,16 @@
           <div class="modal-item-summary-card mb-3">
             <div class="d-flex justify-content-between align-items-start mb-1">
               <div>
-                <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.productSku }}</span>
-                <h6 class="font-weight-bold text-dark mb-0 mt-0.5">{{ selectedItemForAction?.productName }}</h6>
+                <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                  <span class="font-monospace font-weight-bold text-primary">{{ selectedItemForAction?.variantSku || selectedItemForAction?.productSku }}</span>
+                  <span *ngIf="selectedItemForAction?.variantName" class="variant-pill-badge">
+                    <i class="fas fa-tag me-1"></i>{{ selectedItemForAction?.variantName }}
+                  </span>
+                  <span *ngIf="selectedItemForAction?.lpn" class="lpn-pill-badge">
+                    <i class="fas fa-pallet me-1"></i>{{ selectedItemForAction?.lpn }}
+                  </span>
+                </div>
+                <h6 class="font-weight-bold text-dark mb-0 mt-1">{{ selectedItemForAction?.productName }}</h6>
               </div>
               <span class="wms-badge wms-badge-success">
                 Available: {{ selectedItemForAction?.quantityAvailable }}
@@ -477,24 +522,19 @@
 
         <!-- Footer -->
         <div class="modal-footer wms-modal-footer d-flex justify-content-between align-items-center">
-          <span class="text-muted small">
-            <i class="fas fa-info-circle text-primary me-1"></i>Target bin balance will be credited instantly
-          </span>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-wms-cancel" (click)="closeTransferModal()">
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              class="btn btn-wms-submit" 
-              [disabled]="!transferModel.destinationLocationId || transferModel.quantity <= 0 || isSaving" 
-              (click)="saveTransfer()"
-            >
-              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
-              <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
-              <span>{{ isSaving ? 'Transferring...' : 'Execute Relocation' }}</span>
-            </button>
-          </div>
+          <button type="button" class="btn btn-category-cancel" (click)="closeTransferModal()">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-category-save" 
+            [disabled]="!transferModel.destinationLocationId || transferModel.quantity <= 0 || isSaving" 
+            (click)="saveTransfer()"
+          >
+            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!isSaving" class="fas fa-check-circle me-1"></i>
+            <span>{{ isSaving ? 'Transferring...' : 'Execute Relocation' }}</span>
+          </button>
         </div>
 
       </div>

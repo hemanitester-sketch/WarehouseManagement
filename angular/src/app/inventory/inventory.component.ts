@@ -177,9 +177,12 @@ export class InventoryComponent implements OnInit {
       const q = this.searchQuery?.trim().toLowerCase() || '';
       const matchesSearch = !q ||
         item.productSku?.toLowerCase().includes(q) ||
+        item.variantSku?.toLowerCase().includes(q) ||
         item.productName?.toLowerCase().includes(q) ||
+        item.variantName?.toLowerCase().includes(q) ||
         item.locationBarcode?.toLowerCase().includes(q) ||
-        item.lotBatchNumber?.toLowerCase().includes(q);
+        item.lotBatchNumber?.toLowerCase().includes(q) ||
+        item.lpn?.toLowerCase().includes(q);
 
       return matchesSearch;
     });
@@ -241,6 +244,7 @@ export class InventoryComponent implements OnInit {
       warehouseId: item.warehouseId!,
       locationId: item.locationId!,
       productId: item.productId!,
+      productVariantId: item.productVariantId,
       lotBatchNumber: item.lotBatchNumber,
       serialNumber: item.serialNumber,
       lpn: item.lpn,

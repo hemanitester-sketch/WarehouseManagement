@@ -10,8 +10,6 @@ export class ProductService {
   private restService = inject(RestService);
   apiName = 'Default';
   
-
-  
   create = (input: CreateUpdateProductDto, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ProductDto>({
       method: 'POST',
@@ -21,16 +19,12 @@ export class ProductService {
     },
       { apiName: this.apiName,...config });
   
-
-  
   delete = (id: string, config?: Partial<Rest.Config>) =>
     this.restService.request<any, void>({
       method: 'DELETE',
       url: `/api/app/product/${id}`,
     },
       { apiName: this.apiName,...config });
-  
-
   
   findByBarcode = (barcode: string, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ProductDto>({
@@ -41,8 +35,6 @@ export class ProductService {
     },
       { apiName: this.apiName,...config });
   
-
-  
   findBySku = (sku: string, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ProductDto>({
       method: 'POST',
@@ -52,8 +44,6 @@ export class ProductService {
     },
       { apiName: this.apiName,...config });
   
-
-  
   get = (id: string, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ProductDto>({
       method: 'GET',
@@ -61,8 +51,6 @@ export class ProductService {
       url: `/api/app/product/${id}`,
     },
       { apiName: this.apiName,...config });
-  
-
   
   getList = (input: GetProductListDto, config?: Partial<Rest.Config>) =>
     this.restService.request<any, PagedResultDto<ProductDto>>({
@@ -73,8 +61,6 @@ export class ProductService {
     },
       { apiName: this.apiName,...config });
   
-
-  
   update = (id: string, input: CreateUpdateProductDto, config?: Partial<Rest.Config>) =>
     this.restService.request<any, ProductDto>({
       method: 'PUT',
@@ -83,4 +69,15 @@ export class ProductService {
       body: input,
     },
       { apiName: this.apiName,...config });
+
+  uploadImage = (file: File, config?: Partial<Rest.Config>) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.restService.request<any, { url: string }>({
+      method: 'POST',
+      url: '/api/app/product/upload-image',
+      body: formData,
+    },
+      { apiName: this.apiName, ...config });
+  };
 }

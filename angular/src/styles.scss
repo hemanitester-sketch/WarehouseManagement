@@ -1,4 +1,4 @@
-@import 'bootstrap-icons/font/bootstrap-icons.css';
+﻿@import 'bootstrap-icons/font/bootstrap-icons.css';
 /* You can add global styles to this file, and also import other style files */
 
 @keyframes donut-spin {
@@ -39,12 +39,41 @@
   --wms-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
   --wms-shadow-hover: 0 20px 30px -10px rgba(79, 70, 229, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
   accent-color: #2563eb !important;
+  interpolate-size: allow-keywords;
 }
 
 *,
 *:focus,
 *:active {
   accent-color: #2563eb !important;
+  interpolate-size: allow-keywords;
+}
+
+/* Global Checkbox & Radio Styling - Consistent Brand Blue (#2563eb) */
+input[type="checkbox"],
+input[type="radio"],
+.form-check-input {
+  accent-color: #2563eb !important;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #2563eb !important;
+  }
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25) !important;
+  }
+
+  &:checked {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+  }
+
+  &:indeterminate {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+  }
 }
 
 /* Global Select & Dropdown Option Styling - Modern Soft Blue Hover & Active */
@@ -1105,8 +1134,8 @@ body {
 
 /* Premium Modal Header & Form Input Styles (Compact & Sleek) */
 .wms-modal-header {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
-  color: #ffffff !important;
+  background:white;
+  color: #595959 !important;
   padding: 0.9rem 1.4rem !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
 
@@ -1132,7 +1161,8 @@ body {
 
   .modal-title {
     font-size: 1.05rem;
-    color: #ffffff !important;
+    color: #454545e3  !important;
+    font-weight: 700;
   }
 }
 
@@ -1196,7 +1226,7 @@ body {
 }
 
 .wms-compact-label {
-  font-size: 0.72rem;
+  font-size: 0.79rem;
   font-weight: 600;
   color: #475569;
   margin-bottom: 0.2rem;
@@ -1836,9 +1866,23 @@ body #lpx-wrapper.hover-trigger {
     transition: all 0.2s ease;
   }
 
+  /* Caret Dropdown Icon - Butter-Smooth 180° Eased Deceleration Rotation */
   .dd-icon {
     color: #94a3b8 !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    transform-origin: center center;
+    transform: rotate(0deg);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease !important;
+
+    /* Enforce downward chevron glyph so rotating 180deg creates a seamless pointing-up state */
+    .bi-chevron-up::before {
+      content: "\f282" !important;
+    }
   }
 
   &:hover {
@@ -1856,8 +1900,7 @@ body #lpx-wrapper.hover-trigger {
     }
   }
 
-  &.selected,
-  &.expanded {
+  &.selected {
     background-color: #eff6ff !important;
     color: #2563eb !important;
 
@@ -1872,19 +1915,105 @@ body #lpx-wrapper.hover-trigger {
       opacity: 1 !important;
     }
   }
+
+  &.expanded {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+
+    .lpx-menu-item-text {
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+    }
+
+    .lpx-menu-item-icon {
+      color: #2563eb !important;
+      opacity: 1 !important;
+    }
+
+    .dd-icon {
+      color: #2563eb !important;
+      opacity: 1 !important;
+      transform: rotate(180deg) !important;
+    }
+  }
 }
 
-/* Inner Submenu items (e.g. Products & Catalog -> Categories, Products, Administration) */
+/* ==========================================================================
+   Smooth Butter-Soft Accordion Animation for Child Submenus
+   ========================================================================== */
 .lpx-nav-menu .lpx-inner-menu {
+  display: block !important;
   background-color: #f8fafc !important;
   border-left: 2px solid #e2e8f0 !important;
   margin: 3px 8px 6px 18px !important;
   padding: 4px 0 6px 0 !important;
   border-radius: 0 6px 6px 0;
+  overflow: hidden !important;
+  height: auto;
+  max-height: 480px;
+  opacity: 1 !important;
+  transform: translateY(0);
+  transform-origin: top center;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  will-change: height, max-height, opacity, transform, margin, padding;
+  transition: 
+    height 0.34s cubic-bezier(0.16, 1, 0.3, 1),
+    max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease !important;
 
+  /* Level 2 Nested Submenus */
   .lpx-inner-menu {
     margin: 2px 4px 4px 8px !important;
     border-left: 1px dashed #cbd5e1 !important;
+  }
+
+  /* Child links subtle slide & fade in */
+  .lpx-inner-menu-item {
+    opacity: 1;
+    transform: translateX(0);
+    transition: 
+      opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Collapsed State: Zero Height, Smooth Slide-Up, Hidden Cleanly */
+  &.collapsed {
+    display: block !important; /* CRITICAL: Overrides default 'display: none' in layout-bundle.css */
+    height: 0 !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-top-width: 0 !important;
+    border-bottom-width: 0 !important;
+    border-left-color: transparent !important;
+    transform: translateY(-8px) scaleY(0.97) !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transition: 
+      height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+      margin 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+      padding 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.2s ease,
+      visibility 0s linear 0.28s !important;
+
+    .lpx-inner-menu-item {
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: 
+        opacity 0.16s ease,
+        transform 0.2s ease;
+    }
   }
 
   .lpx-inner-menu-item .lpx-menu-item-link {
@@ -1938,6 +2067,11 @@ body #lpx-wrapper.hover-trigger {
       }
     }
   }
+}
+
+/* Strictly hide inner-menus when sidebar itself is in icon-only 72px collapsed mode */
+#lpx-wrapper.hover-trigger .lpx-sidebar-container:not(:hover) .lpx-inner-menu {
+  display: none !important;
 }
 
 /* Topbar background & height to match clean light theme */
@@ -2241,3 +2375,45 @@ nav[aria-label="breadcrumb"] {
 
 
 
+
+/* ==========================================================================
+   GLOBAL BACKGROUND SCROLL LOCK (PREVENTS BACKGROUND PAGE SCROLL & DOUBLE SCROLLER)
+   Locks html, body, and all layout containers when ANY popup, drawer, or modal is open.
+   ========================================================================== */
+html.wms-modal-open,
+html:has(.modal.show),
+html:has(.modal.d-block),
+html:has(.modal-backdrop),
+html:has(.drawer-backdrop),
+html:has([class*="-drawer-modal"]),
+html:has([class*="-drawer-panel"].open),
+body.wms-modal-open,
+body:has(.modal.show),
+body:has(.modal.d-block),
+body:has(.modal-backdrop),
+body:has(.drawer-backdrop),
+body:has([class*="-drawer-modal"]),
+body:has([class*="-drawer-panel"].open) {
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  touch-action: none;
+
+  #lpx-wrapper,
+  .lpx-content-container,
+  .lpx-content-wrapper,
+  .lpx-content,
+  .lpx-main {
+    overflow: hidden !important;
+  }
+}
+
+/* Ensure all full-height drawer modals never produce an outer scrollbar (scrolling is strictly internal inside .modal-body) */
+.category-drawer-modal,
+.product-drawer-modal,
+.wh-drawer-modal,
+.faculty-drawer-modal,
+.inbound-drawer-modal,
+.outbound-drawer-modal,
+[class*="-drawer-modal"] {
+  overflow: hidden !important;
+}

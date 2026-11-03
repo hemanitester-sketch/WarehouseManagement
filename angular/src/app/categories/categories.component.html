@@ -107,7 +107,7 @@
       </div>
 
       <div class="col-12 col-md-2 text-md-end text-muted small">
-        Showing <strong>{{ filteredCategories.length }}</strong> of {{ categories.length }}
+        Showing <strong>{{ filteredCategories.length }}</strong> main categories
       </div>
     </div>
   </div>
@@ -118,25 +118,26 @@
       <table class="table table-hover align-middle mb-0 wms-table categories-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 140px;">Code</th>
-            <th>Category</th>
-            <th style="width: 180px;">Tier / Parent</th>        
+            <th class="text-center ps-3 pe-1" style="width: 44px;"></th>
+            <th style="width: 150px;">Code</th>
+            <th class="cat-name-col">Category Name</th>
+            <th style="width: 160px;">Subcategories</th>        
             <th style="width: 180px;">Description</th>
-            <th style="width: 110px;">Status</th>
-            <th class="text-end pe-3" style="width: 115px;">Actions</th>
+            <th style="width: 100px;">Status</th>
+            <th class="text-end pe-3" style="width: 80px;">Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (isLoading) {
             <tr>
-              <td colspan="6" class="text-center py-5">
+              <td colspan="7" class="text-center py-5">
                 <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
                 <span class="text-muted">Loading categories...</span>
               </td>
             </tr>
           } @else if (filteredCategories.length === 0) {
             <tr>
-              <td colspan="6" class="text-center py-5">
+              <td colspan="7" class="text-center py-5">
                 <div class="text-muted mb-2">
                   <i class="fas fa-folder-open fs-2 text-secondary opacity-50"></i>
                 </div>
@@ -150,57 +151,203 @@
               </td>
             </tr>
           } @else {
-            @for (cat of paginatedCategories; track cat.id) {
-              <tr>
-                <td class="ps-3">
-                  <span class="cat-code-text">{{ cat.code }}</span>
-                </td>
-                <td>
-                  <span class="cat-name-text">{{ cat.name }}</span>
-                </td>
-                <td>
-                  @if (cat.parentCategoryId) {
-                    <span class="cat-tier-sub">{{ cat.parentCategoryName || 'Parent' }}</span>
+            @for (cat of paginatedCategories; track cat.id; let i = $index; let total = $count) {
+              <tr [class.row-expanded]="isCategoryExpanded(cat.id)">
+                <!-- Expand / Collapse Icon -->
+                <td class="text-center ps-3 pe-1">
+                  @if (hasSubcategories(cat)) {
+                    <button
+                      type="button"
+                      class="btn btn-cat-expand"
+                      [class.is-expanded]="isCategoryExpanded(cat.id)"
+                      (click)="toggleCategoryExpand(cat.id)"
+                      [title]="isCategoryExpanded(cat.id) ? 'Collapse Subcategories' : 'Expand Subcategories (' + getTotalSubcategoriesCount(cat.id) + ')'"
+                    >
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
                   } @else {
-                    <span class="cat-tier-main">Main Category</span>
+                    <span class="no-subcat-placeholder" title="No subcategories">•</span>
                   }
                 </td>
+
+                <!-- Category Code -->
+                <td>
+                  <span class="cat-code-text">{{ cat.code }}</span>
+                </td>
+
+                <!-- Category Name -->
+                <td class="cat-name-col">
+                  <span class="cat-name-text fw-semibold" [title]="cat.name">{{ cat.name }}</span>
+                </td>
+
+                <!-- Subcategories Count / Pill -->
+                <td>
+                  @if (hasSubcategories(cat)) {
+                    <button
+                      type="button"
+                      class="badge-subcategories-pill has-subs"
+                      (click)="toggleCategoryExpand(cat.id)"
+                      [title]="isCategoryExpanded(cat.id) ? 'Click to hide subcategories' : 'Click to view subcategories'"
+                    >
+                      <i class="fas fa-sitemap me-1"></i>
+                      <span>{{ getTotalSubcategoriesCount(cat.id) }} Subcategories</span>
+                    </button>
+                  } @else {
+                    <span class="badge-subcategories-pill no-subs">
+                      0 Subcategories
+                    </span>
+                  }
+                </td>
+
+                <!-- Description -->
                 <td style="max-width: 180px;">
                   <span class="cat-desc-text" [title]="cat.description || ''">
                     {{ cat.description || '—' }}
                   </span>
                 </td>
+
+                <!-- Status -->
                 <td>
                   @if (cat.isActive) {
-                    <span class="cat-status-badge active">
-                      <i class="fas fa-check-circle"></i> Active
-                    </span>
+                    <span class="cat-status-badge active">Active</span>
                   } @else {
-                    <span class="cat-status-badge inactive">
-                      <i class="fas fa-minus-circle"></i> Inactive
-                    </span>
+                    <span class="cat-status-badge inactive">Inactive</span>
                   }
                 </td>
+
+                <!-- Actions -->
                 <td class="text-end pe-3">
-                  <div class="d-inline-flex align-items-center gap-1 justify-content-end">
-                    @if (!cat.parentCategoryId) {
-                      <button
-                        class="btn btn-table-action btn-add-sub"
-                        (click)="openCreateModal(cat)"
-                        title="Add Subcategory under this category"
-                      >
-                        <i class="fas fa-plus"></i>
-                      </button>
+                  <div
+                    class="category-actions-wrap position-relative d-inline-block"
+                    [class.dropup]="total > 2 && i >= total - 2"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-action-trigger"
+                      [class.active]="openActionMenuId === cat.id"
+                      (click)="toggleActionMenu(cat.id, $event)"
+                      title="Actions"
+                      aria-label="Actions"
+                    >
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+
+                    @if (openActionMenuId === cat.id) {
+                      <div class="category-action-menu shadow-sm" (click)="$event.stopPropagation()">
+                        <button
+                          type="button"
+                          class="action-item add-sub"
+                          (click)="openCreateModal(cat); closeActionMenu()"
+                        >
+                          <i class="fas fa-plus"></i>
+                          <span>Add Subcategory</span>
+                        </button>
+                        <button
+                          type="button"
+                          class="action-item edit"
+                          (click)="openEditModal(cat); closeActionMenu()"
+                        >
+                          <i class="fas fa-pen"></i>
+                          <span>Edit Category</span>
+                        </button>
+                        <div class="action-divider"></div>
+                        <button
+                          type="button"
+                          class="action-item delete"
+                          (click)="deleteCategory(cat); closeActionMenu()"
+                        >
+                          <i class="fas fa-trash-alt"></i>
+                          <span>Delete Category</span>
+                        </button>
+                      </div>
                     }
-                    <button class="btn btn-table-action btn-edit" (click)="openEditModal(cat)" title="Edit Category">
-                      <i class="fas fa-pen"></i>
-                    </button>
-                    <button class="btn btn-table-action btn-delete" (click)="deleteCategory(cat)" title="Delete Category">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
                   </div>
                 </td>
               </tr>
+
+              <!-- Direct Subcategory Child Rows (Flush alignment with parent table columns, no duplicate headers) -->
+              @if (isCategoryExpanded(cat.id)) {
+                @for (sub of getSubcategories(cat.id); track sub.id; let subIdx = $index; let subTotal = $count) {
+                  <tr class="cat-sub-row">
+                    <!-- Branch Indicator Icon -->
+                    <td class="text-center ps-3 pe-1 cat-branch-cell">
+                      <i class="fas fa-level-up-alt fa-rotate-90"></i>
+                    </td>
+
+                    <!-- Subcategory Code -->
+                    <td>
+                      <span class="cat-code-text">{{ sub.code }}</span>
+                    </td>
+
+                    <!-- Subcategory Name -->
+                    <td class="cat-name-col">
+                      <span class="cat-name-text" [title]="sub.name">{{ sub.name }}</span>
+                    </td>
+
+                    <!-- Subcategory Tier Pill -->
+                    <td>
+                      <span class="cat-tier-sub">Subcategory</span>
+                    </td>
+
+                    <!-- Description -->
+                    <td style="max-width: 180px;">
+                      <span class="cat-desc-text" [title]="sub.description || ''">
+                        {{ sub.description || '—' }}
+                      </span>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                      @if (sub.isActive) {
+                        <span class="cat-status-badge active">Active</span>
+                      } @else {
+                        <span class="cat-status-badge inactive">Inactive</span>
+                      }
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="text-end pe-3">
+                      <div
+                        class="category-actions-wrap position-relative d-inline-block"
+                        [class.dropup]="subTotal > 2 && subIdx >= subTotal - 2"
+                      >
+                        <button
+                          type="button"
+                          class="btn btn-action-trigger"
+                          [class.active]="openActionMenuId === sub.id"
+                          (click)="toggleActionMenu(sub.id, $event)"
+                          title="Actions"
+                          aria-label="Actions"
+                        >
+                          <i class="fas fa-ellipsis-v"></i>
+                        </button>
+
+                        @if (openActionMenuId === sub.id) {
+                          <div class="category-action-menu shadow-sm" (click)="$event.stopPropagation()">
+                            <button
+                              type="button"
+                              class="action-item edit"
+                              (click)="openEditModal(sub); closeActionMenu()"
+                            >
+                              <i class="fas fa-pen"></i>
+                              <span>Edit Category</span>
+                            </button>
+                            <div class="action-divider"></div>
+                            <button
+                              type="button"
+                              class="action-item delete"
+                              (click)="deleteCategory(sub); closeActionMenu()"
+                            >
+                              <i class="fas fa-trash-alt"></i>
+                              <span>Delete Category</span>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
             }
           }
         </tbody>
@@ -264,21 +411,45 @@
 
           <!-- Modal Body -->
           <div class="modal-body p-4">
-            <!-- Row 1: Category Name (Primary Title) -->
+            <!-- Row 1: Category Name -->
             <div class="mb-3">
               <label class="category-form-label">
                 Category Name <span class="text-danger">*</span>
               </label>
               <div class="input-group">
+                <!-- Leading Box -->
                 <span class="input-group-text"><i class="fas fa-tag"></i></span>
+
+                <!-- Middle Input -->
                 <input
                   type="text"
                   class="form-control"
+                  [class.has-trailing]="isCheckingName || (nameTouched && !!formModel.name?.trim())"
                   placeholder="e.g. Pharmaceuticals, Electronics, Mobile Accessories"
                   maxlength="128"
                   [(ngModel)]="formModel.name"
+                  (input)="onNameInput()"
+                  (blur)="onNameBlur()"
                 />
+
+                <!-- Trailing Box: Only rendered when there is input or checking -->
+                @if (isCheckingName || (nameTouched && formModel.name?.trim())) {
+                  <span class="input-group-text input-group-trailing">
+                    @if (isCheckingName) {
+                      <span class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                    } @else if (nameTouched && isNameDuplicate) {
+                      <i class="fas fa-times-circle status-anim-icon text-danger"></i>
+                    } @else if (nameTouched && !isNameDuplicate && formModel.name?.trim() && formModel.name.length >= 2) {
+                      <i class="fas fa-check-circle status-anim-icon text-success"></i>
+                    }
+                  </span>
+                }
               </div>
+
+              <!-- Clean Short Text Below: Only on duplicate/wrong -->
+              @if (!isCheckingName && nameTouched && isNameDuplicate) {
+                <div class="short-feedback-msg text-danger">Already exists</div>
+              }
             </div>
 
             <!-- Row 2: Category Code & Parent Category (2-Column Solid Grid) -->
@@ -288,16 +459,41 @@
                   Category Code <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
+                  <!-- Leading Box -->
                   <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+
+                  <!-- Middle Input -->
                   <input
                     type="text"
                     class="form-control text-uppercase"
+                    [class.has-trailing]="isCheckingCode || (codeTouched && !!formModel.code?.trim())"
                     placeholder="e.g. PHARM, ELEC"
                     maxlength="32"
                     [(ngModel)]="formModel.code"
+                    (input)="onCodeInput()"
+                    (blur)="onCodeBlur()"
                   />
+
+                  <!-- Trailing Box: Only rendered when there is input or checking -->
+                  @if (isCheckingCode || (codeTouched && formModel.code?.trim())) {
+                    <span class="input-group-text input-group-trailing">
+                      @if (isCheckingCode) {
+                        <span class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                      } @else if (codeTouched && isCodeDuplicate) {
+                        <i class="fas fa-times-circle status-anim-icon text-danger"></i>
+                      } @else if (codeTouched && !isCodeDuplicate && formModel.code?.trim()) {
+                        <i class="fas fa-check-circle status-anim-icon text-success"></i>
+                      }
+                    </span>
+                  }
                 </div>
-                <div class="category-form-hint">Unique identifier code</div>
+
+                <!-- Clean Short Text Below: Only on duplicate/wrong -->
+                @if (!isCheckingCode && codeTouched && isCodeDuplicate) {
+                  <div class="short-feedback-msg text-danger">Already exists</div>
+                } @else if (!codeTouched || !formModel.code?.trim()) {
+                  <div class="category-form-hint">Unique identifier code</div>
+                }
               </div>
 
               <div class="col-12 col-md-7">
@@ -305,7 +501,7 @@
                   Parent Category <span class="text-muted fw-normal text-none">(Optional)</span>
                 </label>
                 <select class="form-select category-select" [(ngModel)]="formModel.parentCategoryId">
-                  <option [ngValue]="null">None (Top-Level Main Category)</option>
+                  <option [ngValue]="null">None (Main Category)</option>
                   @for (parent of parentCategoryOptions; track parent.id) {
                     @if (!editingCategoryId || parent.id !== editingCategoryId) {
                       <option [ngValue]="parent.id">{{ parent.name }} ({{ parent.code }})</option>
@@ -361,7 +557,13 @@
             <button type="button" class="btn btn-category-cancel" (click)="closeModal()" [disabled]="isSaving">
               Cancel
             </button>
-            <button type="button" class="btn btn-category-save d-flex align-items-center gap-2" (click)="saveCategory()" [disabled]="isSaving">
+            <button
+              type="button"
+              class="btn btn-category-save d-flex align-items-center gap-2"
+              (click)="saveCategory()"
+              [disabled]="isSaving || isCodeDuplicate || isCheckingCode || !formModel.code?.trim() || !formModel.name?.trim()"
+              [title]="isCodeDuplicate ? 'Cannot save: Category code is already taken' : 'Save category'"
+            >
               @if (isSaving) {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 <span>Saving...</span>

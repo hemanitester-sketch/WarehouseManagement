@@ -5,10 +5,7 @@
       <div class="d-flex align-items-center gap-2">
         <h2 class="h4 font-weight-bold text-dark mb-0">Inbound Receiving & Putaway</h2>
         <span class="wms-badge wms-badge-primary inbound-badge">PO & ASN Operations</span>
-      </div>
-      <p class="text-muted inbound-subtitle mb-0 mt-1">
-        Dock-to-bin receiving: record supplier shipments, assign lot/batch & expiry dates, and putaway directly into barcode bins.
-      </p>
+      </div>    
     </div>
     <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateOrderModal()">
       <i class="fas fa-plus pe-1"></i>
@@ -95,55 +92,57 @@
 
   <!-- Orders Table -->
   <div *ngIf="!isLoading && orders.length > 0" class="card inbound-table-card overflow-hidden">
-    <div class="table-responsive">
+    <div class="table-responsive wms-inbound-table-responsive">
       <table class="table table-hover align-middle mb-0 wms-table inbound-table">
         <thead class="table-light">
           <tr>
-            <th class="ps-3" style="width: 190px; min-width: 180px; white-space: nowrap;">PO Number</th>
-            <th style="width: 200px; min-width: 190px; white-space: nowrap;">Facility</th>
-            <th>Supplier</th>
-            <th style="width: 130px;">Expected Arrival</th>
-            <th class="text-center" style="width: 70px;">Lines</th>
-            <th class="text-end" style="width: 120px;">Expected Qty</th>
-            <th class="text-end" style="width: 110px;">Received Qty</th>
-            <th class="text-center" style="width: 130px;">Status</th>
-            <th class="text-end pe-3" style="width: 80px;">Action</th>
+            <th class="ps-3 col-inb-po">PO Number</th>
+            <th class="col-inb-facility">Facility</th>
+            <th class="col-inb-supplier">Supplier</th>
+            <th class="col-inb-date">Expected Arrival</th>
+            <th class="col-inb-lines text-center">Lines</th>
+            <th class="col-inb-qty text-end">Expected Qty</th>
+            <th class="col-inb-qty text-end">Received Qty</th>
+            <th class="col-inb-status text-center">Status</th>
+            <th class="col-inb-action text-end pe-3">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let ord of paginatedOrders">
-            <td class="ps-3" style="width: 190px; min-width: 180px; white-space: nowrap;">
-              <span class="inbound-cell-text font-monospace fw-bold d-block text-primary text-nowrap">{{ ord.orderNumber }}</span>
-            </td>
-            <td style="width: 200px; min-width: 190px; white-space: nowrap;">
-              <span class="inbound-cell-text d-block fw-semibold text-dark text-nowrap">
-                <i class="fas fa-warehouse text-primary me-1"></i>{{ ord.warehouseCode || 'WH-01' }}
+            <td class="ps-3 col-inb-po">
+              <span class="inb-truncate-po font-monospace fw-bold " [title]="ord.orderNumber">
+                {{ ord.orderNumber }}
               </span>
-              <small class="inbound-cell-subtext text-nowrap" *ngIf="ord.warehouseName">{{ ord.warehouseName }}</small>
             </td>
-            <td>
-              <span class="inbound-cell-text d-block">{{ ord.supplierName }}</span>
-              <small class="inbound-cell-subtext">{{ ord.supplierInvoiceNumber || 'No Invoice #' }}</small>
+            <td class="col-inb-facility">
+              <span class="inb-truncate-facility fw-semibold  " [title]="(ord.warehouseCode || 'WH-01') + (ord.warehouseName ? ' - ' + ord.warehouseName : '')">
+               {{ ord.warehouseCode || 'WH-01' }}
+                <span *ngIf="ord.warehouseName" class="text-muted fw-normal ms-1">({{ ord.warehouseName }})</span>
+              </span>
             </td>
-            <td>
-              <span class="inbound-cell-text">{{ ord.expectedArrivalDate | date:'mediumDate' }}</span>
+            <td class="col-inb-supplier">
+              <span class="inb-truncate-supplier fw-medium " [title]="ord.supplierName + (ord.supplierInvoiceNumber ? ' (Inv: ' + ord.supplierInvoiceNumber + ')' : '')">
+                {{ ord.supplierName }}
+              </span>
             </td>
-            <td class="text-center">
+            <td class="col-inb-date">
+              <span class="inbound-cell-text text-nowrap">{{ ord.expectedArrivalDate | date:'mediumDate' }}</span>
+            </td>
+            <td class="col-inb-lines text-center">
               <span class="inbound-lines-badge">{{ ord.totalLines }}</span>
             </td>
-            <td class="text-end">
+            <td class="col-inb-qty text-end">
               <span class="inbound-cell-text font-monospace">{{ ord.totalExpectedQuantity | number }}</span>
             </td>
-            <td class="text-end">
-              <span class="inbound-cell-text font-monospace text-success font-weight-bold">{{ ord.totalReceivedQuantity | number }}</span>
+            <td class="col-inb-qty text-end">
+              <span class="inbound-cell-text font-monospace text-success fw-bold">{{ ord.totalReceivedQuantity | number }}</span>
             </td>
-            <td class="text-center">
-              <span class="inbound-status-pill" [ngClass]="getStatusBadge(ord.status)">
-                <i class="fas fa-circle me-1" style="font-size: 0.45rem;"></i>
+            <td class="col-inb-status text-center">
+              <span class="inbound-status-pill text-nowrap" [ngClass]="getStatusBadge(ord.status)">                
                 {{ getStatusLabel(ord.status) }}
               </span>
             </td>
-            <td class="text-end pe-3">
+            <td class="col-inb-action text-end pe-3">
               <button 
                 type="button" 
                 class="btn btn-table-action btn-receive" 
@@ -225,6 +224,32 @@
           <button type="button" class="btn-close btn-close-white" (click)="selectedOrder = null"></button>
         </div>
         <div class="wms-modal-body">
+          <!-- Dock Barcode Rapid Scanner Toolbar -->
+          <div class="dock-scan-toolbar p-2 mb-3 rounded border d-flex align-items-center gap-2">
+            <span class="dock-scan-tag"><i class="fas fa-barcode me-1"></i> DOCK SCAN</span>
+            <div class="input-group input-group-sm flex-grow-1">
+              <span class="input-group-text bg-white border-end-0"><i class="fas fa-qrcode text-muted"></i></span>
+              <input 
+                type="text" 
+                class="form-control font-monospace border-start-0" 
+                placeholder="Scan Barcode, Variant SKU or Supplier Barcode to auto-match & receive..." 
+                [(ngModel)]="quickReceiveBarcode" 
+                (keydown.enter)="onDockScanBarcode()"
+                [disabled]="isScanningBarcode"
+              />
+            </div>
+            <button 
+              type="button" 
+              class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1 text-nowrap" 
+              (click)="onDockScanBarcode()" 
+              [disabled]="isScanningBarcode || !quickReceiveBarcode.trim()"
+            >
+              <span *ngIf="isScanningBarcode" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isScanningBarcode" class="fas fa-bolt me-1"></i>
+              <span>Receive Scan</span>
+            </button>
+          </div>
+
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="wms-form-section-title mb-0">Order Line Items</span>
             <span class="text-muted small">Total Lines: <strong>{{ selectedOrder.lines?.length || 0 }}</strong></span>
@@ -235,7 +260,7 @@
               <table class="table table-hover align-middle mb-0 wms-table inbound-table">
                 <thead class="table-light">
                   <tr>
-                    <th class="ps-3">Product / SKU</th>
+                    <th class="ps-3">Product / SKU / Variant</th>
                     <th class="text-end">Expected Qty</th>
                     <th class="text-end">Received Qty</th>
                     <th class="text-end">Remaining</th>
@@ -247,7 +272,12 @@
                 <tbody>
                   <tr *ngFor="let line of selectedOrder.lines">
                     <td class="ps-3">
-                      <span class="inbound-cell-text font-monospace d-block text-primary">{{ line.productSku }}</span>
+                      <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                        <span class="inbound-cell-text font-monospace text-primary fw-bold">{{ line.variantSku || line.productSku }}</span>
+                        <span *ngIf="line.variantName" class="variant-pill-badge">
+                          <i class="fas fa-tag me-1"></i>{{ line.variantName }}
+                        </span>
+                      </div>
                       <small class="inbound-cell-subtext">{{ line.productName }}</small>
                     </td>
                     <td class="text-end">
@@ -288,8 +318,10 @@
             </div>
           </div>
         </div>
-        <div class="wms-modal-footer d-flex justify-content-end">
-          <button type="button" class="btn-wms-cancel" (click)="selectedOrder = null">Close</button>
+        <div class="modal-footer inbound-drawer-footer d-flex justify-content-end">
+          <button type="button" class="btn btn-category-cancel" (click)="selectedOrder = null">
+            <i class="fas fa-times me-1"></i> Close
+          </button>
         </div>
       </div>
     </div>
@@ -298,43 +330,75 @@
   <!-- Modal 2: Dock Putaway & Stock Deposit Modal -->
   <div *ngIf="isReceiveModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content wms-modal-content">
+      <div class="modal-content wms-modal-content border-0 shadow-lg">
         <div class="wms-modal-header-receive d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-3">
             <div class="wms-modal-icon-badge">
               <i class="fas fa-dolly-flatbed"></i>
             </div>
             <div>
-              <h5 class="modal-title mb-0">Dock Putaway & Stock Deposit</h5>
-              <p class="small text-white-50 mb-0 mt-1">Receive physical items and assign to warehouse bin</p>
+              <h5 class="modal-title font-weight-bold mb-0 text-white">Dock Putaway & Stock Deposit</h5>
+              <p class="small text-white-50 mb-0 mt-0.5">Receive physical items and assign to warehouse bin location</p>
             </div>
           </div>
-          <button type="button" class="btn-close btn-close-white" (click)="isReceiveModalOpen = false"></button>
+          <button type="button" class="btn-close btn-close-white" (click)="isReceiveModalOpen = false" aria-label="Close"></button>
         </div>
         <div class="wms-modal-body">
           <div class="po-summary-banner mb-3">
-            <strong class="d-block text-primary font-monospace">{{ selectedLineForReceive?.productSku }}</strong>
-            <span class="text-dark small d-block font-weight-bold">{{ selectedLineForReceive?.productName }}</span>
-            <small class="text-muted">
-              Expected: <strong>{{ selectedLineForReceive?.expectedQuantity }}</strong> | 
-              Already Received: <strong class="text-success">{{ selectedLineForReceive?.receivedQuantity }}</strong>
-            </small>
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                  <span class="font-monospace text-primary fw-bold" style="font-size: 0.92rem;">
+                    {{ selectedLineForReceive?.variantSku || selectedLineForReceive?.productSku }}
+                  </span>
+                  <span *ngIf="selectedLineForReceive?.variantName" class="variant-pill-badge">
+                    <i class="fas fa-tag me-1"></i>{{ selectedLineForReceive?.variantName }}
+                  </span>
+                </div>
+                <div class="text-dark small font-weight-bold mt-1">{{ selectedLineForReceive?.productName }}</div>
+                
+                <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                  <span class="badge bg-white text-secondary border font-monospace">
+                    Expected: <strong class="text-dark">{{ selectedLineForReceive?.expectedQuantity | number }}</strong>
+                  </span>
+                  <span class="badge bg-white text-success border border-success-subtle font-monospace">
+                    Received: <strong>{{ selectedLineForReceive?.receivedQuantity | number }}</strong>
+                  </span>
+                  <span class="badge bg-white text-warning border border-warning-subtle font-monospace">
+                    Remaining: <strong>{{ ((selectedLineForReceive?.expectedQuantity || 0) - (selectedLineForReceive?.receivedQuantity || 0)) | number }}</strong>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Smart Tracking Badges -->
+              <div class="d-flex flex-column align-items-end gap-1">
+                <span *ngIf="isExpiryRequired" class="tracking-pill tracking-fefo">
+                  <i class="fas fa-hourglass-half me-1"></i> FEFO Tracked
+                </span>
+                <span *ngIf="isLotRequired" class="tracking-pill tracking-lot">
+                  <i class="fas fa-layer-group me-1"></i> Lot Tracked
+                </span>
+                <span *ngIf="isSerialRequired" class="tracking-pill tracking-serial">
+                  <i class="fas fa-barcode me-1"></i> Serial Tracked
+                </span>
+              </div>
+            </div>
           </div>
 
           <div class="row g-2">
             <div class="col-12">
-              <label class="wms-compact-label">Quantity to Receive *</label>
+              <label class="wms-compact-label">Quantity to Receive <span class="text-danger">*</span></label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-calculator input-icon"></i>
-                <input type="number" class="form-control" [(ngModel)]="receiveModel.receivedQuantity" min="1" />
+                <input type="number" class="form-control font-monospace" [(ngModel)]="receiveModel.receivedQuantity" min="1" placeholder="Enter quantity" />
               </div>
             </div>
 
             <div class="col-12">
-              <label class="wms-compact-label">Target Destination Bin Location *</label>
+              <label class="wms-compact-label">Target Destination Bin Location <span class="text-danger">*</span></label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-map-marker-alt input-icon"></i>
-                <select class="form-select" [(ngModel)]="receiveModel.destinationLocationId">
+                <select class="form-select font-monospace" [(ngModel)]="receiveModel.destinationLocationId">
                   <option value="" disabled>-- Select Destination Bin Location --</option>
                   <option *ngFor="let loc of locations" [value]="loc.id">
                     {{ loc.barcode }} ({{ loc.aisle }}-{{ loc.rack }}-{{ loc.shelf }}-{{ loc.bin }})
@@ -344,18 +408,33 @@
             </div>
 
             <div class="col-6">
-              <label class="wms-compact-label">Lot / Batch Number *</label>
+              <label class="wms-compact-label">
+                Lot / Batch Number <span *ngIf="isLotRequired" class="text-danger">*</span>
+              </label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-barcode input-icon"></i>
-                <input type="text" class="form-control" [(ngModel)]="receiveModel.lotBatchNumber" placeholder="LOT-XXX" />
+                <input type="text" class="form-control font-monospace" [(ngModel)]="receiveModel.lotBatchNumber" placeholder="LOT-XXX" />
               </div>
             </div>
 
             <div class="col-6">
-              <label class="wms-compact-label">Expiry Date (FEFO)</label>
+              <label class="wms-compact-label">
+                Expiry Date (FEFO) <span *ngIf="isExpiryRequired" class="text-danger">*</span>
+              </label>
               <div class="wms-input-icon-group">
                 <i class="fas fa-calendar-alt input-icon"></i>
-                <input type="date" class="form-control" [(ngModel)]="receiveModel.expiryDate" />
+                <input type="date" class="form-control font-monospace" [(ngModel)]="receiveModel.expiryDate" />
+              </div>
+              <div *ngIf="isExpiryRequired" class="short-feedback-msg text-warning">
+                Mandatory for FEFO stock dispatch
+              </div>
+            </div>
+
+            <div class="col-12" *ngIf="isSerialRequired">
+              <label class="wms-compact-label">Serial Number <span class="text-danger">*</span></label>
+              <div class="wms-input-icon-group">
+                <i class="fas fa-fingerprint input-icon"></i>
+                <input type="text" class="form-control font-monospace" [(ngModel)]="receiveModel.serialNumber" placeholder="e.g. SN-98234-A" />
               </div>
             </div>
 
@@ -368,10 +447,14 @@
             </div>
           </div>
         </div>
-        <div class="wms-modal-footer d-flex justify-content-end gap-2">
-          <button type="button" class="btn-wms-cancel" (click)="isReceiveModalOpen = false">Cancel</button>
-          <button type="button" class="btn-wms-receive-submit" (click)="executeReceive()" [disabled]="isSaving">
-            <i class="fas fa-check-circle me-1"></i> Confirm Receipt & Deposit Stock
+        <div class="modal-footer inbound-drawer-footer d-flex justify-content-between align-items-center">
+          <button type="button" class="btn btn-category-cancel" (click)="isReceiveModalOpen = false">
+            <i class="fas fa-times me-1"></i> Cancel
+          </button>
+          <button type="button" class="btn btn-category-save" (click)="executeReceive()" [disabled]="isSaving || receiveModel.receivedQuantity <= 0 || !receiveModel.destinationLocationId">
+            <i class="fas fa-check-circle me-1" *ngIf="!isSaving"></i>
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
+            <span>Confirm Receipt & Deposit Stock</span>
           </button>
         </div>
       </div>
@@ -383,13 +466,10 @@
     <div class="modal-dialog inbound-drawer-dialog">
       <div class="modal-content inbound-drawer-content">
         <!-- Header: Clean Royal Blue Theme matching Warehouse & Faculty Drawers -->
-        <div class="modal-header inbound-drawer-header text-white d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <div class="inbound-drawer-icon-box bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
-              <i class="fas fa-cart-plus"></i>
-            </div>
+        <div class="wms-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">           
             <div>
-              <h5 class="modal-title font-weight-bold mb-0 text-white">Create Inbound Purchase Order</h5>
+              <h5 class="modal-title font-weight-bold mb-0 ">Create Inbound Purchase Order</h5>
               <p class="small text-white-50 mb-0">Record new supplier shipment and replenishment order</p>
             </div>
           </div>
@@ -401,10 +481,28 @@
           <span class="wms-form-section-title">Purchase Order Details</span>
           <div class="row g-2 mb-3">
             <div class="col-6">
-              <label class="wms-compact-label">PO Number *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-hashtag input-icon"></i>
-                <input type="text" class="form-control font-monospace font-weight-bold" [(ngModel)]="newOrder.orderNumber" placeholder="PO-2026-XXXX" />
+              <label class="wms-compact-label">
+                PO Number <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                <input 
+                  type="text" 
+                  class="form-control text-uppercase font-monospace font-weight-bold" 
+                  [class.has-trailing]="isCheckingOrderNumber || (orderNumberTouched && !!newOrder.orderNumber?.trim())"
+                  placeholder="e.g. PO-2026-1001" 
+                  [(ngModel)]="newOrder.orderNumber" 
+                  (input)="onOrderNumberInput()"
+                  (blur)="onOrderNumberBlur()"
+                />
+                <span *ngIf="isCheckingOrderNumber || (orderNumberTouched && newOrder.orderNumber?.trim())" class="input-group-text input-group-trailing">
+                  <span *ngIf="isCheckingOrderNumber" class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                  <i *ngIf="!isCheckingOrderNumber && orderNumberTouched && isOrderNumberDuplicate" class="fas fa-times-circle status-anim-icon text-danger"></i>
+                  <i *ngIf="!isCheckingOrderNumber && orderNumberTouched && !isOrderNumberDuplicate && newOrder.orderNumber?.trim()" class="fas fa-check-circle status-anim-icon text-success"></i>
+                </span>
+              </div>
+              <div *ngIf="!isCheckingOrderNumber && orderNumberTouched && isOrderNumberDuplicate" class="short-feedback-msg text-danger">
+                PO Number already exists in records
               </div>
             </div>
 
@@ -472,8 +570,9 @@
           <span class="wms-form-section-title">Add Line Items to Order</span>
           <div class="po-items-section mb-3">
             <div class="row g-2 align-items-end">
-              <div class="col-5">
-                <label class="wms-compact-label">Select SKU / Product *</label>
+              <!-- Product Selector -->
+              <div [ngClass]="availableVariantsForSelectedProduct.length > 0 ? 'col-md-4 col-12' : 'col-md-5 col-12'">
+                <label class="wms-compact-label">Select Product *</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-box input-icon"></i>
                   <select class="form-select" [(ngModel)]="selectedProductForLine" (ngModelChange)="onProductSelected()">
@@ -485,26 +584,45 @@
                 </div>
               </div>
 
-              <div class="col-2">
+              <!-- Dynamic Variant Selector for Variant-Based Products -->
+              <div *ngIf="availableVariantsForSelectedProduct.length > 0" class="col-md-3 col-12">
+                <label class="wms-compact-label">
+                  Select Variant *
+                  <span *ngIf="isLoadingVariants" class="spinner-border spinner-border-sm ms-1 text-primary"></span>
+                </label>
+                <div class="wms-input-icon-group">
+                  <i class="fas fa-tags input-icon text-primary"></i>
+                  <select class="form-select font-monospace" [(ngModel)]="selectedVariantForLine" (ngModelChange)="onVariantSelected()">
+                    <option *ngFor="let v of availableVariantsForSelectedProduct" [value]="v.id">
+                      {{ v.sku }} - {{ v.variantName || 'Default' }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div class="col-md-2 col-6">
                 <label class="wms-compact-label">Quantity *</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-calculator input-icon"></i>
-                  <input type="number" class="form-control text-center" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
+                  <input type="number" class="form-control text-center font-monospace" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
                 </div>
               </div>
 
-              <div class="col-3">
+              <!-- Unit Price -->
+              <div [ngClass]="availableVariantsForSelectedProduct.length > 0 ? 'col-md-2 col-6' : 'col-md-3 col-6'">
                 <label class="wms-compact-label">Unit Price (₹)</label>
                 <div class="wms-input-icon-group">
                   <i class="fas fa-rupee-sign input-icon"></i>
-                  <input type="number" class="form-control" [(ngModel)]="priceForLine" min="0" placeholder="Price" />
+                  <input type="number" class="form-control font-monospace" [(ngModel)]="priceForLine" min="0" placeholder="Price" />
                 </div>
               </div>
 
-              <div class="col-2">
+              <!-- Add Line Button -->
+              <div [ngClass]="availableVariantsForSelectedProduct.length > 0 ? 'col-md-1 col-12' : 'col-md-2 col-12'">
                 <button type="button" class="btn btn-wms-primary btn-add-line w-100" (click)="addLineToOrder()" title="Add Line Item">
-                  <i class="fas fa-plus me-1"></i>
-                  <span>Add</span>
+                  <i class="fas fa-plus"></i>
+                  <span class="d-md-none ms-1">Add</span>
                 </button>
               </div>
             </div>
@@ -516,7 +634,7 @@
                   <table class="table table-hover align-middle mb-0 wms-table inbound-table">
                     <thead class="table-light">
                       <tr>
-                        <th class="ps-3">Product / SKU</th>
+                        <th class="ps-3">Product / SKU / Variant</th>
                         <th class="text-end">Quantity</th>
                         <th class="text-end">Unit Price</th>
                         <th class="text-end">Subtotal</th>
@@ -526,7 +644,12 @@
                     <tbody>
                       <tr *ngFor="let l of newOrder.lines; let idx = index" class="po-item-row">
                         <td class="ps-3">
-                          <span class="inbound-cell-text font-monospace d-block text-primary">{{ getProductSku(l.productId) }}</span>
+                          <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="inbound-cell-text font-monospace text-primary fw-bold">{{ getLineSku(l) }}</span>
+                            <span *ngIf="getLineVariantName(l)" class="variant-pill-badge">
+                              <i class="fas fa-tag me-1"></i>{{ getLineVariantName(l) }}
+                            </span>
+                          </div>
                           <small class="inbound-cell-subtext">{{ getProductName(l.productId) }}</small>
                         </td>
                         <td class="text-end">
@@ -587,7 +710,7 @@
           <button type="button" class="btn btn-category-cancel" (click)="isCreateOrderModalOpen = false">
             <i class="fas fa-times me-1"></i> Cancel
           </button>
-          <button type="button" class="btn btn-category-save" (click)="saveOrder()" [disabled]="isSaving || (!newOrder.lines || newOrder.lines.length === 0)">
+          <button type="button" class="btn btn-category-save" (click)="saveOrder()" [disabled]="isSaving || isOrderNumberDuplicate || isCheckingOrderNumber || !newOrder.orderNumber?.trim() || (!newOrder.lines || newOrder.lines.length === 0)">
             <i class="fas fa-check-circle me-1" *ngIf="!isSaving"></i>
             <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
             <span>Create Purchase Order</span>

@@ -6,7 +6,7 @@
         <div class="d-flex align-items-center gap-2 flex-nowrap">
           <h2 class="h4 font-weight-bold text-dark mb-0 text-nowrap">Operations Command Center</h2>
           <span class="wms-badge wms-badge-primary text-nowrap">Multi-Facility Live</span>
-          <span class="telemetry-pill d-none d-xl-inline-flex align-items-center gap-1.5 text-nowrap">
+          <span class="telemetry-pill d-none d-xl-inline-flex align-items-center gap-1 text-nowrap">
             <span class="pulse-dot"></span>
             <span>Telemetry Active</span>
           </span>
@@ -31,14 +31,14 @@
         </div>
 
         <!-- Shift Badge -->
-        <div class="shift-badge d-none d-lg-flex align-items-center gap-1.5 text-nowrap">
+        <div class="shift-badge d-none d-lg-flex align-items-center gap-1 text-nowrap">
           <i class="bi bi-clock text-muted"></i>
           <span>Shift A</span>
         </div>
 
         <!-- Refresh Telemetry Button -->
         <button 
-          class="btn btn-sm sync-btn d-flex align-items-center gap-1.5 text-nowrap" 
+          class="btn btn-sm sync-btn d-flex align-items-center gap-1 text-nowrap" 
           (click)="fetchRealDashboardData()" 
           [disabled]="isLoadingRealData" 
           title="Refresh Live Data"
@@ -79,7 +79,7 @@
     </div>
 
     <!-- 2. Live Fulfillment & Throughput Pipeline Banner -->
-    <div class="dash-card mb-3 p-2.5 px-3 pipeline-banner">
+    <div class="dash-card mb-3 p-2 px-3 pipeline-banner">
       <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
         <div class="d-flex align-items-center gap-2">
           <i class="bi bi-diagram-3 text-primary fs-6"></i>
@@ -118,7 +118,7 @@
       <!-- Stock Velocity Line & Area Chart -->
       <div class="col-12 col-lg-7">
         <div class="dash-card h-100">
-          <div class="dash-card-header mb-2.5">
+          <div class="dash-card-header mb-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-graph-up text-primary fs-5"></i>
@@ -171,23 +171,23 @@
 
               <!-- Dynamic Lines -->
               @if (blueLinePath) {
-                <path [attr.d]="blueLinePath" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" />
+                <path [attr.d]="blueLinePath" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" />
               }
 
               @if (greenLinePath) {
-                <path [attr.d]="greenLinePath" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+                <path [attr.d]="greenLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" />
               }
 
               <!-- Dynamic Data Dots Blue -->
               @for (pt of blueLinePoints; track pt.date) {
-                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5">
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1">
                   <title>{{ pt.date }}: {{ pt.value | number }} On Hand</title>
                 </circle>
               }
 
               <!-- Dynamic Data Dots Green -->
               @for (pt of greenLinePoints; track pt.date) {
-                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#10b981" stroke="#ffffff" stroke-width="1.5">
+                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#10b981" stroke="#ffffff" stroke-width="1">
                   <title>{{ pt.date }}: {{ pt.value | number }} Available</title>
                 </circle>
               }
@@ -200,7 +200,7 @@
           </div>
 
           <!-- Under-Chart Operational Throughput Summary Strip -->
-          <div class="throughput-summary-strip mt-2.5 pt-2 border-top border-slate-100">
+          <div class="throughput-summary-strip mt-2 pt-2 border-top border-slate-100">
             <div class="row g-2 text-center">
               <div class="col-3 border-end">
                 <div class="text-muted font-size-11">7-Day Receipts</div>
@@ -227,7 +227,7 @@
       <div class="col-12 col-lg-5">
         <div class="dash-card h-100 d-flex flex-column justify-content-between">
           <div>
-            <div class="dash-card-header mb-2.5 d-flex justify-content-between align-items-center">
+            <div class="dash-card-header mb-2 d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-building text-primary fs-5"></i>
                 <div>
@@ -260,12 +260,12 @@
               <!-- Legend List on Right -->
               <div class="warehouse-legend-list flex-grow-1 min-w-0">
                 @for (item of warehouseStock; track $index) {
-                  <div class="d-flex justify-content-between align-items-center mb-1.5 gap-2">
-                    <div class="d-flex align-items-center gap-1.5 min-w-0">
+                  <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+                    <div class="d-flex align-items-center gap-1 min-w-0">
                       <span class="legend-color-dot flex-shrink-0" [style.background-color]="item.color"></span>
                       <span class="legend-wh-name text-truncate font-size-12" [title]="item.name">{{ item.name }}</span>
                     </div>
-                    <div class="d-flex align-items-center gap-1.5 flex-shrink-0 ms-auto font-size-12">
+                    <div class="d-flex align-items-center gap-1 flex-shrink-0 ms-auto font-size-12">
                       <span class="fw-bold text-dark">{{ item.units | number }}</span>
                       <span class="text-muted font-size-11">({{ item.percent }}%)</span>
                     </div>
@@ -276,7 +276,7 @@
           </div>
 
           <!-- Storage Zone Capacity Progress Bars -->
-          <div class="storage-capacity-block mt-3 pt-2.5 border-top border-slate-100">
+          <div class="storage-capacity-block mt-3 pt-2 border-top border-slate-100">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="fw-bold text-dark font-size-12"><i class="bi bi-grid-3x3 text-muted me-1"></i>Warehouse Zone Capacity</span>
               <span class="text-muted font-size-11">Occupancy Load</span>
@@ -308,7 +308,7 @@
       <!-- Top SKUs & Inventory Health Status -->
       <div class="col-12 col-xl-5 col-lg-6">
         <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2.5">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-box-seam text-primary fs-5"></i>
               <div>
@@ -360,7 +360,7 @@
       <!-- Live Operational Audit Stream -->
       <div class="col-12 col-xl-3 col-lg-6">
         <div class="dash-card h-100">
-          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2.5">
+          <div class="dash-card-header d-flex justify-content-between align-items-center mb-2">
             <div class="d-flex align-items-center gap-2 min-w-0" style="min-width: 0;">
               <i class="bi bi-clock-history text-primary fs-5 flex-shrink-0"></i>
               <div>
@@ -373,7 +373,7 @@
 
           <div class="activities-timeline">
             @for (act of activities; track act.title + act.time) {
-              <div class="timeline-row d-flex align-items-start gap-2 mb-2.5">
+              <div class="timeline-row d-flex align-items-start gap-2 mb-2">
                 <div class="timeline-dot-wrapper flex-shrink-0">
                   <span class="timeline-dot" [style.background-color]="act.dotColor"></span>
                 </div>
@@ -395,7 +395,7 @@
       <div class="col-12 col-xl-4 col-lg-12">
         <div class="dash-card d-flex flex-column justify-content-between command-desk-card">
           <div>
-            <div class="dash-card-header mb-2.5">
+            <div class="dash-card-header mb-2">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-lightning-charge text-primary fs-5"></i>
                 <div>
@@ -421,12 +421,12 @@
           </div>
 
           <!-- Enterprise System Telemetry Badge Box -->
-          <div class="telemetry-box mt-3 p-2.5 rounded-3 bg-light border border-slate-100">
-            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1.5">
+          <div class="telemetry-box mt-3 p-2 rounded-3 bg-light border border-slate-100">
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
               <span><i class="bi bi-database text-success me-1"></i>Database Cluster:</span>
               <span class="fw-semibold text-dark">PostgreSQL 16 Live</span>
             </div>
-            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1.5">
+            <div class="d-flex justify-content-between align-items-center font-size-11 text-muted mb-1">
               <span><i class="bi bi-broadcast text-primary me-1"></i>Telemetry Latency:</span>
               <span class="fw-semibold text-success">&lt; 28 ms</span>
             </div>

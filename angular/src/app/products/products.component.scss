@@ -1,4 +1,4 @@
-/* Products & SKU Module Styles */
+/* Products & SKU Enterprise Module Styles */
 
 .products-container {
   padding: 0.5rem 0 1.5rem 0;
@@ -25,6 +25,87 @@
     background: #1d4ed8 !important;
     border-color: #1d4ed8 !important;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32) !important;
+  }
+}
+
+/* Quick Barcode Scan Toolbar - Unified Single-Control Design */
+.barcode-quick-scan-wrapper {
+  width: 295px;
+  height: 34px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 3px 3px 3px 10px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: #94a3b8;
+  }
+
+  &:focus-within {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
+
+    .barcode-scan-icon {
+      color: #2563eb;
+    }
+  }
+
+  .barcode-scan-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    margin-right: 6px;
+    transition: color 0.15s ease;
+  }
+
+  .barcode-scan-input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    font-size: 0.78rem;
+    color: #0f172a;
+    padding: 0 4px;
+    height: 100%;
+    min-width: 0;
+
+    &::placeholder {
+      color: #94a3b8;
+      font-size: 0.76rem;
+    }
+  }
+
+  .btn-barcode-lookup {
+    height: 26px;
+    padding: 0 10px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    cursor: pointer;
+
+    i {
+      font-size: 0.68rem;
+    }
+
+    &:hover {
+      background-color: #1d4ed8;
+      color: #ffffff;
+    }
+
+    &:active {
+      background-color: #1e40af;
+      transform: translateY(0.5px);
+    }
   }
 }
 
@@ -71,7 +152,107 @@
   font-size: 0.75rem;
 }
 
-/* Products Table Subtle Clean Border (Matching Categories) */
+/* =========================================================================
+   USER FIX 1: Filter Toolbar Category Dropdown & Option Width Mismatch + Active Color
+   ========================================================================= */
+.product-category-filter {
+  width: 100% !important;
+  min-width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  font-size: 0.8rem !important;
+  height: 32px !important;
+  padding: 0.2rem 0.65rem !important;
+  cursor: pointer;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  accent-color: #2563eb !important;
+
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    outline: none !important;
+  }
+
+  optgroup {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #0f172a;
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    width: 100% !important;
+    box-sizing: border-box !important;
+
+    &:hover,
+    &:focus,
+    &:checked,
+    &[selected] {
+      background-color: #2563eb !important;
+      background: #2563eb !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Products Modal Select Option Active/Hover Styling & Category Width Constraints */
+.product-modal-body select.form-select,
+.modal-category-select,
+.wms-input-icon-group select.form-select {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  optgroup {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #0f172a;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    &:hover,
+    &:focus,
+    &:checked,
+    &[selected] {
+      background-color: #2563eb !important;
+      background: #2563eb !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Products Table */
 .products-table-card {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
@@ -118,7 +299,79 @@
   }
 }
 
-/* Unified & Clean Products Cell Typography (Exact Same Font Size, Weight & Color) */
+/* Multi-Select Checkboxes - Sidebar Brand Blue (#2563eb) */
+.products-table th .form-check-input,
+.products-table td .form-check-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2563eb !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+  }
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22) !important;
+    outline: none !important;
+  }
+
+  &:checked {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+  }
+
+  &:indeterminate {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e") !important;
+  }
+}
+
+/* Truncated Grid Columns */
+.product-name-cell {
+  width: 165px;
+  max-width: 165px;
+  min-width: 130px;
+
+  .product-title-text {
+    display: block;
+    max-width: 165px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .product-brand-text {
+    display: block;
+    max-width: 165px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.category-name-cell {
+  width: 135px;
+  max-width: 135px;
+  min-width: 110px;
+
+  .category-text {
+    display: block;
+    max-width: 135px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Typography & Subtexts */
 .product-cell-text {
   font-size: 0.75rem !important;
   font-weight: 500 !important;
@@ -130,6 +383,394 @@
   font-size: 0.7rem;
   color: #64748b;
   line-height: 1.3;
+}
+
+/* Type Pill Badges */
+.badge-type-pill {
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+
+  &.type-simple {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
+
+  &.type-variant {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+  }
+}
+
+.variant-arrow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  color: #475569;
+  font-size: 0.78rem;
+  transition: all 0.15s ease;
+
+  i {
+    font-weight: 900;
+  }
+
+  &:hover {
+    color: #2563eb;
+    transform: scale(1.15);
+  }
+}
+
+.variant-toggle-badge {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+
+  i {
+    font-size: 0.65rem;
+    color: #64748b;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover {
+    background-color: #e0e7ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+
+    i {
+      color: #1d4ed8;
+    }
+  }
+
+  &.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+
+    i {
+      color: #ffffff;
+    }
+  }
+}
+
+.variant-toggle-btn {
+  width: 22px;
+  height: 22px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  line-height: 1;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+}
+
+/* Grid Image Thumbnails */
+.product-grid-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  i {
+    font-size: 0.85rem;
+    color: #94a3b8;
+  }
+}
+
+.variant-grid-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  i {
+    font-size: 0.68rem;
+    color: #94a3b8;
+  }
+}
+
+/* Existing Registered Variants Table Styling */
+.wms-variants-table-responsive {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow-x: auto;
+  background-color: #ffffff;
+
+  /* Custom horizontal scrollbar */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f8fafc;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.wms-existing-variants-table {
+  min-width: 780px; /* Ensures comfortable horizontal scrolling */
+  margin-bottom: 0 !important;
+
+  thead th {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #475569;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    padding: 0.5rem 0.65rem;
+  }
+
+  tbody td {
+    padding: 0.5rem 0.65rem;
+    vertical-align: middle;
+    font-size: 0.78rem;
+  }
+
+  /* Specific Column Widths */
+  .col-var-img {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+  }
+
+  .col-var-sku {
+    width: 155px;
+    min-width: 145px;
+    white-space: nowrap;
+  }
+
+  .col-var-name {
+    width: 240px;
+    min-width: 220px;
+    max-width: 260px;
+
+    .variant-name-truncated {
+      display: inline-block;
+      max-width: 175px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      font-weight: 500;
+      color: #0f172a;
+    }
+  }
+
+  .col-var-barcode {
+    width: 165px;
+    min-width: 150px;
+    white-space: nowrap;
+  }
+
+  .col-var-price {
+    width: 95px;
+    min-width: 85px;
+    white-space: nowrap;
+  }
+
+  .col-var-status {
+    width: 85px;
+    min-width: 80px;
+    white-space: nowrap;
+  }
+}
+
+/* Product Modal Architecture Type Cards */
+.product-arch-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #94a3b8 !important;
+    background-color: #f8fafc;
+  }
+
+  &.selected {
+    border: 1px solid #2563eb !important;
+    background-color: #eff6ff;
+    box-shadow: none !important;
+  }
+}
+
+.modal-section-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 1rem;
+  margin-bottom: 0.55rem;
+  letter-spacing: -0.01em;
+}
+
+/* Product Image Upload Box in Drawer */
+.product-image-upload-box {
+  width: 100%;
+  height: 100%;
+  min-height: 108px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+
+  .uploaded-product-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #ffffff;
+  }
+
+  .empty-upload-placeholder {
+    pointer-events: none;
+  }
+
+  .product-image-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .btn-remove-image {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 5;
+    font-size: 0.6rem;
+  }
+}
+
+/* Variant Matrix Thumb Picker */
+.variant-thumb-picker {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px dashed #94a3b8;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  margin: 0 auto;
+
+  &:hover {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+
+  .variant-mini-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .variant-empty-thumb {
+    font-size: 0.7rem;
+    pointer-events: none;
+  }
+
+  .variant-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+/* Variant Child Rows (Directly in Parent Grid) */
+.variant-child-row {
+  background-color: #f8fafc !important;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f1f5f9 !important;
+  }
+
+  td.variant-child-cell {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 1px solid #edf2f7 !important;
+    font-size: 0.74rem !important;
+  }
 }
 
 /* Tracking Minimal Tags */
@@ -161,37 +802,41 @@
   border: 1px solid #dcfce7;
 }
 
-/* Solid Product Status Badge (Matching Categories) */
+/* =========================================================================
+   USER FIX 2: Solid Product Status Badge (Clean Text-Only, Absolutely NO Icon)
+   ========================================================================= */
 .product-status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
   font-size: 0.72rem;
   font-weight: 600;
   padding: 0.22rem 0.65rem;
   border-radius: 9999px;
   line-height: 1.2;
+  letter-spacing: 0.02em;
+
+  /* Strictly remove any pseudo-element dot or icon */
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  i {
+    display: none !important;
+  }
 
   &.active {
     background-color: #ecfdf5;
     color: #059669;
     border: 1px solid #a7f3d0;
-
-    i {
-      font-size: 0.7rem;
-      color: #10b981;
-    }
   }
 
   &.inactive {
     background-color: #f1f5f9;
     color: #64748b;
     border: 1px solid #e2e8f0;
-
-    i {
-      font-size: 0.7rem;
-      color: #94a3b8;
-    }
   }
 }
 
@@ -212,13 +857,19 @@
 
   &.btn-edit {
     color: #64748b;
-
     &:hover {
       background-color: #f1f5f9 !important;
-      background: #f1f5f9 !important;
       border-color: #cbd5e1 !important;
       color: #0f172a !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+  }
+
+  &.btn-print {
+    color: #2563eb;
+    &:hover {
+      background-color: #eff6ff !important;
+      border-color: #bfdbfe !important;
+      color: #1d4ed8 !important;
     }
   }
 }
@@ -241,7 +892,7 @@
   right: 0 !important;
   bottom: 0 !important;
   margin: 0 !important;
-  width: 620px !important;
+  width: 680px !important;
   max-width: 100vw !important;
   height: 100vh !important;
   max-height: 100vh !important;
@@ -275,19 +926,179 @@
   }
 }
 
-.product-modal-header {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
-  border-radius: 0 !important;
-  padding: 1rem 1.4rem;
+ 
+
+/* Drawer Navigation Button Tabs (Clean Button Style, No Icons) */
+.drawer-tabs-bar {
   flex-shrink: 0;
+  background-color: #ffffff;
+}
+
+.drawer-tab-btn {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  padding: 0.32rem 0.95rem !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.3 !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer;
+
+  &:hover:not(.active) {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  &.active {
+    background-color: #eff6ff !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12) !important;
+
+    &:hover {
+      background-color: #dbeafe !important;
+      border-color: #1d4ed8 !important;
+      color: #1d4ed8 !important;
+    }
+
+    .tab-count-badge {
+      background-color: #dbeafe !important;
+      color: #1d4ed8 !important;
+    }
+  }
+
+  .tab-count-badge {
+    background-color: #e2e8f0;
+    color: #334155;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    line-height: 1.2;
+    transition: all 0.15s ease;
+  }
 }
 
 .product-modal-body {
   background-color: #ffffff;
   flex: 1 1 auto !important;
   overflow-y: auto !important;
-  padding: 1.25rem 1.4rem !important;
+  padding:0.5rem 1.4rem !important;
   max-height: none !important;
+
+  .form-control, .form-select {
+    height: 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    color: #1e293b;
+    background-color: #ffffff;
+    padding: 0.38rem 0.75rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2.5px rgba(37, 99, 235, 0.15);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Uniqueness Validation Input Group & Feedback */
+  .input-group {
+    .form-control {
+      border-top-left-radius: 6px !important;
+      border-bottom-left-radius: 6px !important;
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+
+      &.has-trailing {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+
+      &:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        z-index: 3;
+      }
+    }
+
+    .input-group-text.input-group-trailing {
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
+      border-left: none !important;
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.45rem 0.65rem;
+      animation: fadeInSlide 0.15s ease;
+    }
+  }
+
+  /* Rotating Spinner while Checking */
+  .status-spinner {
+    width: 15px;
+    height: 15px;
+    border-width: 2px;
+    color: #2563eb !important;
+  }
+
+  /* Animated Bouncy Status Icon */
+  .status-anim-icon {
+    font-size: 0.95rem;
+    display: inline-block;
+    animation: statusBouncyPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    &.text-danger {
+      color: #ef4444 !important;
+    }
+
+    &.text-warning {
+      color: #f59e0b !important;
+    }
+
+    &.text-success {
+      color: #10b981 !important;
+    }
+  }
+
+  /* Clean Short Status Feedback Text Below Input */
+  .short-feedback-msg {
+    font-size: 0.74rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    line-height: 1.25;
+    animation: fadeInSlide 0.15s ease;
+
+    &.text-danger {
+      color: #ef4444 !important;
+    }
+
+    &.text-warning {
+      color: #f59e0b !important;
+    }
+
+    &.text-success {
+      color: #10b981 !important;
+    }
+  }
 }
 
 .wms-modal-footer {
@@ -327,4 +1138,363 @@
 
 .tracking-rule-desc {
   font-size: 0.7rem;
+}
+
+/* Attributes & Variant Module Enhanced Styling */
+.attr-main-wrapper {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-create-attr {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 0.25rem 0.75rem !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.15s ease !important;
+
+  &:hover {
+    background-color: #eff6ff !important;
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+  }
+}
+
+.attr-new-form {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+
+  .attr-new-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #2563eb !important;
+  }
+}
+
+/* Unified & Crisp Attribute Pills */
+.attribute-pill-btn {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  padding: 0.28rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.25;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+  .pill-icon {
+    font-size: 0.68rem;
+    color: #94a3b8;
+  }
+
+  &:hover:not(.active) {
+    background-color: #f8fafc;
+    border-color: #2563eb;
+    color: #2563eb;
+
+    .pill-icon {
+      color: #2563eb;
+    }
+  }
+
+  &.active {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+
+    .pill-icon {
+      color: #ffffff;
+    }
+  }
+}
+
+/* Selected Attribute Card Boxes */
+.attr-card-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+  }
+
+  .attr-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .attr-card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4b4b4b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .attr-card-badge {
+    font-size: 0.64rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 4px;
+    border: 1px solid #dbeafe;
+  }
+}
+
+/* Subtle, Sleek Remove Attribute Button */
+.btn-remove-attr {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+  border: 1px solid #fee2e2 !important;
+  border-radius: 6px !important;
+  padding: 0.22rem 0.65rem !important;
+  height: 26px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  line-height: 1.2 !important;
+  transition: all 0.15s ease !important;
+
+  &:hover {
+    background-color: #fee2e2 !important;
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+  }
+}
+
+/* Modern Chip Values */
+.attr-value-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 6px;
+  line-height: 1.3;
+  transition: all 0.15s ease;
+
+  &.chip-blue {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+  }
+
+  .chip-remove {
+    font-size: 0.7rem;
+    color: #60a5fa;
+    cursor: pointer;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background-color: #dbeafe;
+      color: #1e3a8a;
+    }
+  }
+}
+
+/* Compact Add Value Input Group */
+.attr-add-group {
+  height: 32px;
+
+  input {
+    height: 32px !important;
+    font-size: 0.76rem;
+    border-color: #cbd5e1;
+    border-radius: 6px 0 0 6px !important;
+    padding: 0.25rem 0.65rem;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+  }
+
+  button {
+    height: 32px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0 0.85rem;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: none;
+    color: #334155;
+    border-radius: 0 6px 6px 0 !important;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background-color: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+  }
+}
+
+/* Matrix Action Buttons */
+.btn-matrix-preview {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 0.38rem 1.1rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22) !important;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32) !important;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.btn-save-variants {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 0.38rem 1rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.22) !important;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #059669 !important;
+    border-color: #059669 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.32) !important;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+/* Printable Barcode Label Styles */
+.printable-label-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &.format-2x1 {
+    width: 280px;
+    padding: 12px !important;
+  }
+
+  &.format-4x6 {
+    width: 380px;
+    padding: 20px !important;
+  }
+
+  .label-company-name {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: #64748b;
+  }
+
+  .label-product-title {
+    font-size: 0.85rem;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+}
+
+/* Print CSS */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-label-card,
+  .printable-label-card * {
+    visibility: visible;
+  }
+
+  .printable-label-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 10px;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+@keyframes statusBouncyPop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

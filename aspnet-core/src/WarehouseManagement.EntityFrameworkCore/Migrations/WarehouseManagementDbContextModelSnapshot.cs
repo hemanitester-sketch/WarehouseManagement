@@ -3860,6 +3860,10 @@ namespace WarehouseManagement.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -5466,7 +5470,7 @@ namespace WarehouseManagement.Migrations
                         .IsRequired();
 
                     b.HasOne("WarehouseManagement.Products.ProductVariant", "ProductVariant")
-                        .WithMany()
+                        .WithMany("Barcodes")
                         .HasForeignKey("ProductVariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -6114,6 +6118,8 @@ namespace WarehouseManagement.Migrations
             modelBuilder.Entity("WarehouseManagement.Products.ProductVariant", b =>
                 {
                     b.Navigation("AttributeValues");
+
+                    b.Navigation("Barcodes");
                 });
 
             modelBuilder.Entity("WarehouseManagement.Returns.ReturnOrder", b =>

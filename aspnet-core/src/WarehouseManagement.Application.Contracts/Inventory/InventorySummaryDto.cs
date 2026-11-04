@@ -16,6 +16,7 @@ public class InventorySummaryDto
     public decimal TotalAvailable { get; set; }
     public decimal TotalQuarantined { get; set; }
     public decimal TotalDamaged { get; set; }
+    public decimal TotalStockValue { get; set; }
 
     public int LocationCount { get; set; }
 }

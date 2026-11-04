@@ -117,6 +117,10 @@ export class InventoryComponent implements OnInit {
     return this.filteredItems.reduce((acc, i) => acc + (i.quantityAvailable || 0), 0);
   }
 
+  get totalValuation(): number {
+    return this.filteredItems.reduce((acc, i) => acc + (i.totalValue || ((i.quantityOnHand || 0) * (i.unitPrice || 0))), 0);
+  }
+
   get uniqueSkusCount(): number {
     const skus = new Set(this.filteredItems.map(i => i.productId));
     return skus.size;

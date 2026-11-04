@@ -28,6 +28,10 @@ public class InventoryItemDto : FullAuditedEntityDto<Guid>
     public decimal QuantityAllocated { get; set; }
     public decimal QuantityAvailable { get; set; }
 
+    public decimal UnitPrice { get; set; }
+    public decimal TotalValue { get; set; }
+    public decimal? PurchaseCost { get; set; }
+
     public string? LotBatchNumber { get; set; }
     public string? SerialNumber { get; set; }
     public string? Lpn { get; set; }

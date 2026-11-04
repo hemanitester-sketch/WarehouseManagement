@@ -33,9 +33,9 @@
   </div>
 
   <!-- Metric KPI Cards -->
-  <div class="row g-2 mb-3">
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="wms-metric-card kpi-card-compact">
+  <div class="row g-2 mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5">
+    <div class="col">
+      <div class="wms-metric-card kpi-card-compact h-100">
         <div class="metric-icon kpi-icon-compact kpi-icon-blue">
           <i class="fas fa-boxes"></i>
         </div>
@@ -46,20 +46,20 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="wms-metric-card kpi-card-compact">
+    <div class="col">
+      <div class="wms-metric-card kpi-card-compact h-100">
         <div class="metric-icon kpi-icon-compact kpi-icon-green">
           <i class="fas fa-cubes"></i>
         </div>
         <div class="metric-content">
           <div class="metric-value kpi-value-compact">{{ totalOnHand | number }}</div>
-          <div class="metric-label kpi-label-compact">Total On-Hand Quantity</div>
+          <div class="metric-label kpi-label-compact">Total On-Hand Qty</div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="wms-metric-card kpi-card-compact">
+    <div class="col">
+      <div class="wms-metric-card kpi-card-compact h-100">
         <div class="metric-icon kpi-icon-compact kpi-icon-amber">
           <i class="fas fa-lock"></i>
         </div>
@@ -70,14 +70,26 @@
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="wms-metric-card kpi-card-compact">
+    <div class="col">
+      <div class="wms-metric-card kpi-card-compact h-100">
         <div class="metric-icon kpi-icon-compact kpi-icon-purple">
           <i class="fas fa-check-circle"></i>
         </div>
         <div class="metric-content">
           <div class="metric-value kpi-value-compact text-success">{{ totalAvailable | number }}</div>
           <div class="metric-label kpi-label-compact">Available Free to Sell</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="wms-metric-card kpi-card-compact h-100">
+        <div class="metric-icon kpi-icon-compact kpi-icon-green" style="background: rgba(16, 185, 129, 0.12); color: #059669;">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+        <div class="metric-content">
+          <div class="metric-value kpi-value-compact font-monospace text-primary" style="font-size: 1.05rem;">₹{{ totalValuation | number:'1.2-2' }}</div>
+          <div class="metric-label kpi-label-compact">Total Stock Valuation</div>
         </div>
       </div>
     </div>
@@ -137,6 +149,8 @@
             <th class="col-inv-qty text-end">On Hand</th>
             <th class="col-inv-qty text-end">Allocated</th>
             <th class="col-inv-qty text-end">Available</th>
+            <th class="col-inv-price text-end">Unit Price</th>
+            <th class="col-inv-value text-end">Total Value</th>
             <th class="col-inv-status text-center">Status</th>
             <th class="col-inv-action text-end pe-3">Actions</th>
           </tr>
@@ -199,6 +213,12 @@
             </td>
             <td class="col-inv-qty text-end">
               <span class="inventory-cell-text font-monospace text-success fw-bold">{{ item.quantityAvailable | number }}</span>
+            </td>
+            <td class="col-inv-price text-end">
+              <span class="inventory-cell-text font-monospace">₹{{ (item.unitPrice || 0) | number:'1.2-2' }}</span>
+            </td>
+            <td class="col-inv-value text-end">
+              <span class="inventory-cell-text font-monospace fw-bold text-primary">₹{{ (item.totalValue || ((item.quantityOnHand || 0) * (item.unitPrice || 0))) | number:'1.2-2' }}</span>
             </td>
             <td class="col-inv-status text-center">
               <span class="inventory-status-pill text-nowrap" [ngClass]="'status-' + (item.status === 1 ? 'available' : (item.status === 2 ? 'quarantined' : 'danger'))">

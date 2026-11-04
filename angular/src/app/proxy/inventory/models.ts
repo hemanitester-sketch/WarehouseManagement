@@ -57,6 +57,9 @@ export interface InventoryItemDto extends FullAuditedEntityDto<string> {
   quantityOnHand?: number;
   quantityAllocated?: number;
   quantityAvailable?: number;
+  unitPrice?: number;
+  totalValue?: number;
+  purchaseCost?: number | null;
   lotBatchNumber?: string | null;
   serialNumber?: string | null;
   lpn?: string | null;
@@ -80,6 +83,7 @@ export interface InventorySummaryDto {
   totalAvailable?: number;
   totalQuarantined?: number;
   totalDamaged?: number;
+  totalStockValue?: number;
   locationCount?: number;
 }
 

@@ -101,6 +101,7 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             TotalAvailable = stockItems.Where(x => x.Status == InventoryStatus.Available).Sum(x => x.QuantityAvailable),
             TotalQuarantined = stockItems.Where(x => x.Status == InventoryStatus.Quarantined).Sum(x => x.QuantityOnHand),
             TotalDamaged = stockItems.Where(x => x.Status == InventoryStatus.Damaged).Sum(x => x.QuantityOnHand),
+            TotalStockValue = stockItems.Sum(x => x.QuantityOnHand * product.UnitPrice),
             LocationCount = stockItems.Select(x => x.LocationId).Distinct().Count()
         };
     }
@@ -365,6 +366,9 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
             }
 
             var effectiveSku = variant?.VariantSku ?? prod?.Sku;
+            var effectivePrice = variant?.UnitPrice ?? prod?.UnitPrice ?? 0;
+            var effectiveCost = variant?.PurchaseCost ?? 0;
+            var totalValue = item.QuantityOnHand * effectivePrice;
             var isExpired = item.ExpiryDate.HasValue && item.ExpiryDate.Value < now;
             var isNearExpiry = item.ExpiryDate.HasValue && !isExpired && item.ExpiryDate.Value <= now.AddDays(30);
             var daysUntilExpiry = item.ExpiryDate.HasValue ? (int?)(item.ExpiryDate.Value.Date - now.Date).TotalDays : null;
@@ -389,6 +393,9 @@ public class InventoryAppService : ApplicationService, IInventoryAppService
                 QuantityOnHand = item.QuantityOnHand,
                 QuantityAllocated = item.QuantityAllocated,
                 QuantityAvailable = item.QuantityAvailable,
+                UnitPrice = effectivePrice,
+                TotalValue = totalValue,
+                PurchaseCost = effectiveCost > 0 ? effectiveCost : null,
                 LotBatchNumber = item.LotBatchNumber,
                 SerialNumber = item.SerialNumber,
                 Lpn = item.Lpn,

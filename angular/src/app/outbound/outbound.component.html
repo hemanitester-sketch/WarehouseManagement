@@ -279,18 +279,18 @@
               <table class="table table-hover align-middle mb-0 wms-table outbound-table">
                 <thead class="table-light">
                   <tr>
-                    <th class="ps-3">Product / SKU</th>
-                    <th class="text-end">Ordered</th>
-                    <th class="text-end">Allocated</th>
-                    <th class="text-end">Picked</th>
-                    <th class="text-end">To Pick</th>
-                    <th class="text-end">Unit Price</th>
-                    <th class="text-end pe-3" style="width: 110px;">Action</th>
+                    <th class="ps-3" style="width: 240px; max-width: 260px;">Product / SKU</th>
+                    <th class="text-end" style="width: 95px;">Ordered</th>
+                    <th class="text-end" style="width: 95px;">Allocated</th>
+                    <th class="text-end" style="width: 95px;">Picked</th>
+                    <th class="text-end" style="width: 95px;">To Pick</th>
+                    <th class="text-end" style="width: 105px;">Unit Price</th>
+                    <th class="text-end pe-3" style="width: 100px;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let line of selectedOrder.lines">
-                    <td class="ps-3">
+                    <td class="ps-3" style="width: 240px; max-width: 260px;">
                       <span class="outbound-cell-text font-monospace d-block text-primary">{{ line.productSku }}</span>
                       <small class="outbound-cell-subtext">{{ line.productName }}</small>
                     </td>
@@ -645,16 +645,16 @@
                   <table class="table table-hover align-middle mb-0 wms-table outbound-table">
                     <thead class="table-light">
                       <tr>
-                        <th class="ps-3">Product / SKU</th>
-                        <th class="text-end">Quantity</th>
-                        <th class="text-end">Unit Price</th>
-                        <th class="text-end">Subtotal</th>
+                        <th class="ps-3" style="width: 240px; max-width: 260px;">Product / SKU</th>
+                        <th class="text-end" style="width: 110px;">Quantity</th>
+                        <th class="text-end" style="width: 110px;">Unit Price</th>
+                        <th class="text-end" style="width: 120px;">Subtotal</th>
                         <th class="text-end pe-3" style="width: 80px;">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr *ngFor="let l of newOrder.lines; let idx = index">
-                        <td class="ps-3">
+                        <td class="ps-3" style="width: 240px; max-width: 260px;">
                           <span class="outbound-cell-text font-monospace d-block text-primary">{{ getProductSku(l.productId) }}</span>
                           <small class="outbound-cell-subtext">{{ getProductName(l.productId) }}</small>
                         </td>

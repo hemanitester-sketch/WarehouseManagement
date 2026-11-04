@@ -260,18 +260,18 @@
               <table class="table table-hover align-middle mb-0 wms-table inbound-table">
                 <thead class="table-light">
                   <tr>
-                    <th class="ps-3">Product / SKU / Variant</th>
-                    <th class="text-end">Expected Qty</th>
-                    <th class="text-end">Received Qty</th>
-                    <th class="text-end">Remaining</th>
-                    <th class="text-end">Unit Price</th>
-                    <th class="text-center">Status</th>
+                    <th class="ps-3 col-product-variant-header" style="width: 240px; max-width: 260px;">Product / SKU / Variant</th>
+                    <th class="text-end" style="width: 105px;">Expected Qty</th>
+                    <th class="text-end" style="width: 105px;">Received Qty</th>
+                    <th class="text-end" style="width: 95px;">Remaining</th>
+                    <th class="text-end" style="width: 105px;">Unit Price</th>
+                    <th class="text-center" style="width: 105px;">Status</th>
                     <th class="text-end pe-3" style="width: 80px;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let line of selectedOrder.lines">
-                    <td class="ps-3">
+                    <td class="ps-3 col-product-variant-cell" style="width: 240px; max-width: 260px;">
                       <div class="d-flex align-items-center gap-1.5 flex-wrap">
                         <span class="inbound-cell-text font-monospace text-primary fw-bold">{{ line.variantSku || line.productSku }}</span>
                         <span *ngIf="line.variantName" class="variant-pill-badge">
@@ -634,16 +634,16 @@
                   <table class="table table-hover align-middle mb-0 wms-table inbound-table">
                     <thead class="table-light">
                       <tr>
-                        <th class="ps-3">Product / SKU / Variant</th>
-                        <th class="text-end">Quantity</th>
-                        <th class="text-end">Unit Price</th>
-                        <th class="text-end">Subtotal</th>
+                        <th class="ps-3 col-product-variant-header" style="width: 240px; max-width: 260px;">Product / SKU / Variant</th>
+                        <th class="text-end" style="width: 110px;">Quantity</th>
+                        <th class="text-end" style="width: 110px;">Unit Price</th>
+                        <th class="text-end" style="width: 120px;">Subtotal</th>
                         <th class="text-end pe-3" style="width: 80px;">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr *ngFor="let l of newOrder.lines; let idx = index" class="po-item-row">
-                        <td class="ps-3">
+                        <td class="ps-3 col-product-variant-cell" style="width: 240px; max-width: 260px;">
                           <div class="d-flex align-items-center gap-1 flex-wrap">
                             <span class="inbound-cell-text font-monospace text-primary fw-bold">{{ getLineSku(l) }}</span>
                             <span *ngIf="getLineVariantName(l)" class="variant-pill-badge">

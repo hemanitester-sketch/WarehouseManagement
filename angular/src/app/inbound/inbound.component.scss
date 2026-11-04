@@ -757,5 +757,13 @@
   }
 }
 
+/* Compact Column Width for Product / SKU / Variant */
+.col-product-variant-header,
+.col-product-variant-cell {
+  width: 240px !important;
+  max-width: 260px !important;
+  white-space: normal !important;
+}
+
 
 

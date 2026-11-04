@@ -558,7 +558,7 @@
 }
 
 .wms-existing-variants-table {
-  min-width: 780px; /* Ensures comfortable horizontal scrolling */
+  min-width: 960px; /* Ensures comfortable horizontal scrolling */
   margin-bottom: 0 !important;
 
   thead th {
@@ -579,25 +579,25 @@
 
   /* Specific Column Widths */
   .col-var-img {
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
   }
 
   .col-var-sku {
-    width: 155px;
-    min-width: 145px;
+    width: 145px;
+    min-width: 135px;
     white-space: nowrap;
   }
 
   .col-var-name {
-    width: 240px;
-    min-width: 220px;
-    max-width: 260px;
+    width: 200px;
+    min-width: 180px;
+    max-width: 220px;
 
     .variant-name-truncated {
       display: inline-block;
-      max-width: 175px;
+      max-width: 160px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -608,20 +608,38 @@
   }
 
   .col-var-barcode {
-    width: 165px;
-    min-width: 150px;
+    width: 145px;
+    min-width: 135px;
     white-space: nowrap;
   }
 
   .col-var-price {
+    width: 105px;
+    min-width: 95px;
+    white-space: nowrap;
+  }
+
+  .col-var-cost {
     width: 95px;
     min-width: 85px;
     white-space: nowrap;
   }
 
-  .col-var-status {
+  .col-var-weight {
     width: 85px;
-    min-width: 80px;
+    min-width: 75px;
+    white-space: nowrap;
+  }
+
+  .col-var-status {
+    width: 80px;
+    min-width: 75px;
+    white-space: nowrap;
+  }
+
+  .col-var-actions {
+    width: 90px;
+    min-width: 85px;
     white-space: nowrap;
   }
 }

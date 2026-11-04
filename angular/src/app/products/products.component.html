@@ -881,9 +881,8 @@
 
             <!-- Preview Matrix -->
             <div *ngIf="generatedVariantPreview.length > 0" class="card p-3 mb-3 border-info shadow-sm">
-              <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                 <h6 class="mb-0 fw-bold d-flex align-items-center gap-1" style="font-size: 0.84rem;">
-                 
                   <span>Generated Preview ({{ generatedVariantPreview.length }} combinations)</span>
                 </h6>
                 <button 
@@ -897,19 +896,43 @@
                   <span>Register & Save Variants</span>
                 </button>
               </div>
-              <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+
+              <!-- Quick Bulk Price Bar -->
+              <div class="p-2 mb-2 bg-light rounded border d-flex align-items-center gap-2 flex-wrap">
+                <span class="small fw-semibold text-muted" style="font-size: 0.75rem;">
+                  <i class="fas fa-magic text-primary me-1"></i>Bulk Price Tool:
+                </span>
+                <div class="input-group input-group-sm" style="max-width: 190px;">
+                  <span class="input-group-text" style="font-size: 0.72rem;">Sell ₹</span>
+                  <input type="number" class="form-control" [(ngModel)]="bulkPriceInput" placeholder="Price" style="font-size: 0.74rem;" />
+                  <button class="btn btn-outline-primary" type="button" (click)="applyBulkPriceToPreview()" title="Set same price for all variants (e.g. T-shirts with same price for all colors)">Apply All</button>
+                </div>
+                <div class="input-group input-group-sm" style="max-width: 190px;">
+                  <span class="input-group-text" style="font-size: 0.72rem;">Cost ₹</span>
+                  <input type="number" class="form-control" [(ngModel)]="bulkCostInput" placeholder="Cost" style="font-size: 0.74rem;" />
+                  <button class="btn btn-outline-secondary" type="button" (click)="applyBulkCostToPreview()" title="Set purchase cost for all variants">Apply All</button>
+                </div>
+                <small class="text-muted ms-auto fst-italic" style="font-size: 0.7rem;">
+                  Tip: Change individual prices in the table below for perfumes/sizes
+                </small>
+              </div>
+
+              <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
                 <table class="table table-sm table-hover align-middle mb-0">
                   <thead class="table-light">
                     <tr>
-                      <th style="font-size: 0.7rem; width: 55px;">Image</th>
-                      <th style="font-size: 0.7rem;">Generated SKU</th>
-                      <th style="font-size: 0.7rem;">Variant Name</th>
-                      <th style="font-size: 0.7rem;">Combination Hash</th>
+                      <th style="font-size: 0.7rem; width: 45px;">Image</th>
+                      <th style="font-size: 0.7rem; min-width: 130px;">Generated SKU</th>
+                      <th style="font-size: 0.7rem; min-width: 150px;">Variant Name</th>
+                      <th style="font-size: 0.7rem; width: 105px;">Selling Price (₹)</th>
+                      <th style="font-size: 0.7rem; width: 95px;">Cost (₹)</th>
+                      <th style="font-size: 0.7rem; width: 85px;">Weight (kg)</th>
+                      <th style="font-size: 0.7rem; width: 70px;">Hash</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let pv of generatedVariantPreview">
-                      <td style="width: 55px;">
+                      <td style="width: 45px;">
                         <div class="position-relative variant-thumb-picker">
                           <img *ngIf="pv.imageUrl || newProduct.imageUrl" [src]="resolveImageUrl(pv.imageUrl || newProduct.imageUrl)" class="variant-mini-thumb" />
                           <span *ngIf="!pv.imageUrl && !newProduct.imageUrl" class="variant-empty-thumb text-muted">
@@ -926,7 +949,38 @@
                       </td>
                       <td class="font-monospace fw-semibold text-primary" style="font-size: 0.74rem;">{{ pv.generatedSku }}</td>
                       <td style="font-size: 0.74rem;">{{ pv.generatedVariantName }}</td>
-                      <td><code class="small text-muted" style="font-size: 0.68rem;">{{ pv.combinationHash | slice:0:8 }}</code></td>
+                      <td>
+                        <input 
+                          type="number" 
+                          class="form-control form-control-sm font-monospace text-end" 
+                          [(ngModel)]="pv.sellingPrice" 
+                          style="font-size: 0.74rem; height: 26px;" 
+                          placeholder="0.00"
+                          title="Selling Price for this variant"
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          type="number" 
+                          class="form-control form-control-sm font-monospace text-end" 
+                          [(ngModel)]="pv.purchasePrice" 
+                          style="font-size: 0.74rem; height: 26px;" 
+                          placeholder="0.00"
+                          title="Purchase Cost for this variant"
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          type="number" 
+                          step="0.01" 
+                          class="form-control form-control-sm font-monospace text-end" 
+                          [(ngModel)]="pv.weightKg" 
+                          style="font-size: 0.74rem; height: 26px;" 
+                          placeholder="0.5"
+                          title="Weight in Kg"
+                        />
+                      </td>
+                      <td><code class="small text-muted" style="font-size: 0.68rem;">{{ pv.combinationHash | slice:0:6 }}</code></td>
                     </tr>
                   </tbody>
                 </table>
@@ -935,8 +989,8 @@
 
             <!-- Existing Variants List -->
             <div class="card p-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-bold ">
+              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                <h6 class="mb-0 fw-bold">
                   Existing Registered Variants ({{ existingVariants.length }})
                 </h6>
                 <button type="button" class="btn btn-sm btn-outline-secondary" (click)="loadProductVariants(editingProductId!)">
@@ -960,8 +1014,11 @@
                       <th class="col-var-sku">SKU</th>
                       <th class="col-var-name">Variant Name</th>
                       <th class="col-var-barcode">Barcode</th>
-                      <th class="col-var-price text-end">Price</th>
+                      <th class="col-var-price text-end">Selling Price</th>
+                      <th class="col-var-cost text-end">Cost</th>
+                      <th class="col-var-weight text-end">Weight</th>
                       <th class="col-var-status text-center">Status</th>
+                      <th class="col-var-actions text-center" style="width: 80px;">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -980,11 +1037,101 @@
                         </div>
                       </td>
                       <td class="col-var-barcode font-monospace small text-muted">{{ ev.primaryBarcode || 'N/A' }}</td>
-                      <td class="col-var-price font-monospace small text-end">₹{{ ev.sellingPrice | number:'1.2-2' }}</td>
+                      
+                      <!-- Selling Price -->
+                      <td class="col-var-price font-monospace small text-end">
+                        <span *ngIf="editingVariantId !== ev.id" class="fw-semibold text-dark">
+                          ₹{{ ev.sellingPrice | number:'1.2-2' }}
+                        </span>
+                        <input 
+                          *ngIf="editingVariantId === ev.id" 
+                          type="number" 
+                          class="form-control form-control-sm font-monospace text-end d-inline-block" 
+                          [(ngModel)]="editingVariantModel!.sellingPrice" 
+                          style="font-size: 0.74rem; width: 85px; height: 26px;"
+                        />
+                      </td>
+
+                      <!-- Cost -->
+                      <td class="col-var-cost font-monospace small text-end text-muted">
+                        <span *ngIf="editingVariantId !== ev.id">
+                          ₹{{ (ev.purchasePrice || 0) | number:'1.2-2' }}
+                        </span>
+                        <input 
+                          *ngIf="editingVariantId === ev.id" 
+                          type="number" 
+                          class="form-control form-control-sm font-monospace text-end d-inline-block" 
+                          [(ngModel)]="editingVariantModel!.purchasePrice" 
+                          style="font-size: 0.74rem; width: 80px; height: 26px;"
+                        />
+                      </td>
+
+                      <!-- Weight -->
+                      <td class="col-var-weight font-monospace small text-end text-muted">
+                        <span *ngIf="editingVariantId !== ev.id">
+                          {{ (ev.weightKg || 0) | number:'1.2-2' }} kg
+                        </span>
+                        <input 
+                          *ngIf="editingVariantId === ev.id" 
+                          type="number" 
+                          step="0.01" 
+                          class="form-control form-control-sm font-monospace text-end d-inline-block" 
+                          [(ngModel)]="editingVariantModel!.weightKg" 
+                          style="font-size: 0.74rem; width: 68px; height: 26px;"
+                        />
+                      </td>
+
+                      <!-- Status -->
                       <td class="col-var-status text-center">
-                        <span class="product-status-badge" [ngClass]="ev.isActive ? 'active' : 'inactive'">
+                        <span *ngIf="editingVariantId !== ev.id" class="product-status-badge" [ngClass]="ev.isActive ? 'active' : 'inactive'">
                           {{ ev.isActive ? 'Active' : 'Inactive' }}
                         </span>
+                        <div *ngIf="editingVariantId === ev.id" class="form-check form-switch d-inline-block mb-0">
+                          <input class="form-check-input" type="checkbox" [(ngModel)]="editingVariantModel!.isActive" />
+                        </div>
+                      </td>
+
+                      <!-- Actions -->
+                      <td class="col-var-actions text-center">
+                        <div *ngIf="editingVariantId === ev.id" class="btn-group btn-group-sm">
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-success py-0 px-2" 
+                            [disabled]="isUpdatingVariant" 
+                            (click)="saveEditVariant(ev)" 
+                            title="Save Changes"
+                          >
+                            <span *ngIf="isUpdatingVariant" class="spinner-border spinner-border-sm"></span>
+                            <i *ngIf="!isUpdatingVariant" class="fas fa-check"></i>
+                          </button>
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-secondary py-0 px-2" 
+                            [disabled]="isUpdatingVariant" 
+                            (click)="cancelEditVariant()" 
+                            title="Cancel"
+                          >
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                        <div *ngIf="editingVariantId !== ev.id" class="btn-group btn-group-sm">
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-primary py-0 px-2" 
+                            (click)="startEditVariant(ev)" 
+                            title="Edit Price, Cost & Weight"
+                          >
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-danger py-0 px-2" 
+                            (click)="deleteVariant(ev)" 
+                            title="Delete Variant"
+                          >
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>

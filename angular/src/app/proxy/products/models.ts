@@ -207,6 +207,9 @@ export interface GeneratedVariantPreviewDto {
   combinationHash: string;
   imageUrl?: string | null;
   attributes: VariantAttributeSelectionDto[];
+  sellingPrice?: number;
+  purchasePrice?: number;
+  weightKg?: number;
 }
 
 export interface ProductAttributeDto extends FullAuditedEntityDto<string> {

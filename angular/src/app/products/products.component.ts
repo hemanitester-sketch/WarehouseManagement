@@ -11,6 +11,7 @@ import {
   ProductType,
   ProductVariantDto,
   CreateProductVariantDto,
+  UpdateProductVariantDto,
   ProductAttributeDto,
   AttributeMatrixOptionInput,
   GeneratedVariantPreviewDto,
@@ -286,8 +287,13 @@ export class ProductsComponent implements OnInit {
   customAttrInputs: { [attrId: string]: string } = {};
   generatedVariantPreview: GeneratedVariantPreviewDto[] = [];
   isGeneratingMatrix = false;
+  bulkPriceInput: number | null = null;
+  bulkCostInput: number | null = null;
   existingVariants: ProductVariantDto[] = [];
   isLoadingVariants = false;
+  editingVariantId: string | null = null;
+  editingVariantModel: UpdateProductVariantDto | null = null;
+  isUpdatingVariant = false;
   expandedProductId: string | null = null;
   expandedProductVariants: { [productId: string]: ProductVariantDto[] } = {};
 
@@ -913,6 +919,15 @@ export class ProductsComponent implements OnInit {
     }).subscribe({
       next: (preview) => {
         this.generatedVariantPreview = preview || [];
+        const defaultPrice = this.newProduct.unitPrice ?? 0;
+        const defaultWeight = this.newProduct.weightKg ?? 0.5;
+        this.generatedVariantPreview.forEach(pv => {
+          pv.sellingPrice = defaultPrice;
+          pv.purchasePrice = 0;
+          pv.weightKg = defaultWeight;
+        });
+        this.bulkPriceInput = defaultPrice || null;
+        this.bulkCostInput = 0;
         this.isGeneratingMatrix = false;
         this.toasterService.info(`Generated ${this.generatedVariantPreview.length} variant combinations.`);
         this.cdr.detectChanges();
@@ -925,6 +940,24 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  applyBulkPriceToPreview(): void {
+    if (this.bulkPriceInput === null || this.bulkPriceInput === undefined) return;
+    this.generatedVariantPreview.forEach(pv => {
+      pv.sellingPrice = Number(this.bulkPriceInput);
+    });
+    this.toasterService.info(`Updated selling price to ₹${this.bulkPriceInput} for all preview variants.`);
+    this.cdr.detectChanges();
+  }
+
+  applyBulkCostToPreview(): void {
+    if (this.bulkCostInput === null || this.bulkCostInput === undefined) return;
+    this.generatedVariantPreview.forEach(pv => {
+      pv.purchasePrice = Number(this.bulkCostInput);
+    });
+    this.toasterService.info(`Updated purchase cost to ₹${this.bulkCostInput} for all preview variants.`);
+    this.cdr.detectChanges();
+  }
+
   saveGeneratedVariants(): void {
     if (!this.editingProductId || this.generatedVariantPreview.length === 0) return;
 
@@ -932,9 +965,9 @@ export class ProductsComponent implements OnInit {
       productId: this.editingProductId!,
       sku: p.generatedSku,
       variantName: p.generatedVariantName,
-      purchasePrice: 0,
-      sellingPrice: this.newProduct.unitPrice ?? 0,
-      weightKg: this.newProduct.weightKg ?? 0.5,
+      purchasePrice: p.purchasePrice !== undefined && p.purchasePrice !== null ? Number(p.purchasePrice) : 0,
+      sellingPrice: p.sellingPrice !== undefined && p.sellingPrice !== null ? Number(p.sellingPrice) : (this.newProduct.unitPrice ?? 0),
+      weightKg: p.weightKg !== undefined && p.weightKg !== null ? Number(p.weightKg) : (this.newProduct.weightKg ?? 0.5),
       volumeCm3: this.newProduct.volumeCm3 ?? 100,
       imageUrl: p.imageUrl || this.newProduct.imageUrl || null,
       isDefault: false,
@@ -955,6 +988,75 @@ export class ProductsComponent implements OnInit {
         this.cdr.detectChanges();
         const serverMsg = err?.error?.error?.message || err?.message || 'Failed to create product variants.';
         this.toasterService.error(serverMsg, 'Validation Error');
+      }
+    });
+  }
+
+  // --- Inline Edit / Update & Delete for Existing Variants ---
+  startEditVariant(v: ProductVariantDto): void {
+    this.editingVariantId = v.id || null;
+    this.editingVariantModel = {
+      sku: v.sku,
+      variantName: v.variantName || '',
+      sellingPrice: v.sellingPrice ?? 0,
+      purchasePrice: v.purchasePrice ?? 0,
+      weightKg: v.weightKg ?? 0.5,
+      volumeCm3: v.volumeCm3 ?? 100,
+      lengthCm: v.lengthCm ?? null,
+      widthCm: v.widthCm ?? null,
+      heightCm: v.heightCm ?? null,
+      isActive: v.isActive,
+      isDefault: v.isDefault
+    };
+    this.cdr.detectChanges();
+  }
+
+  cancelEditVariant(): void {
+    this.editingVariantId = null;
+    this.editingVariantModel = null;
+    this.cdr.detectChanges();
+  }
+
+  saveEditVariant(v: ProductVariantDto): void {
+    if (!this.editingVariantModel || !v.id) return;
+    this.isUpdatingVariant = true;
+    this.variantService.update(v.id, this.editingVariantModel).subscribe({
+      next: (updated) => {
+        this.isUpdatingVariant = false;
+        this.toasterService.success(`Variant ${updated.sku} updated successfully!`);
+        this.editingVariantId = null;
+        this.editingVariantModel = null;
+        if (this.editingProductId) {
+          this.loadProductVariants(this.editingProductId);
+        }
+        this.loadProducts();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isUpdatingVariant = false;
+        this.cdr.detectChanges();
+        const msg = err?.error?.error?.message || err?.message || 'Failed to update variant.';
+        this.toasterService.error(msg);
+      }
+    });
+  }
+
+  deleteVariant(v: ProductVariantDto): void {
+    if (!v.id) return;
+    if (!confirm(`Are you sure you want to delete variant ${v.sku}? This action cannot be undone.`)) return;
+
+    this.variantService.delete(v.id).subscribe({
+      next: () => {
+        this.toasterService.success(`Variant ${v.sku} deleted.`);
+        if (this.editingProductId) {
+          this.loadProductVariants(this.editingProductId);
+        }
+        this.loadProducts();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        const msg = err?.error?.error?.message || err?.message || 'Cannot delete variant. Make sure no stock exists.';
+        this.toasterService.error(msg);
       }
     });
   }

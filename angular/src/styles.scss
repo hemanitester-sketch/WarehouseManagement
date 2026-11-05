@@ -2492,3 +2492,163 @@ body:has([class*="-drawer-panel"].open) {
 [class*="-drawer-modal"] {
   overflow: hidden !important;
 }
+
+/* ==========================================================================
+   GLOBAL BULLETPROOF PRINT ENGINE
+   Ensures ONLY the target printable document is printed on clean white A4/A5
+   with NO background page, NO sidebar, NO topbar, NO modal backdrops,
+   and NO extra blank / sliced pages.
+   ========================================================================== */
+@media print {
+  @page {
+    size: auto;
+    margin: 8mm 10mm;
+  }
+
+  /* 1. Global Reset: Unlock overflow and reset background */
+  html,
+  html.wms-modal-open,
+  html:has(.modal.show),
+  html:has(.modal.d-block),
+  body,
+  body.wms-modal-open,
+  body:has(.modal.show),
+  body:has(.modal.d-block),
+  #lpx-wrapper,
+  .lpx-content-container,
+  .lpx-content-wrapper,
+  .lpx-content,
+  .lpx-main,
+  .main-content {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 2. Remove all outer application navigation and shell chrome completely */
+  nav,
+  aside,
+  header,
+  footer,
+  .lpx-sidebar-container,
+  .lpx-topbar-container,
+  .lpx-breadcrumb-container,
+  .lpx-brand-logo,
+  .lpx-sidebar,
+  .lpx-header,
+  .sidebar,
+  .navbar,
+  .modal-backdrop,
+  .wms-modal-backdrop,
+  .drawer-backdrop,
+  .no-print,
+  .d-print-none,
+  .btn,
+  button,
+  .btn-close,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+
+  /* 3. When any modal is open, completely remove the background page contents from print flow */
+  .container-fluid > *:not(.modal),
+  .purchase-receives-container > *:not(.modal),
+  .bills-container > *:not(.modal),
+  .payments-container > *:not(.modal),
+  .vendor-credits-container > *:not(.modal),
+  .transfers-container > *:not(.modal),
+  .returns-container > *:not(.modal),
+  .cycle-counts-container > *:not(.modal),
+  .products-container > *:not(.modal) {
+    display: none !important;
+  }
+
+  /* 4. Convert modal into natural flat print container */
+  .modal,
+  .modal.show,
+  .modal.d-block,
+  .modal.fade {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .modal-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+
+  .modal-content {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .modal-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  /* 5. Specific printable document containers */
+  #printable-grn,
+  #printable-bill,
+  #printable-voucher,
+  #printable-credit,
+  #printableChallanDoc,
+  #printableChallan,
+  #printableAuditDoc,
+  .printable-label-card,
+  .printable-challan,
+  .grn-document,
+  .bill-document,
+  .voucher-document,
+  .credit-document {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 10px 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

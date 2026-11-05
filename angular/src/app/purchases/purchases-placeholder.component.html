@@ -1,0 +1,47 @@
+<div class="container-fluid purchases-placeholder-container">
+  <!-- Breadcrumb & Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small">Purchases</span>
+        <i class="bi bi-chevron-right text-muted small"></i>
+        <h2 class="h5 font-weight-bold text-dark mb-0">{{ title }}</h2>
+        <span class="wms-badge wms-badge-secondary">Coming Soon</span>
+      </div>
+      <p class="text-muted small mb-0 mt-1">{{ description }}</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a routerLink="/inbound" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>Purchase Orders</span>
+      </a>
+      <a routerLink="/suppliers" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+        <i class="bi bi-shop"></i>
+        <span>Suppliers & Vendors</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Placeholder Card -->
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-5 text-center">
+      <div class="placeholder-icon-wrap mx-auto mb-3">
+        <i [class]="icon"></i>
+      </div>
+      <h4 class="font-weight-bold text-dark mb-2">{{ title }}</h4>
+      <p class="text-muted mx-auto" style="max-width: 540px;">
+        {{ description }}
+      </p>
+      <div class="d-inline-flex align-items-center gap-2 px-3 py-2 bg-light rounded-pill border text-muted small mb-4">
+        <i class="bi bi-info-circle text-primary"></i>
+        <span>Sidebar navigation is configured. Business logic & workflow will be implemented in the next phase.</span>
+      </div>
+      <div>
+        <a routerLink="/" class="btn btn-wms-primary btn-sm px-4">
+          <i class="bi bi-speedometer2 pe-1"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+

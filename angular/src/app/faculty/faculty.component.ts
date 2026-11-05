@@ -23,6 +23,7 @@ export class FacultyComponent implements OnInit {
   facultyMembers: FacultyMemberDto[] = [];
   filteredMembers: FacultyMemberDto[] = [];
   warehouses: WarehouseDto[] = [];
+  private rawFacultyList: any[] = [];
 
   isLoading = false;
   isSaving = false;
@@ -148,6 +149,7 @@ export class FacultyComponent implements OnInit {
     this.warehouseService.getList({ maxResultCount: 200, isActive: true }).subscribe({
       next: (res) => {
         this.warehouses = res.items || [];
+        this.syncFacultyWarehouseDetails();
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -160,15 +162,8 @@ export class FacultyComponent implements OnInit {
     this.isLoading = true;
     this.facultyService.getList({ maxResultCount: 300, sorting: 'EmployeeCode asc' }).subscribe({
       next: (res) => {
-        this.facultyMembers = (res.items || []).map((m: any) => ({
-          ...m,
-          warehouseId: m.assignedWarehouseId || m.warehouseId || null,
-          warehouseName: m.assignedWarehouseName || m.warehouseName || null,
-          warehouseCode: m.assignedWarehouseCode || m.warehouseCode || null,
-          status: m.isActive ? 'Active' : 'Inactive',
-        }));
-        this.updateMetrics();
-        this.applyFilters();
+        this.rawFacultyList = res.items || [];
+        this.syncFacultyWarehouseDetails();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -179,6 +174,54 @@ export class FacultyComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private syncFacultyWarehouseDetails(): void {
+    if (!this.rawFacultyList || this.rawFacultyList.length === 0) {
+      this.facultyMembers = [];
+      this.updateMetrics();
+      this.applyFilters();
+      return;
+    }
+
+    this.facultyMembers = this.rawFacultyList.map((m: any) => {
+      let whId = m.assignedWarehouseId || m.warehouseId || null;
+      let whName = m.assignedWarehouseName || m.warehouseName || null;
+      let whCode = m.assignedWarehouseCode || m.warehouseCode || null;
+
+      // 1. If not directly set on faculty, check if assigned as Manager of any warehouse
+      if (!whId && this.warehouses && this.warehouses.length > 0) {
+        const managedWh = this.warehouses.find((w) => w.managerId === m.id);
+        if (managedWh) {
+          whId = managedWh.id;
+          whName = managedWh.name;
+          whCode = managedWh.code;
+        }
+      }
+
+      // 2. If whId is set but name is missing, look it up from warehouses
+      if (whId && !whName && this.warehouses && this.warehouses.length > 0) {
+        const matchingWh = this.warehouses.find((w) => w.id === whId);
+        if (matchingWh) {
+          whName = matchingWh.name;
+          whCode = matchingWh.code;
+        }
+      }
+
+      return {
+        ...m,
+        warehouseId: whId,
+        assignedWarehouseId: whId,
+        warehouseName: whName,
+        assignedWarehouseName: whName,
+        warehouseCode: whCode,
+        assignedWarehouseCode: whCode,
+        status: m.isActive ? 'Active' : 'Inactive',
+      };
+    });
+
+    this.updateMetrics();
+    this.applyFilters();
   }
 
   updateMetrics(): void {

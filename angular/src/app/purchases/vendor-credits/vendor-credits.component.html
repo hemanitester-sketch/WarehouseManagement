@@ -1,0 +1,633 @@
+<div class="container-fluid vendor-credits-container">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Vendor Credits & Debit Notes</h2>
+        <span class="wms-badge wms-badge-danger">Damaged Goods & Adjustments</span>
+      </div>     
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+        style="height: 32px; width: 34px;" (click)="loadCredits()" title="Refresh List">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+      </button>
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openCreateCreditModal()">
+        <i class="bi bi-file-earmark-diff"></i>
+        <span>Issue Vendor Credit Note</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-indigo">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalCreditsCount }}</div>
+          <div class="text-muted kpi-label-compact">TOTAL CREDIT NOTES</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-red">
+          <i class="bi bi-exclamation-octagon"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">₹{{ totalCreditAmount | number:'1.0-0' }}</div>
+          <div class="text-muted kpi-label-compact">TOTAL CLAIM VALUE</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-green">
+          <i class="bi bi-piggy-bank"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">₹{{ totalAvailableBalance | number:'1.0-0' }}</div>
+          <div class="text-muted kpi-label-compact">AVAILABLE FOR BILL DEDUCTION</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-blue">
+          <i class="bi bi-check2-all"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">₹{{ totalAdjustedAmount | number:'1.0-0' }}</div>
+          <div class="text-muted kpi-label-compact">SETTLED IN BILLS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2 p-md-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+              placeholder="Search by Credit #, Supplier, PO #, Reason..." [(ngModel)]="searchQuery" />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedStatusFilter">
+            <option value="">All Statuses</option>
+            <option value="Available">Available / Open</option>
+            <option value="Partially Adjusted">Partially Adjusted</option>
+            <option value="Fully Adjusted">Fully Adjusted</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 text-md-end ms-auto">
+          <span class="text-muted small">
+            Showing <strong>{{ filteredCredits.length }}</strong> credit notes
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading vendor credit notes...</p>
+  </div>
+
+  <!-- Credits Master Table -->
+  <div *ngIf="!isLoading && filteredCredits.length > 0" class="card inbound-table-card overflow-hidden">
+    <div class="table-responsive wms-inbound-table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table inbound-table credits-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3 col-crd-no">Credit Note #</th>
+            <th class="col-crd-date">Date</th>
+            <th class="col-crd-supplier">Supplier Name</th>
+            <th class="col-crd-ref">Source PO / GRN</th>
+            <th class="col-crd-reason">Reason Type</th>
+            <th class="col-crd-amt text-end">Credit Value</th>
+            <th class="col-crd-amt text-end">Available Balance</th>
+            <th class="col-crd-status text-center">Status</th>
+            <th class="col-crd-action text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cred of paginatedCredits">
+            <td class="ps-3 col-crd-no">
+              <span class="crd-code-text font-monospace fw-bold" [title]="cred.creditNumber">
+                {{ cred.creditNumber }}
+              </span>
+            </td>
+            <td class="col-crd-date">
+              <span class="inbound-cell-text text-nowrap d-block">{{ cred.creditDate | date:'mediumDate' }}</span>
+            </td>
+            <td class="col-crd-supplier">
+              <span class="inb-truncate-supplier fw-medium d-block" [title]="cred.supplierName">
+                {{ cred.supplierName }}
+              </span>
+              <span *ngIf="cred.supplierGstin" class="text-muted d-block inbound-cell-subtext" [title]="'GSTIN: ' + cred.supplierGstin">
+                <i class="fas fa-shield-alt text-primary me-1" style="font-size: 0.65rem;"></i>GSTIN: {{ cred.supplierGstin }}
+              </span>
+            </td>
+            <td class="col-crd-ref">
+              <div class="d-flex flex-column gap-1">
+                <a *ngIf="cred.orderNumber" [routerLink]="['/inbound']" class="badge-link text-decoration-none" [title]="cred.orderNumber">
+                  <span class="badge bg-light text-primary border d-inline-flex align-items-center gap-1 font-monospace" style="font-size: 0.72rem;">
+                    <i class="bi bi-file-earmark-text"></i> {{ cred.orderNumber }}
+                  </span>
+                </a>
+                <a *ngIf="cred.receiveNumber" [routerLink]="['/purchases/purchase-receives']" class="badge-link text-decoration-none" [title]="cred.receiveNumber">
+                  <span class="badge bg-light text-success border d-inline-flex align-items-center gap-1 font-monospace" style="font-size: 0.72rem;">
+                    <i class="bi bi-box-arrow-in-down"></i> {{ cred.receiveNumber }}
+                  </span>
+                </a>
+              </div>
+            </td>
+            <td class="col-crd-reason">
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle text-nowrap">
+                {{ cred.reasonType }}
+              </span>
+            </td>
+            <td class="col-crd-amt text-end">
+              <span class="inbound-cell-text font-monospace fw-bold text-dark">
+                ₹{{ cred.totalCreditAmount | number:'1.2-2' }}
+              </span>
+            </td>
+            <td class="col-crd-amt text-end">
+              <span class="inbound-cell-text font-monospace fw-bold" [ngClass]="cred.availableBalance > 0 ? 'text-success' : 'text-muted'">
+                ₹{{ cred.availableBalance | number:'1.2-2' }}
+              </span>
+            </td>
+            <td class="col-crd-status text-center">
+              <span class="inbound-status-pill text-nowrap" [ngClass]="getStatusBadgeClass(cred.status)">
+                <i class="bi bi-circle-fill me-1" style="font-size: 0.45rem;"></i> {{ cred.status }}
+              </span>
+            </td>
+            <td class="col-crd-action text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                <button *ngIf="cred.availableBalance > 0" 
+                        type="button" 
+                        class="btn btn-table-action btn-apply" 
+                        title="Deduct Credit from an Open Purchase Bill" 
+                        (click)="openApplyCreditModal(cred)">
+                  <i class="bi bi-arrow-down-right-circle"></i>
+                </button>
+                <button type="button" 
+                        class="btn btn-table-action btn-credit" 
+                        title="View & Print Official Credit Note" 
+                        (click)="viewCredit(cred)">
+                  <i class="bi bi-file-earmark-diff"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (Default 50 Limit) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredCredits.length }}</strong> credit notes
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredCredits.length === 0" class="card border-0 shadow-sm rounded-3 p-5 text-center">
+    <div class="placeholder-icon-wrap mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+      <i class="bi bi-wallet2"></i>
+    </div>
+    <h5 class="font-weight-bold text-dark">No Vendor Credits Recorded</h5>
+    <p class="text-muted mx-auto" style="max-width: 450px;">
+      There are no vendor credit notes issued yet. Raise a credit note for damaged goods reported in Goods Receipts to claim a discount on future bills.
+    </p>
+    <div>
+      <button class="btn btn-wms-primary btn-sm px-3" (click)="openCreateCreditModal()">
+        <i class="bi bi-file-earmark-diff pe-1"></i> Issue Vendor Credit Note
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 1: Issue New Vendor Credit Note -->
+  <div *ngIf="isCreateCreditModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <!-- Header -->
+        <div class="modal-header bg-light border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-danger-subtle text-danger rounded-circle">
+              <i class="bi bi-file-earmark-diff"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-dark mb-0">Issue Vendor Credit Note (Debit Note)</h5>
+              <span class="text-muted small">Record commercial credit claims for damaged, shortage, or rejected inventory items against a Goods Receipt (GRN).</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="isCreateCreditModalOpen = false"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body p-4">
+          <!-- Step 1: Select GRN -->
+          <div class="card border mb-3 bg-light">
+            <div class="card-body p-3">
+              <label class="form-label font-weight-bold text-dark">
+                Select Source Goods Receipt Note (GRN) <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" [(ngModel)]="selectedReceiveId" (ngModelChange)="onReceiveSelected()">
+                <option value="">-- Select a Goods Receipt (GRN) --</option>
+                <option *ngFor="let rec of receives" [value]="rec.id">
+                  {{ rec.receiveNumber }} - PO: {{ rec.orderNumber }} (Supplier: {{ rec.supplierName }} | Damaged: {{ rec.totalDamagedQuantity }} units)
+                </option>
+              </select>
+
+              <!-- GRN Summary Strip -->
+              <div *ngIf="selectedReceiveForCredit" class="mt-3 p-3 bg-white rounded border d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                  <span class="text-muted small d-block">PO REFERENCE</span>
+                  <strong class="text-primary">{{ selectedReceiveForCredit.orderNumber }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">SUPPLIER</span>
+                  <strong class="text-dark">{{ selectedReceiveForCredit.supplierName }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">FACILITY</span>
+                  <strong class="text-dark">{{ selectedReceiveForCredit.warehouseCode || selectedReceiveForCredit.warehouseName }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">DAMAGED COUNT</span>
+                  <strong class="text-danger">{{ selectedReceiveForCredit.totalDamagedQuantity }} Units</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Reason Type & Date -->
+          <div *ngIf="selectedReceiveForCredit" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase">
+              <i class="bi bi-info-circle me-1 text-primary"></i> Claim Reason & Date
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Reason Category <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" [(ngModel)]="creditReasonType">
+                    <option value="Damaged in Transit">Damaged in Transit (Water / Crushed)</option>
+                    <option value="Defective / Rejected at QC">Defective / Rejected at QC</option>
+                    <option value="Short Shipment">Short Shipment (Missing Units)</option>
+                    <option value="Price Variance">Price Variance / Billing Error</option>
+                    <option value="Return to Vendor (RTV)">Return to Vendor (RTV)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Credit Note Date</label>
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="creditDateStr" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Damaged Items Grid -->
+          <div *ngIf="selectedReceiveForCredit" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-exclamation-triangle me-1 text-danger"></i> Claim Items & Unit Rates</span>
+              <span class="text-muted" style="font-size: 0.75rem;">Prices & Damaged counts are editable</span>
+            </div>
+            <div class="card-body p-0 table-responsive">
+              <table class="table table-bordered align-middle mb-0" style="font-size: 0.85rem;">
+                <thead class="table-light">
+                  <tr>
+                    <th>Item SKU & Description</th>
+                    <th class="text-center" style="width: 90px;">Claim Qty</th>
+                    <th class="text-end" style="width: 110px;">Unit Rate (₹)</th>
+                    <th class="text-center" style="width: 90px;">GST %</th>
+                    <th class="text-end" style="width: 100px;">Tax (₹)</th>
+                    <th class="text-end" style="width: 120px;">Claim Value (₹)</th>
+                    <th style="min-width: 180px;">Defect Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let line of creditLinesState">
+                    <td>
+                      <div class="fw-bold text-dark">{{ line.productSku }}</div>
+                      <div class="text-muted small">{{ line.productName }}</div>
+                    </td>
+                    <td>
+                      <input type="number" class="form-control form-control-sm text-center fw-bold text-danger"
+                        [(ngModel)]="line.quantityDamagedOrReturned" (ngModelChange)="onLineChanged(line)" min="1" />
+                    </td>
+                    <td>
+                      <input type="number" class="form-control form-control-sm text-end"
+                        [(ngModel)]="line.unitPrice" (ngModelChange)="onLineChanged(line)" min="0" />
+                    </td>
+                    <td>
+                      <select class="form-select form-select-sm text-center"
+                        [(ngModel)]="line.taxRatePercent" (ngModelChange)="onLineChanged(line)">
+                        <option [value]="0">0%</option>
+                        <option [value]="5">5%</option>
+                        <option [value]="12">12%</option>
+                        <option [value]="18">18%</option>
+                        <option [value]="28">28%</option>
+                      </select>
+                    </td>
+                    <td class="text-end text-muted">₹{{ line.taxAmount | number:'1.2-2' }}</td>
+                    <td class="text-end fw-bold text-dark">₹{{ line.claimAmount | number:'1.2-2' }}</td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" [(ngModel)]="line.reason" placeholder="e.g. Broken seal" />
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                  <tr>
+                    <td colspan="5" class="text-end">Total Credit Claim Amount:</td>
+                    <td class="text-end text-primary fs-6">₹{{ totalCalculatedClaim | number:'1.2-2' }}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Step 4: Notes -->
+          <div *ngIf="selectedReceiveForCredit">
+            <label class="form-label small text-muted">Claim Remarks / Notes</label>
+            <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="creditNotes" placeholder="Enter inspection notes..."></textarea>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-top">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="isCreateCreditModalOpen = false" [disabled]="isSaving">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
+            [disabled]="isSaving || !selectedReceiveForCredit" (click)="submitCredit()">
+            <i class="bi bi-check-circle" *ngIf="!isSaving"></i>
+            <span class="spinner-border spinner-border-sm" *ngIf="isSaving"></span>
+            <span>Confirm & Issue Credit Note</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Apply Credit Note to Open Purchase Bill -->
+  <div *ngIf="isApplyCreditModalOpen && selectedCreditForApply" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <!-- Header -->
+        <div class="modal-header bg-light border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-success-subtle text-success rounded-circle">
+              <i class="bi bi-arrow-down-right-circle"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-dark mb-0">Apply Credit Note to Bill</h5>
+              <span class="text-muted small">Deduct credit note amount from an outstanding Purchase Bill.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="isApplyCreditModalOpen = false"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body p-4">
+          <!-- Credit Note Summary -->
+          <div class="p-3 bg-light rounded border mb-3" style="font-size: 0.85rem;">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Credit Note:</span>
+              <strong class="text-dark">{{ selectedCreditForApply.creditNumber }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Vendor:</span>
+              <strong class="text-dark">{{ selectedCreditForApply.supplierName }}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Available Credit Balance:</span>
+              <strong class="text-success fs-6">₹{{ selectedCreditForApply.availableBalance | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <!-- Select Target Bill -->
+          <div class="mb-3">
+            <label class="form-label font-weight-bold text-dark small">Select Purchase Bill to Deduct from <span class="text-danger">*</span></label>
+            <select class="form-select form-select-sm" [(ngModel)]="targetBillId" (ngModelChange)="onTargetBillChanged()">
+              <option value="">-- Select an Open Bill for this Vendor --</option>
+              <option *ngFor="let bill of getMatchingBillsForCredit(selectedCreditForApply)" [value]="bill.id">
+                {{ bill.billNumber }} - Due: ₹{{ bill.balanceDue | number:'1.2-2' }} (Inv: {{ bill.vendorInvoiceNumber }})
+              </option>
+            </select>
+            <div *ngIf="getMatchingBillsForCredit(selectedCreditForApply).length === 0" class="text-danger small mt-1">
+              No open unpaid bills found for this vendor.
+            </div>
+          </div>
+
+          <!-- Amount to Adjust -->
+          <div class="mb-3">
+            <label class="form-label font-weight-bold text-dark small">Amount to Deduct from Bill (₹) <span class="text-danger">*</span></label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white">₹</span>
+              <input type="number" class="form-control fs-6 fw-bold text-primary" [(ngModel)]="amountToAdjust" min="1" [max]="selectedCreditForApply.availableBalance" />
+            </div>
+            <span class="text-muted small mt-1 d-block">
+              This amount will reduce the payable balance on the selected bill.
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-top">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="isApplyCreditModalOpen = false">Cancel</button>
+          <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-1"
+            [disabled]="!targetBillId || amountToAdjust <= 0" (click)="submitApplyCredit()">
+            <i class="bi bi-check-circle"></i>
+            <span>Confirm & Apply Deduction</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Official Vendor Debit / Credit Note Document View & Print -->
+  <div *ngIf="isViewCreditModalOpen && selectedCreditForView" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <!-- Action Header (Hidden on Print) -->
+        <div class="modal-header bg-light border-bottom no-print">
+          <div class="d-flex align-items-center gap-2">
+            <span class="credit-badge">{{ selectedCreditForView.creditNumber }}</span>
+            <span class="text-muted small">Vendor Debit / Credit Note Document</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" (click)="printCredit()">
+              <i class="bi bi-printer"></i>
+              <span>Print / PDF</span>
+            </button>
+            <button type="button" class="btn-close" (click)="isViewCreditModalOpen = false"></button>
+          </div>
+        </div>
+
+        <!-- Printable Document Area -->
+        <div class="modal-body p-4 credit-document" id="printable-credit">
+          <!-- Top Title -->
+          <div class="text-center border-bottom pb-3 mb-3">
+            <h4 class="font-weight-bold text-dark mb-0 tracking-wide">DEBIT / CREDIT NOTE</h4>
+            <span class="text-muted small">COMMERCIAL ADJUSTMENT SLIP · DAMAGE CLAIM & INWARD VARIANCE</span>
+          </div>
+
+          <!-- Meta Strip -->
+          <div class="row g-2 mb-3 p-3 bg-light rounded border" style="font-size: 0.85rem;">
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">CREDIT NOTE #</span>
+              <strong class="text-dark">{{ selectedCreditForView.creditNumber }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">ISSUE DATE</span>
+              <strong class="text-dark">{{ selectedCreditForView.creditDate | date:'mediumDate' }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">ORIGINAL PO REF</span>
+              <strong class="text-primary">{{ selectedCreditForView.orderNumber || 'PO-ORDER' }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">GRN NUMBER</span>
+              <strong class="text-success">{{ selectedCreditForView.receiveNumber }}</strong>
+            </div>
+          </div>
+
+          <!-- Vendor / Payee Box -->
+          <div class="p-3 bg-white rounded border mb-3" style="font-size: 0.85rem;">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <span class="text-muted small d-block">ISSUED TO (SUPPLIER / VENDOR):</span>
+                <h6 class="font-weight-bold text-dark mb-1">{{ selectedCreditForView.supplierName }}</h6>
+                <div class="text-muted small">GSTIN: {{ selectedCreditForView.supplierGstin || '07AABCA5678Q1Z2' }}</div>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block">CLAIM REASON TYPE:</span>
+                <span class="badge bg-danger text-white">{{ selectedCreditForView.reasonType }}</span>
+                <div *ngIf="selectedCreditForView.adjustedBillNumber" class="text-success small fw-bold mt-1">
+                  Adjusted against Bill: {{ selectedCreditForView.adjustedBillNumber }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle" style="font-size: 0.85rem;">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 35px;" class="text-center">S#</th>
+                  <th>Damaged / Rejected Item</th>
+                  <th class="text-center" style="width: 70px;">Claim Qty</th>
+                  <th class="text-end" style="width: 90px;">Rate (₹)</th>
+                  <th class="text-center" style="width: 70px;">GST %</th>
+                  <th class="text-end" style="width: 90px;">Tax (₹)</th>
+                  <th class="text-end" style="width: 110px;">Total (₹)</th>
+                  <th>Defect Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of selectedCreditForView.items; let i = index">
+                  <td class="text-center text-muted">{{ i + 1 }}</td>
+                  <td>
+                    <div class="fw-bold text-dark">{{ item.productSku }}</div>
+                    <div class="text-muted small">{{ item.productName }}</div>
+                  </td>
+                  <td class="text-center fw-bold text-danger">{{ item.quantityDamagedOrReturned }}</td>
+                  <td class="text-end">₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                  <td class="text-center">{{ item.taxRatePercent }}%</td>
+                  <td class="text-end">₹{{ item.taxAmount | number:'1.2-2' }}</td>
+                  <td class="text-end fw-bold text-dark">₹{{ item.claimAmount | number:'1.2-2' }}</td>
+                  <td class="text-muted small">{{ item.reason }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td colspan="6" class="text-end">Total Credit Adjustment Value:</td>
+                  <td class="text-end text-primary fs-6">₹{{ selectedCreditForView.totalCreditAmount | number:'1.2-2' }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Amount in Words -->
+          <div class="p-3 bg-light rounded border mb-3" style="font-size: 0.85rem;">
+            <span class="text-muted small font-weight-bold">Total Claim in Words:</span>
+            <div class="fw-bold text-dark mt-1 fs-6">{{ numberToWords(selectedCreditForView.totalCreditAmount) }}</div>
+          </div>
+
+          <!-- Remarks -->
+          <div class="p-3 bg-white rounded border mb-4" style="font-size: 0.82rem;">
+            <span class="text-muted font-weight-bold d-block">Inspection & Claims Remarks:</span>
+            <p class="mb-0 text-muted mt-1">{{ selectedCreditForView.notes || 'Goods physically verified and rejected. Credit note eligible for adjustment.' }}</p>
+          </div>
+
+          <!-- Signatures -->
+          <div class="row pt-4 text-center mt-3" style="font-size: 0.85rem;">
+            <div class="col-6">
+              <div class="border-top pt-2 mx-auto" style="max-width: 180px;">
+                <div class="fw-bold text-dark">QC Dock Inspector</div>
+                <div class="text-muted small">Defect Verified</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border-top pt-2 mx-auto" style="max-width: 180px;">
+                <div class="fw-bold text-dark">Commercial Inward Lead</div>
+                <div class="text-muted small">Authorized Signatory</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-top no-print">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="isViewCreditModalOpen = false">Close</button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="printCredit()">
+            <i class="bi bi-printer"></i>
+            <span>Print Credit Note</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

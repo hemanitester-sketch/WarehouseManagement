@@ -452,26 +452,3 @@ select,
   }
 }
 
-
-/* Printable Challan Styles */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  #printableChallanDoc,
-  #printableChallanDoc * {
-    visibility: visible;
-  }
-
-  #printableChallanDoc {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 20px;
-    background: #ffffff;
-  }
-}
-

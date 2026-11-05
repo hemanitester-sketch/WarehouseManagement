@@ -1,4 +1,4 @@
-﻿<div class="container-fluid products-container">
+<div class="container-fluid products-container">
   <!-- Page Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
@@ -228,7 +228,7 @@
             <span class="wh-cap-val">{{ getCapacityPercent(wh) }}% Capacity</span>
           </div>
           <div class="progress" style="height: 4px; background-color: #e2e8f0; border-radius: 999px;">
-            <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(wh)"
+            <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(wh)" [style.background-color]="getCapacityColor(getCapacityPercent(wh))"
               style="background-color: #2563eb; border-radius: 999px;"></div>
           </div>
         </div>
@@ -443,7 +443,7 @@
           <div class="d-flex align-items-center gap-2">
             <span class="text-muted small">Storage Utilization:</span>
             <div class="progress" style="width: 100px; height: 6px; background-color: #e2e8f0; border-radius: 999px;">
-              <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(selectedWarehouse)"
+              <div class="progress-bar" role="progressbar" [style.width.%]="getCapacityPercent(selectedWarehouse)" [style.background-color]="getCapacityColor(getCapacityPercent(selectedWarehouse))"
                 style="background-color: #2563eb; border-radius: 999px;"></div>
             </div>
             <span class="fw-bold small text-dark">{{ getCapacityPercent(selectedWarehouse) }}%</span>
@@ -1001,7 +1001,7 @@
               <i class="fas fa-th-large text-white"></i>
             </div>
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0">Add Storage Zone</h5>
+              <h5 class="modal-title font-weight-bold mb-0" style="color:white !important;">Add Storage Zone</h5>
               <p class="small text-white-50 mb-0 mt-0.5">Partition warehouse into dedicated storage sections</p>
             </div>
           </div>
@@ -1075,7 +1075,7 @@
               <i class="fas fa-barcode text-white"></i>
             </div>
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0">Create Barcode Bin Location</h5>
+              <h5 class="modal-title font-weight-bold mb-0" style="color: white !important;">Create Barcode Bin Location</h5>
               <p class="small text-white-50 mb-0 mt-0.5">Assign aisle, rack, shelf, and scannable barcode label</p>
             </div>
           </div>
@@ -1145,6 +1145,53 @@
             <span>Save Bin Location</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Custom Delete Confirmation (Replaces Browser Default Confirm) -->
+  <div *ngIf="isDeleteConfirmModalOpen" class="modal fade show d-block" tabindex="-1"
+    style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); z-index: 1070;" (click)="closeDeleteConfirmModal()">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 14px;">
+        
+        <div class="modal-header py-3 px-4 bg-white border-bottom d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2.5">
+            <div class="d-flex align-items-center justify-content-center rounded-circle"
+              style="width: 38px; height: 38px; background-color: #fee2e2; color: #dc2626; font-size: 1rem;">
+              <i class="fas fa-trash-alt"></i>
+            </div>
+            <div>
+              <h6 class="modal-title mb-0 fw-bold text-dark" style="font-size: 0.98rem;">{{ deleteConfirmTitle }}</h6>
+              <span class="text-muted small" style="font-size: 0.72rem;">Permanent deletion check</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="closeDeleteConfirmModal()" [disabled]="isDeletingItem"></button>
+        </div>
+
+        <div class="modal-body p-4 text-center">
+          <p class="text-secondary mb-2" style="font-size: 0.9rem; line-height: 1.5;">
+            {{ deleteConfirmMessage }}
+          </p>
+          <div *ngIf="deleteConfirmItemCode" class="my-2 p-2 rounded bg-light border font-monospace fw-bold text-danger small text-break">
+            {{ deleteConfirmItemCode }}
+          </div>
+          <p class="text-muted small mb-0" style="font-size: 0.74rem;">
+            This action cannot be undone. Bins with assigned or active inventory cannot be removed.
+          </p>
+        </div>
+
+        <div class="modal-footer bg-light py-2 px-3 border-top d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary px-3" (click)="closeDeleteConfirmModal()" [disabled]="isDeletingItem">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-sm btn-danger px-3 d-inline-flex align-items-center gap-1.5" (click)="confirmDelete()" [disabled]="isDeletingItem">
+            <span *ngIf="isDeletingItem" class="spinner-border spinner-border-sm" role="status"></span>
+            <i *ngIf="!isDeletingItem" class="fas fa-trash-alt"></i>
+            <span>{{ isDeletingItem ? 'Deleting...' : 'Delete' }}</span>
+          </button>
+        </div>
+
       </div>
     </div>
   </div>

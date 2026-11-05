@@ -31,7 +31,6 @@ public class CustomerAppService :
 
     public override async Task<PagedResultDto<CustomerDto>> GetListAsync(GetCustomerListDto input)
     {
-        await EnsureSeedDataAsync();
         return await base.GetListAsync(input);
     }
 
@@ -100,7 +99,6 @@ public class CustomerAppService :
 
     public async Task<ListResultDto<CustomerLookupDto>> GetLookupAsync()
     {
-        await EnsureSeedDataAsync();
         var customers = await Repository.GetListAsync(c => c.IsActive && c.Status != CustomerStatus.Inactive);
 
         var lookups = customers
@@ -129,7 +127,6 @@ public class CustomerAppService :
 
     public async Task<CustomerDashboardMetricsDto> GetDashboardMetricsAsync()
     {
-        await EnsureSeedDataAsync();
         var all = await Repository.GetListAsync();
 
         var totalCount = all.Count;
@@ -276,7 +273,12 @@ public class CustomerAppService :
         }
     }
 
-    private async Task EnsureSeedDataAsync()
+    private static Task EnsureSeedDataAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task _unusedEnsureSeedDataAsync()
     {
         if (await Repository.AnyAsync())
         {

@@ -23,6 +23,8 @@ import { WarehouseType, warehouseTypeOptions } from '../proxy/warehouses/warehou
 import { WarehouseZoneStorageType, warehouseZoneStorageTypeOptions } from '../proxy/warehouses/warehouse-zone-storage-type.enum';
 import { WarehouseLocationType, warehouseLocationTypeOptions } from '../proxy/warehouses/warehouse-location-type.enum';
 import { WarehouseLocationStatus, warehouseLocationStatusOptions } from '../proxy/warehouses/warehouse-location-status.enum';
+import { WarehouseReportService } from '../proxy/reports/warehouse-report.service';
+import { SpaceUtilizationReportItemDto } from '../proxy/reports/models';
 
 @Component({
   selector: 'app-warehouses',
@@ -37,8 +39,10 @@ export class WarehousesComponent implements OnInit {
   private locationService = inject(WarehouseLocationService);
   private toasterService = inject(ToasterService);
   private facultyService = inject(FacultyMemberService);
+  private reportService = inject(WarehouseReportService);
 
   facultyLookups: FacultyMemberLookupDto[] = [];
+  warehouseUtilizationMap: Record<string, SpaceUtilizationReportItemDto> = {};
   private cdr = inject(ChangeDetectorRef);
 
   warehouses: WarehouseDto[] = [];
@@ -84,6 +88,16 @@ export class WarehousesComponent implements OnInit {
   isCreateWarehouseModalOpen = false;
   isCreateZoneModalOpen = false;
   isCreateLocationModalOpen = false;
+
+  // Delete Confirmation Modal State
+  isDeleteConfirmModalOpen = false;
+  deleteConfirmTitle = '';
+  deleteConfirmMessage = '';
+  deleteConfirmItemCode = '';
+  deleteConfirmType: 'zone' | 'location' | null = null;
+  pendingDeleteZone: WarehouseZoneDto | null = null;
+  pendingDeleteLocation: WarehouseLocationDto | null = null;
+  isDeletingItem = false;
 
   // Warehouse Form Model
   newWarehouse: CreateUpdateWarehouseDto = {
@@ -154,6 +168,24 @@ export class WarehousesComponent implements OnInit {
     this.loadWarehouses();
     this.loadNetworkCounts();
     this.loadFacultyLookups();
+    this.loadSpaceUtilization();
+  }
+
+  loadSpaceUtilization(): void {
+    this.reportService.getSpaceUtilizationReport({}).subscribe({
+      next: (items) => {
+        this.warehouseUtilizationMap = {};
+        for (const item of (items || [])) {
+          if (item.warehouseId) {
+            this.warehouseUtilizationMap[item.warehouseId] = item;
+          }
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.warn('Failed to load space utilization report', err);
+      }
+    });
   }
 
   loadWarehouses(): void {
@@ -171,6 +203,7 @@ export class WarehousesComponent implements OnInit {
         WarehousesComponent.cachedWarehouses = this.warehouses;
         this.saveSessionCache(this.warehouses);
         this.applyFilter();
+        this.loadSpaceUtilization();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -308,10 +341,32 @@ export class WarehousesComponent implements OnInit {
     this.currentPage = 1;
   }
 
-  getCapacityPercent(wh: WarehouseDto): number {
-    const area = wh.totalAreaSqFt || 50000;
-    const base = (area % 35) + 52;
-    return Math.min(Math.max(base, 45), 88);
+  getCapacityPercent(wh: WarehouseDto | null | undefined): number {
+    if (!wh || !wh.id) return 0;
+
+    // 1. Check backend real-time SpaceUtilization report
+    const reportItem = this.warehouseUtilizationMap[wh.id];
+    if (reportItem) {
+      return Math.round(reportItem.utilizationPercentage || 0);
+    }
+
+    // 2. Fallback: If details are loaded for this warehouse in inspection view
+    if (this.selectedWarehouse && this.selectedWarehouse.id === wh.id && this.selectedWarehouseLocations?.length > 0) {
+      const total = this.selectedWarehouseLocations.length;
+      const occupied = this.selectedWarehouseLocations.filter(
+        loc => loc.status === WarehouseLocationStatus.Occupied
+      ).length;
+      return Math.round((occupied / total) * 100);
+    }
+
+    return 0;
+  }
+
+  getCapacityColor(percent: number): string {
+    if (percent >= 90) return '#ef4444'; // Red for critical / near full
+    if (percent >= 75) return '#f59e0b'; // Amber for high warning
+    if (percent > 0) return '#2563eb';  // Blue for active storage
+    return '#cbd5e1';                   // Gray when empty (0%)
   }
 
   countOperational(): number {
@@ -510,33 +565,84 @@ export class WarehousesComponent implements OnInit {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete zone '${zone.name}' (${zone.code})?`)) return;
-
-    this.zoneService.delete(zone.id!).subscribe({
-      next: () => {
-        this.toasterService.success(`Zone '${zone.name}' deleted.`, 'Success');
-        this.loadWarehouseDetails(this.selectedWarehouse!.id!);
-        this.loadNetworkCounts();
-      },
-      error: () => {
-        this.toasterService.error('Failed to delete zone', 'Error');
-      }
-    });
+    this.deleteConfirmType = 'zone';
+    this.pendingDeleteZone = zone;
+    this.pendingDeleteLocation = null;
+    this.deleteConfirmTitle = 'Delete Zone';
+    this.deleteConfirmMessage = `Are you sure you want to delete zone '${zone.name}' (${zone.code})?`;
+    this.deleteConfirmItemCode = zone.code || '';
+    this.isDeleteConfirmModalOpen = true;
+    this.cdr.detectChanges();
   }
 
   deleteLocation(loc: WarehouseLocationDto): void {
-    if (!confirm(`Are you sure you want to delete bin location '${loc.barcode}'?`)) return;
+    this.deleteConfirmType = 'location';
+    this.pendingDeleteLocation = loc;
+    this.pendingDeleteZone = null;
+    this.deleteConfirmTitle = 'Delete Bin Location';
+    this.deleteConfirmMessage = `Are you sure you want to delete bin location '${loc.barcode}'?`;
+    this.deleteConfirmItemCode = loc.barcode || '';
+    this.isDeleteConfirmModalOpen = true;
+    this.cdr.detectChanges();
+  }
 
-    this.locationService.delete(loc.id!).subscribe({
-      next: () => {
-        this.toasterService.success(`Location '${loc.barcode}' deleted.`, 'Success');
-        this.loadWarehouseDetails(this.selectedWarehouse!.id!);
-        this.loadNetworkCounts();
-      },
-      error: () => {
-        this.toasterService.error('Failed to delete bin location', 'Error');
-      }
-    });
+  closeDeleteConfirmModal(): void {
+    if (this.isDeletingItem) return;
+    this.isDeleteConfirmModalOpen = false;
+    this.deleteConfirmType = null;
+    this.pendingDeleteZone = null;
+    this.pendingDeleteLocation = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmDelete(): void {
+    if (this.deleteConfirmType === 'zone' && this.pendingDeleteZone) {
+      const zone = this.pendingDeleteZone;
+      this.isDeletingItem = true;
+      this.zoneService.delete(zone.id!).subscribe({
+        next: () => {
+          this.isDeletingItem = false;
+          this.isDeleteConfirmModalOpen = false;
+          this.toasterService.success(`Zone '${zone.name}' deleted.`, 'Success');
+          if (this.selectedWarehouse?.id) {
+            this.loadWarehouseDetails(this.selectedWarehouse.id);
+          }
+          this.loadNetworkCounts();
+          this.loadSpaceUtilization();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isDeletingItem = false;
+          console.error('Failed to delete zone', err);
+          const message = err?.error?.error?.message || err?.message || 'Failed to delete zone';
+          this.toasterService.error(message, 'Delete Error');
+          this.cdr.detectChanges();
+        }
+      });
+    } else if (this.deleteConfirmType === 'location' && this.pendingDeleteLocation) {
+      const loc = this.pendingDeleteLocation;
+      this.isDeletingItem = true;
+      this.locationService.delete(loc.id!).subscribe({
+        next: () => {
+          this.isDeletingItem = false;
+          this.isDeleteConfirmModalOpen = false;
+          this.toasterService.success(`Location '${loc.barcode}' deleted.`, 'Success');
+          if (this.selectedWarehouse?.id) {
+            this.loadWarehouseDetails(this.selectedWarehouse.id);
+          }
+          this.loadNetworkCounts();
+          this.loadSpaceUtilization();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.isDeletingItem = false;
+          console.error('Failed to delete bin location', err);
+          const message = err?.error?.error?.message || err?.message || 'Failed to delete bin location';
+          this.toasterService.error(message, 'Delete Error');
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   copyBarcodeToClipboard(barcode: string | undefined): void {
@@ -846,6 +952,7 @@ export class WarehousesComponent implements OnInit {
         this.toasterService.success('Storage zone created successfully!', 'Success');
         this.loadWarehouseDetails(this.selectedWarehouse!.id!);
         this.loadNetworkCounts();
+        this.loadSpaceUtilization();
       },
       error: (err) => {
         console.error('Failed to create zone', err);
@@ -898,6 +1005,7 @@ export class WarehousesComponent implements OnInit {
         this.toasterService.success('Bin location created successfully!', 'Success');
         this.loadWarehouseDetails(this.selectedWarehouse!.id!);
         this.loadNetworkCounts();
+        this.loadSpaceUtilization();
       },
       error: (err) => console.error('Failed to create location', err)
     });

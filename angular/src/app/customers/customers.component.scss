@@ -599,6 +599,142 @@ select,
   }
 }
 
+/* Real-time Uniqueness Validation with Trailing Addon Box & Bouncy Pop Animation */
+.customer-drawer-panel {
+  .input-group {
+    /* Leading Addon Box (Aage ka barcode box) */
+    .input-group-text:first-child {
+      border-top-left-radius: 6px !important;
+      border-bottom-left-radius: 6px !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      border-right: none !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #64748b;
+    }
+
+    /* Middle Form Control */
+    .form-control {
+      border: 1px solid #cbd5e1 !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+
+      &.has-trailing {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+
+      &:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        z-index: 3;
+      }
+
+      &:disabled {
+        background-color: #f1f5f9 !important;
+        color: #64748b !important;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Trailing Addon Box (Only appears when there is input) */
+    .input-group-text.input-group-trailing {
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
+      border-left: none !important;
+      border-top-right-radius: 6px !important;
+      border-bottom-right-radius: 6px !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      min-width: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0.5rem;
+      animation: fadeInSlide 0.15s ease;
+    }
+  }
+
+  /* Rotating Spinner while Checking */
+  .status-spinner {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+    color: #2563eb !important;
+  }
+
+  /* Animated Bouncy Status Icon (Pop-In Animation) */
+  .status-anim-icon {
+    font-size: 0.95rem;
+    display: inline-block;
+    animation: statusBouncyPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    &.text-danger {
+      color: #ef4444 !important;
+    }
+
+    &.text-warning {
+      color: #f59e0b !important;
+    }
+
+    &.text-success {
+      color: #10b981 !important;
+    }
+  }
+
+  /* Clean Short Status Feedback Text Below Input (No Icon) */
+  .short-feedback-msg {
+    font-size: 0.74rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    line-height: 1.25;
+    animation: fadeInSlide 0.15s ease;
+
+    &.text-danger {
+      color: #ef4444 !important;
+    }
+
+    &.text-warning {
+      color: #f59e0b !important;
+    }
+
+    &.text-success {
+      color: #10b981 !important;
+    }
+  }
+}
+
+@keyframes statusBouncyPop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 
 

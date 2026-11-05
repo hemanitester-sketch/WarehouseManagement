@@ -1,0 +1,39 @@
+.purchases-placeholder-container {
+  padding: 1.5rem 1rem;
+}
+
+.placeholder-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(13, 110, 253, 0.08);
+  color: #0d6efd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.wms-badge-secondary {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.btn-wms-primary {
+  background-color: #0d6efd;
+  color: #ffffff;
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #0b5ed7;
+    color: #ffffff;
+  }
+}
+

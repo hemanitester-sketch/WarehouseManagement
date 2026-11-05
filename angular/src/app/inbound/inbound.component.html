@@ -1,10 +1,10 @@
-﻿<div class="container-fluid inbound-container">
+<div class="container-fluid inbound-container">
   <!-- Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
       <div class="d-flex align-items-center gap-2">
-        <h2 class="h4 font-weight-bold text-dark mb-0">Inbound Receiving & Putaway</h2>
-        <span class="wms-badge wms-badge-primary inbound-badge">PO & ASN Operations</span>
+        <h2 class="h4 font-weight-bold text-dark mb-0">Purchase Orders</h2>
+        <span class="wms-badge wms-badge-primary inbound-badge">Inbound Receiving & Putaway</span>
       </div>    
     </div>
     <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateOrderModal()">
@@ -87,7 +87,7 @@
   <!-- Loading -->
   <div *ngIf="isLoading" class="text-center py-5">
     <div class="spinner-border text-primary" role="status"></div>
-    <p class="text-muted mt-2">Loading inbound orders...</p>
+    <p class="text-muted mt-2">Loading purchase orders...</p>
   </div>
 
   <!-- Orders Table -->
@@ -163,7 +163,7 @@
         <span class="pagination-info">
           Showing <strong>{{ paginationStart }}</strong> - 
           <strong>{{ paginationEnd }}</strong> 
-          of <strong>{{ orders.length }}</strong> inbound orders
+          of <strong>{{ orders.length }}</strong> purchase orders
         </span>
         <div class="d-flex align-items-center gap-1 ms-2">
           <span class="pagination-info">Per page:</span>
@@ -194,7 +194,7 @@
   <!-- Empty State -->
   <div *ngIf="!isLoading && orders.length === 0" class="wms-card p-5 text-center">
     <i class="fas fa-truck-loading text-muted fa-3x mb-3"></i>
-    <h5>No Inbound Orders Found</h5>
+    <h5>No Purchase Orders Found</h5>
     <p class="text-muted">Create a purchase order to start recording shipments and receiving stock.</p>
     <button class="btn btn-wms-primary btn-sm" (click)="openCreateOrderModal()">
       <i class="fas fa-plus me-1"></i> Create Purchase Order
@@ -221,7 +221,15 @@
               </p>
             </div>
           </div>
-          <button type="button" class="btn-close btn-close-white" (click)="selectedOrder = null"></button>
+          <div class="d-flex align-items-center gap-2">
+            <a *ngIf="selectedOrder && (selectedOrder.totalReceivedQuantity || 0) > 0" 
+               routerLink="/purchases/purchase-receives" 
+               class="btn btn-sm btn-light text-primary font-weight-bold d-flex align-items-center gap-1 shadow-sm">
+              <i class="bi bi-receipt"></i>
+              <span>View GRN Receipts</span>
+            </a>
+            <button type="button" class="btn-close btn-close-white" (click)="selectedOrder = null"></button>
+          </div>
         </div>
         <div class="wms-modal-body">
           <!-- Dock Barcode Rapid Scanner Toolbar -->

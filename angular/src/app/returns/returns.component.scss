@@ -350,18 +350,3 @@
 .font-size-15 {
   font-size: 0.9375rem;
 }
-
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #printableChallan, #printableChallan * {
-    visibility: visible;
-  }
-  #printableChallan {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-}

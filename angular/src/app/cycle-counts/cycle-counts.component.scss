@@ -427,28 +427,6 @@ select,
   }
 }
 
-/* Printable Styles */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  #printableAuditDoc,
-  #printableAuditDoc * {
-    visibility: visible;
-  }
-
-  #printableAuditDoc {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 25px;
-    background: #ffffff;
-  }
-}
-
 /* White Cancel Button */
 .btn-category-cancel {
   background: #ffffff !important;

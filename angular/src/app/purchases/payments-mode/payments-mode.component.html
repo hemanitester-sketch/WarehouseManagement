@@ -1,0 +1,564 @@
+<div class="container-fluid payments-container">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Payments Mode & Transactions</h2>
+        <span class="wms-badge wms-badge-info">Disbursements & Settlement</span>
+      </div>     
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+        style="height: 32px; width: 34px;" (click)="loadPayments()" title="Refresh List">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+      </button>
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openRecordPaymentModal()">
+        <i class="bi bi-credit-card"></i>
+        <span>Record Vendor Payment</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-indigo">
+          <i class="bi bi-credit-card-2-front"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalPaymentsCount }}</div>
+          <div class="text-muted kpi-label-compact">PAYMENTS DISBURSED</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-green">
+          <i class="bi bi-cash-stack"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">₹{{ totalAmountDisbursed | number:'1.0-0' }}</div>
+          <div class="text-muted kpi-label-compact">TOTAL SETTLED AMOUNT</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-red">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">₹{{ totalOutstandingPayable | number:'1.0-0' }}</div>
+          <div class="text-muted kpi-label-compact">OUTSTANDING PAYABLES</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-blue">
+          <i class="bi bi-bank"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">5 Modes</div>
+          <div class="text-muted kpi-label-compact">CHANNELS CONFIGURED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configured Payment Channels Banner -->
+  <div class="card border-0 shadow-sm rounded-3 mb-3 bg-light">
+    <div class="card-body p-2 d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="small font-weight-bold text-dark text-uppercase ms-1">Available Payment Channels:</span>
+        <span class="badge bg-white text-dark border"><i class="bi bi-bank me-1 text-primary"></i>NEFT / RTGS</span>
+        <span class="badge bg-white text-dark border"><i class="bi bi-qr-code me-1 text-success"></i>Instant UPI</span>
+        <span class="badge bg-white text-dark border"><i class="bi bi-card-text me-1 text-secondary"></i>Company Cheque</span>
+        <span class="badge bg-white text-dark border"><i class="bi bi-cash me-1 text-warning"></i>Petty Cash</span>
+        <span class="badge bg-white text-dark border"><i class="bi bi-credit-card me-1 text-info"></i>Corporate Card</span>
+      </div>
+      <div class="text-muted small me-2">
+        All disbursements tracked against Purchase Bills
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2 p-md-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0"
+              placeholder="Search by Payment #, Bill #, UTR #, Supplier..." [(ngModel)]="searchQuery" />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedModeFilter">
+            <option value="">All Payment Modes</option>
+            <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+            <option value="UPI Transfer">UPI Transfer</option>
+            <option value="Company Cheque">Company Cheque</option>
+            <option value="Cash Ledger">Cash Ledger</option>
+            <option value="Corporate Card">Corporate Card</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 text-md-end ms-auto">
+          <span class="text-muted small">
+            Showing <strong>{{ filteredPayments.length }}</strong> payment transactions
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading payment transactions...</p>
+  </div>
+
+  <!-- Payments Master Table -->
+  <div *ngIf="!isLoading && filteredPayments.length > 0" class="card inbound-table-card overflow-hidden">
+    <div class="table-responsive wms-inbound-table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table inbound-table payments-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3 col-pmt-no">Payment #</th>
+            <th class="col-pmt-date">Date & Time</th>
+            <th class="col-pmt-supplier">Supplier / Payee</th>
+            <th class="col-pmt-ref">Bill & PO Ref</th>
+            <th class="col-pmt-mode">Payment Mode</th>
+            <th class="col-pmt-utr">Reference / UTR #</th>
+            <th class="col-pmt-account">Paid Through</th>
+            <th class="col-pmt-amt text-end">Amount Paid</th>
+            <th class="col-pmt-status text-center">Status</th>
+            <th class="col-pmt-action text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pmt of paginatedPayments">
+            <td class="ps-3 col-pmt-no">
+              <span class="pmt-code-text font-monospace fw-bold" [title]="pmt.paymentNumber">
+                {{ pmt.paymentNumber }}
+              </span>
+            </td>
+            <td class="col-pmt-date">
+              <span class="inbound-cell-text text-nowrap d-block">{{ pmt.paymentDate | date:'mediumDate' }}</span>
+              <span class="text-muted inbound-cell-subtext d-block">{{ pmt.paymentDate | date:'shortTime' }}</span>
+            </td>
+            <td class="col-pmt-supplier">
+              <span class="inb-truncate-supplier fw-medium d-block" [title]="pmt.supplierName">
+                {{ pmt.supplierName }}
+              </span>
+            </td>
+            <td class="col-pmt-ref">
+              <div class="d-flex flex-column gap-1">
+                <a [routerLink]="['/purchases/bills']" class="badge-link text-decoration-none" [title]="pmt.billNumber">
+                  <span class="badge bg-light text-primary border d-inline-flex align-items-center gap-1 font-monospace" style="font-size: 0.72rem;">
+                    <i class="bi bi-receipt"></i> {{ pmt.billNumber }}
+                  </span>
+                </a>
+                <span *ngIf="pmt.orderNumber" class="text-muted font-monospace d-block" style="font-size: 0.68rem;">
+                  PO: {{ pmt.orderNumber }}
+                </span>
+              </div>
+            </td>
+            <td class="col-pmt-mode">
+              <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
+                <i [class]="getPaymentModeIcon(pmt.paymentMode) + ' text-primary'"></i>
+                <span>{{ pmt.paymentMode }}</span>
+              </span>
+            </td>
+            <td class="col-pmt-utr">
+              <span class="inbound-cell-text font-monospace fw-semibold text-dark d-block text-truncate" style="max-width: 140px;" [title]="pmt.referenceNumber">
+                {{ pmt.referenceNumber }}
+              </span>
+            </td>
+            <td class="col-pmt-account">
+              <span class="inb-truncate-account text-muted small d-inline-block" [title]="pmt.paidThroughAccount">
+                {{ pmt.paidThroughAccount }}
+              </span>
+            </td>
+            <td class="col-pmt-amt text-end">
+              <span class="inbound-cell-text font-monospace fw-bold text-success">
+                ₹{{ pmt.amountPaid | number:'1.2-2' }}
+              </span>
+            </td>
+            <td class="col-pmt-status text-center">
+              <span class="inbound-status-pill wms-badge-success text-nowrap">
+                <i class="fas fa-check-circle me-1"></i> Completed
+              </span>
+            </td>
+            <td class="col-pmt-action text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                <button type="button" class="btn btn-table-action btn-voucher" title="View & Print Official Payment Voucher" (click)="viewVoucher(pmt)">
+                  <i class="bi bi-receipt-cutoff"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (Default 50 Limit) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredPayments.length }}</strong> payment transactions
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredPayments.length === 0" class="card border-0 shadow-sm rounded-3 p-5 text-center">
+    <div class="placeholder-icon-wrap mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+      <i class="bi bi-credit-card"></i>
+    </div>
+    <h5 class="font-weight-bold text-dark">No Payment Transactions Found</h5>
+    <p class="text-muted mx-auto" style="max-width: 450px;">
+      There are no vendor payments recorded yet. Click below to record a disbursement against an open Purchase Bill.
+    </p>
+    <div>
+      <button class="btn btn-wms-primary btn-sm px-3" (click)="openRecordPaymentModal()">
+        <i class="bi bi-credit-card pe-1"></i> Record Vendor Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 1: Record Vendor Payment -->
+  <div *ngIf="isRecordPaymentModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <!-- Header -->
+        <div class="modal-header bg-light border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-success-subtle text-success rounded-circle">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-dark mb-0">Record Vendor Payment (Disbursement)</h5>
+              <span class="text-muted small">Disburse payment against an approved Purchase Bill via Bank Transfer, UPI, Cheque, or Cash.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="isRecordPaymentModalOpen = false"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body p-4">
+          <!-- Step 1: Select Bill to Pay -->
+          <div class="card border mb-3 bg-light">
+            <div class="card-body p-3">
+              <label class="form-label font-weight-bold text-dark">
+                Select Purchase Bill to Pay <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" [(ngModel)]="selectedBillId" (ngModelChange)="onBillSelected()">
+                <option value="">-- Select an Open Purchase Bill --</option>
+                <option *ngFor="let bill of openBills" [value]="bill.id">
+                  {{ bill.billNumber }} - {{ bill.supplierName }} (Due: ₹{{ bill.balanceDue | number:'1.2-2' }} of Total ₹{{ bill.grandTotal | number:'1.2-2' }})
+                </option>
+              </select>
+
+              <!-- Bill Summary Strip -->
+              <div *ngIf="selectedBillForPayment" class="mt-3 p-3 bg-white rounded border d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                  <span class="text-muted small d-block">SUPPLIER / PAYEE</span>
+                  <strong class="text-dark">{{ selectedBillForPayment.supplierName }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">TOTAL BILL AMOUNT</span>
+                  <strong class="text-dark">₹{{ selectedBillForPayment.grandTotal | number:'1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">ALREADY PAID</span>
+                  <strong class="text-success">₹{{ selectedBillForPayment.paidAmount | number:'1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">BALANCE DUE NOW</span>
+                  <strong class="text-danger fs-6">₹{{ selectedBillForPayment.balanceDue | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Payment Details -->
+          <div *ngIf="selectedBillForPayment" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase">
+              <i class="bi bi-wallet2 me-1 text-primary"></i> Payment Channel & Transaction Information
+            </div>
+            <div class="card-body">
+              <div class="row g-3 p-3">
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Payment Mode <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" [(ngModel)]="paymentMode">
+                    <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+                    <option value="UPI Transfer">UPI Transfer</option>
+                    <option value="Company Cheque">Company Cheque</option>
+                    <option value="Cash Ledger">Cash Ledger</option>
+                    <option value="Corporate Card">Corporate Card</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Transaction Ref / UTR / Cheque # <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="paymentReferenceNumber" placeholder="e.g. UTR9821740192" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Paid Through Account <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" [(ngModel)]="paidThroughAccount">
+                    <option *ngFor="let acc of configuredAccounts" [value]="acc">{{ acc }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Payment Date</label>
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="paymentDateStr" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Amount Disbursed & Quick Buttons -->
+          <div *ngIf="selectedBillForPayment" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase">
+              <i class="bi bi-cash me-1 text-success"></i> Disbursement Amount
+            </div>
+            <div class="card-body"><div class="p-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-6">
+                  <label class="form-label small text-muted">Amount to Pay (₹) <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-white">₹</span>
+                    <input type="number" class="form-control fs-5 fw-bold text-primary" [(ngModel)]="paymentAmount" min="1" [max]="selectedBillForPayment.balanceDue" />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted d-block">Quick Set Amount:</label>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm flex-grow-1" (click)="setQuickAmount(100)">
+                      Full Due (100%)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" (click)="setQuickAmount(50)">
+                      Half (50%)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" (click)="setQuickAmount(25)">
+                      25%
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Remaining Balance Preview -->
+              <div class="mt-1 p-2 bg-light rounded border d-flex justify-content-between align-items-center text-muted small">
+                <span>Remaining Balance Due after this payment:</span>
+                <strong [ngClass]="remainingBalanceAfterPayment > 0 ? 'text-danger' : 'text-success'">
+                  ₹{{ remainingBalanceAfterPayment | number:'1.2-2' }}
+                  <span *ngIf="remainingBalanceAfterPayment === 0" class="badge bg-success ms-1">BILL WILL BE FULLY PAID</span>
+                </strong>
+              </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Notes -->
+          <div *ngIf="selectedBillForPayment">
+            <label class="form-label small text-muted">Payment Voucher Remarks / Notes</label>
+            <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="paymentNotes" placeholder="Enter remarks..."></textarea>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-top">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="isRecordPaymentModalOpen = false" [disabled]="isSaving">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
+            [disabled]="isSaving || !selectedBillForPayment" (click)="submitPayment()">
+            <i class="bi bi-check-circle" *ngIf="!isSaving"></i>
+            <span class="spinner-border spinner-border-sm" *ngIf="isSaving"></span>
+            <span>Confirm & Disburse Payment</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Official Payment Voucher & Disbursement Slip View & Print -->
+  <div *ngIf="isViewVoucherModalOpen && selectedPaymentForView" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <!-- Actions Header (Hidden on Print) -->
+        <div class="modal-header bg-light border-bottom no-print">
+          <div class="d-flex align-items-center gap-2">
+            <span class="pay-badge">{{ selectedPaymentForView.paymentNumber }}</span>
+            <span class="text-muted small">Official Vendor Payment Voucher</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" (click)="printVoucher()">
+              <i class="bi bi-printer"></i>
+              <span>Print / PDF</span>
+            </button>
+            <button type="button" class="btn-close" (click)="isViewVoucherModalOpen = false"></button>
+          </div>
+        </div>
+
+        <!-- Printable Document Area -->
+        <div class="modal-body p-4 voucher-document" id="printable-voucher">
+          <!-- Top Title -->
+          <div class="text-center border-bottom pb-3 mb-3">
+            <h4 class="font-weight-bold text-dark mb-0 tracking-wide">PAYMENT DISBURSEMENT VOUCHER</h4>
+            <span class="text-muted small">COMMERCIAL ACCOUNTS PAYABLE DISBURSEMENT RECEIPT</span>
+          </div>
+
+          <!-- Voucher Meta Strip -->
+          <div class="row g-2 mb-3 p-3 bg-light rounded border" style="font-size: 0.85rem;">
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">VOUCHER NUMBER</span>
+              <strong class="text-dark">{{ selectedPaymentForView.paymentNumber }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">DISBURSEMENT DATE</span>
+              <strong class="text-dark">{{ selectedPaymentForView.paymentDate | date:'mediumDate' }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">PAYMENT MODE</span>
+              <strong class="text-primary">{{ selectedPaymentForView.paymentMode }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">REFERENCE / UTR #</span>
+              <strong class="text-dark font-monospace">{{ selectedPaymentForView.referenceNumber }}</strong>
+            </div>
+          </div>
+
+          <!-- Vendor / Payee Details -->
+          <div class="p-3 bg-white rounded border mb-3" style="font-size: 0.85rem;">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <span class="text-muted small d-block">PAID TO (SUPPLIER / PAYEE):</span>
+                <h6 class="font-weight-bold text-dark mb-1">{{ selectedPaymentForView.supplierName }}</h6>
+                <div class="text-muted small">Disbursement authorized under Purchase Order {{ selectedPaymentForView.orderNumber }}</div>
+              </div>
+              <div class="col-md-6">
+                <span class="text-muted small d-block">DISBURSED FROM (ACCOUNT):</span>
+                <strong class="text-dark">{{ selectedPaymentForView.paidThroughAccount }}</strong>
+                <div class="badge bg-success-subtle text-success border border-success-subtle mt-1">STATUS: COMPLETED & SETTLED</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settlement Summary Table -->
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle" style="font-size: 0.85rem;">
+              <thead class="table-light">
+                <tr>
+                  <th>Purchase Bill Ref</th>
+                  <th>Vendor Invoice #</th>
+                  <th class="text-end">Total Bill Amount</th>
+                  <th class="text-end text-success">Amount Disbursed Now</th>
+                  <th class="text-end">Remaining Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="fw-bold text-dark">{{ selectedPaymentForView.billNumber }}</span>
+                    <div *ngIf="selectedPaymentForView.orderNumber" class="text-muted small">PO: {{ selectedPaymentForView.orderNumber }}</div>
+                  </td>
+                  <td>{{ selectedPaymentForView.vendorInvoiceNumber }}</td>
+                  <td class="text-end fw-bold">₹{{ selectedPaymentForView.billTotalAmount | number:'1.2-2' }}</td>
+                  <td class="text-end fw-bold text-success fs-6">₹{{ selectedPaymentForView.amountPaid | number:'1.2-2' }}</td>
+                  <td class="text-end fw-bold" [ngClass]="selectedPaymentForView.remainingBalanceDue > 0 ? 'text-danger' : 'text-muted'">
+                    ₹{{ selectedPaymentForView.remainingBalanceDue | number:'1.2-2' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Amount in Words -->
+          <div class="p-3 bg-light rounded border mb-3" style="font-size: 0.85rem;">
+            <span class="text-muted small font-weight-bold">Amount in Words:</span>
+            <div class="fw-bold text-dark mt-1 fs-6">{{ numberToWords(selectedPaymentForView.amountPaid) }}</div>
+          </div>
+
+          <!-- Remarks -->
+          <div class="p-3 bg-white rounded border mb-4" style="font-size: 0.82rem;">
+            <span class="text-muted font-weight-bold d-block">Payment Voucher Remarks:</span>
+            <p class="mb-0 text-muted mt-1">{{ selectedPaymentForView.notes || 'Full / partial vendor settlement against invoice.' }}</p>
+          </div>
+
+          <!-- Signatures -->
+          <div class="row pt-4 text-center mt-3" style="font-size: 0.85rem;">
+            <div class="col-4">
+              <div class="border-top pt-2 mx-auto" style="max-width: 170px;">
+                <div class="fw-bold text-dark">Accounts Officer</div>
+                <div class="text-muted small">Prepared By</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="border-top pt-2 mx-auto" style="max-width: 170px;">
+                <div class="fw-bold text-dark">{{ selectedPaymentForView.authorizedBy || 'Finance Controller' }}</div>
+                <div class="text-muted small">Authorized Signatory</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="border-top pt-2 mx-auto" style="max-width: 170px;">
+                <div class="fw-bold text-dark">{{ selectedPaymentForView.supplierName }}</div>
+                <div class="text-muted small">Payee Acknowledgement</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 Connected Flow -->
+          <div class="mt-4 p-3 bg-blue-soft rounded border border-primary-subtle d-flex justify-content-between align-items-center no-print">
+            <div>
+              <span class="badge bg-success text-white me-2">Connected Flow</span>
+              <span class="text-dark small fw-medium">Need to adjust for damaged/rejected items? Manage Vendor Credits & Debit Notes.</span>
+            </div>
+            <a routerLink="/purchases/vendor-credits" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" (click)="isViewVoucherModalOpen = false">
+              <i class="bi bi-wallet2 me-1"></i> Vendor Credits
+            </a>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer bg-light border-top no-print">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="isViewVoucherModalOpen = false">Close</button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="printVoucher()">
+            <i class="bi bi-printer"></i>
+            <span>Print Payment Voucher</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

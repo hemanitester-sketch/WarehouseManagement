@@ -49,6 +49,11 @@ export const appRoutes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'purchases',
+    loadChildren: () => import('./purchases/purchases.routes').then(m => m.purchasesRoutes),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'customers',
     loadChildren: () => import('./customers/customers.routes').then(m => m.customersRoutes),
     canActivate: [AuthGuard],

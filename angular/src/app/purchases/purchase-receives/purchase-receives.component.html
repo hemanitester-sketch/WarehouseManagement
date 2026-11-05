@@ -1,0 +1,555 @@
+<div class="container-fluid purchase-receives-container">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <div class="d-flex align-items-center gap-2">
+        <h2 class="h4 font-weight-bold text-dark mb-0">Purchase Receives</h2>
+        <span class="wms-badge wms-badge-success">GRN & Dock Inspection</span>
+      </div>      
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+        style="height: 32px; width: 34px;" (click)="loadReceives()" title="Refresh List">
+        <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
+      </button>
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openNewReceiveModal()">
+        <i class="bi bi-box-arrow-in-down"></i>
+        <span>New Goods Receipt (GRN)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 KPI Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-indigo">
+          <i class="bi bi-receipt-cutoff"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalGrnCount }}</div>
+          <div class="text-muted kpi-label-compact">TOTAL GRNs GENERATED</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-blue">
+          <i class="bi bi-boxes"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalUnitsReceived }}</div>
+          <div class="text-muted kpi-label-compact">UNITS RECEIVED</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-green">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalUnitsAccepted }}</div>
+          <div class="text-muted kpi-label-compact">ACCEPTED IN BINS</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="wms-card kpi-card-compact d-flex align-items-center gap-2">
+        <div class="kpi-icon-compact kpi-icon-red">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div>
+          <div class="font-weight-bold text-dark kpi-value-compact">{{ totalUnitsDamaged }}</div>
+          <div class="text-muted kpi-label-compact">DAMAGED / REJECTED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-2 p-md-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0" placeholder="Search by GRN #, PO #, Supplier, Carrier..."
+              [(ngModel)]="searchQuery" />
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedWarehouseFilter">
+            <option value="">All Warehouses</option>
+            <option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.code }} - {{ wh.name }}</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 text-md-end ms-auto">
+          <span class="text-muted small">
+            Showing <strong>{{ filteredReceives.length }}</strong> goods receipts
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading goods receipts...</p>
+  </div>
+
+  <!-- Receives Master Table -->
+  <div *ngIf="!isLoading && filteredReceives.length > 0" class="card inbound-table-card overflow-hidden">
+    <div class="table-responsive wms-inbound-table-responsive">
+      <table class="table table-hover align-middle mb-0 wms-table inbound-table receives-table">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3 col-pr-grn">GRN #</th>
+            <th class="col-pr-po">Purchase Order</th>
+            <th class="col-pr-supplier">Supplier / Vendor</th>
+            <th class="col-pr-facility">Facility</th>
+            <th class="col-pr-date">Received Date</th>
+            <th class="col-pr-qty text-end">Received Qty</th>
+            <th class="col-pr-qty text-end">Accepted Qty</th>
+            <th class="col-pr-qty text-end">Damaged Qty</th>
+            <th class="col-pr-status text-center">Status</th>
+            <th class="col-pr-action text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rec of paginatedReceives">
+            <td class="ps-3 col-pr-grn">
+              <span class="grn-code-text font-monospace fw-bold" [title]="rec.receiveNumber">
+                {{ rec.receiveNumber }}
+              </span>
+            </td>
+            <td class="col-pr-po">
+              <a [routerLink]="['/inbound']" class="inb-truncate-po font-monospace fw-semibold text-primary text-decoration-none d-inline-flex align-items-center gap-1" [title]="rec.orderNumber">
+                <i class="bi bi-file-earmark-text text-muted"></i>
+                <span>{{ rec.orderNumber }}</span>
+              </a>
+            </td>
+            <td class="col-pr-supplier">
+              <span class="inb-truncate-supplier fw-medium d-block" [title]="rec.supplierName">
+                {{ rec.supplierName }}
+              </span>
+              <span *ngIf="rec.supplierInvoiceNumber" class="text-muted d-block inbound-cell-subtext" [title]="'Invoice: ' + rec.supplierInvoiceNumber">
+                <i class="fas fa-file-invoice text-muted me-1" style="font-size: 0.65rem;"></i>Inv: {{ rec.supplierInvoiceNumber }}
+              </span>
+            </td>
+            <td class="col-pr-facility">
+              <span class="inb-truncate-facility fw-semibold" [title]="(rec.warehouseCode || 'WH') + (rec.warehouseName ? ' - ' + rec.warehouseName : '')">
+                {{ rec.warehouseCode || 'WH' }}
+                <span *ngIf="rec.warehouseName" class="text-muted fw-normal ms-1">({{ rec.warehouseName }})</span>
+              </span>
+            </td>
+            <td class="col-pr-date">
+              <span class="inbound-cell-text text-nowrap d-block">{{ rec.receivedDate | date:'mediumDate' }}</span>
+              <span class="text-muted inbound-cell-subtext d-block">{{ rec.receivedDate | date:'shortTime' }}</span>
+            </td>
+            <td class="col-pr-qty text-end">
+              <span class="inbound-cell-text font-monospace">{{ rec.totalReceivedQuantity | number }}</span>
+            </td>
+            <td class="col-pr-qty text-end">
+              <span class="inbound-cell-text font-monospace text-success fw-bold">{{ rec.totalAcceptedQuantity | number }}</span>
+            </td>
+            <td class="col-pr-qty text-end">
+              <span class="inbound-cell-text font-monospace" [ngClass]="rec.totalDamagedQuantity > 0 ? 'text-danger fw-bold' : 'text-muted'">
+                {{ rec.totalDamagedQuantity | number }}
+              </span>
+            </td>
+            <td class="col-pr-status text-center">
+              <span class="inbound-status-pill wms-badge-success text-nowrap">
+                Completed
+              </span>
+            </td>
+            <td class="col-pr-action text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                <button type="button" class="btn btn-table-action btn-grn" title="View & Print Official GRN Slip" (click)="viewGrn(rec)">
+                  <i class="bi bi-receipt"></i>
+                </button>
+                <a [routerLink]="['/purchases/bills']" [queryParams]="{ grnId: rec.id }" 
+                   class="btn btn-table-action btn-bill" title="Generate or View Vendor Bill">
+                  <i class="bi bi-cash-stack"></i>
+                </a>
+                <a *ngIf="rec.totalDamagedQuantity > 0" 
+                   [routerLink]="['/purchases/vendor-credits']" [queryParams]="{ grnId: rec.id }" 
+                   class="btn btn-table-action btn-claim" title="Claim Vendor Credit for Damaged Goods">
+                  <i class="bi bi-wallet2"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Universal Table Pagination Footer (Default 50 Limit) -->
+    <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="pagination-info">
+          Showing <strong>{{ paginationStart }}</strong> - 
+          <strong>{{ paginationEnd }}</strong> 
+          of <strong>{{ filteredReceives.length }}</strong> goods receipts
+        </span>
+        <div class="d-flex align-items-center gap-1 ms-2">
+          <span class="pagination-info">Per page:</span>
+          <select class="form-select form-select-sm pagination-size-select" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="d-flex align-items-center gap-1">
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage === 1" (click)="prevPage()">
+          <i class="fas fa-chevron-left me-1"></i> Prev
+        </button>
+        <span class="pagination-page-indicator">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button type="button" class="btn btn-pagination" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+          Next <i class="fas fa-chevron-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredReceives.length === 0" class="card border-0 shadow-sm rounded-3 p-5 text-center">
+    <div class="placeholder-icon-wrap mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+      <i class="bi bi-box-arrow-in-down"></i>
+    </div>
+    <h5 class="font-weight-bold text-dark">No Goods Receipts Found</h5>
+    <p class="text-muted mx-auto" style="max-width: 450px;">
+      There are no purchase order receipts recorded yet. Click below to receive goods against an open purchase order and generate a GRN.
+    </p>
+    <div>
+      <button class="btn btn-wms-primary btn-sm px-3" (click)="openNewReceiveModal()">
+        <i class="bi bi-box-arrow-in-down pe-1"></i> New Goods Receipt (GRN)
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL 1: Create New Goods Receipt (Receive PO) -->
+  <div *ngIf="isCreateReceiveModalOpen" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable wms-modal-receive-wide">
+      <div class="modal-content border-0 shadow">
+        <!-- Modal Header -->
+        <div class="modal-header bg-light border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-primary-subtle text-primary rounded-circle">
+              <i class="bi bi-box-arrow-in-down"></i>
+            </div>
+            <div>
+              <h5 class="modal-title font-weight-bold text-dark mb-0">Record Goods Receipt (GRN)</h5>
+              <span class="text-muted small">Inspect dock shipment, capture accepted/damaged quantities, and deposit into bin locations.</span>
+            </div>
+          </div>
+          <button type="button" class="btn-close" (click)="isCreateReceiveModalOpen = false"></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body p-4">
+          <!-- Step 1: Select Open PO -->
+          <div class="card border mb-3 bg-light">
+            <div class="card-body p-3">
+              <label class="form-label font-weight-bold text-dark">
+                Select Purchase Order to Receive <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" [(ngModel)]="selectedOrderId" (ngModelChange)="onOrderSelectionChange()">
+                <option value="">-- Select an Open Purchase Order --</option>
+                <option *ngFor="let ord of openOrders" [value]="ord.id">
+                  {{ ord.orderNumber }} - {{ ord.supplierName }} (Facility: {{ ord.warehouseCode || ord.warehouseName }}, Expected: {{ ord.expectedArrivalDate | date:'mediumDate' }})
+                </option>
+              </select>
+
+              <!-- Order Summary Strip -->
+              <div *ngIf="selectedOrderForReceive" class="mt-3 p-3 bg-white rounded border d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                  <span class="text-muted small d-block">SUPPLIER</span>
+                  <strong class="text-dark">{{ selectedOrderForReceive.supplierName }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">DESTINATION FACILITY</span>
+                  <strong class="text-dark">{{ selectedOrderForReceive.warehouseCode || selectedOrderForReceive.warehouseName }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">EXPECTED ARRIVAL</span>
+                  <strong class="text-dark">{{ selectedOrderForReceive.expectedArrivalDate | date:'mediumDate' }}</strong>
+                </div>
+                <div>
+                  <span class="text-muted small d-block">PO LINES</span>
+                  <strong class="text-primary">{{ (selectedOrderForReceive.lines && selectedOrderForReceive.lines.length) || 0 }} Items</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Logistics & Gate Entry Details -->
+          <div *ngIf="selectedOrderForReceive" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase">
+              <i class="bi bi-truck me-1 text-primary"></i> Logistics & Gate Pass Details
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 p-2">
+                <div class="col-md-3">
+                  <label class="form-label small text-muted">Carrier / Transporter</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="receiveCarrierName" placeholder="e.g. BlueDart Surface" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small text-muted">Vehicle Registration #</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="receiveVehicleNumber" placeholder="e.g. DL-01-AX-4412" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small text-muted">Gate Pass #</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="receiveGatePassNumber" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small text-muted">Inspector / QC Officer</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="inspectorName" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Itemized Dock Receiving & Inspection -->
+          <div *ngIf="selectedOrderForReceive" class="card border mb-3">
+            <div class="card-header bg-white font-weight-bold text-dark small text-uppercase d-flex justify-content-between align-items-center py-2 px-3">
+              <span><i class="bi bi-check2-square me-1 text-success"></i> Line Items Inspection & Putaway</span>
+              <span class="text-muted" style="font-size: 0.75rem;">Specify accepted vs damaged quantities</span>
+            </div>
+            <div class="card-body p-0 wms-modal-table-wrap">
+              <table class="table table-bordered align-middle mb-0 wms-inspection-table">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-insp-item">Item & SKU</th>
+                    <th class="text-center col-insp-stat">Ordered</th>
+                    <th class="text-center col-insp-stat">Prev Rec</th>
+                    <th class="text-center col-insp-qty">Rec Now</th>
+                    <th class="text-center col-insp-qty">Accepted</th>
+                    <th class="text-center col-insp-qty">Damaged</th>
+                    <th class="col-insp-bin">Putaway Bin</th>
+                    <th class="col-insp-lot">Lot / Batch #</th>
+                    <th class="col-insp-exp">Expiry Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of receiveLinesState">
+                    <td class="col-insp-item">
+                      <div class="fw-bold text-dark text-truncate" style="max-width: 220px;" [title]="row.line.productSku || row.line.variantSku">{{ row.line.productSku || row.line.variantSku }}</div>
+                      <div class="text-muted small text-truncate" style="max-width: 220px;" [title]="row.line.productName">{{ row.line.productName }}</div>
+                    </td>
+                    <td class="text-center col-insp-stat fw-semibold text-dark">{{ row.line.expectedQuantity }}</td>
+                    <td class="text-center col-insp-stat text-muted">{{ row.line.receivedQuantity || 0 }}</td>
+                    <td class="col-insp-qty">
+                      <input type="number" class="form-control form-control-sm text-center fw-bold wms-qty-input"
+                        [(ngModel)]="row.receivingQty" (ngModelChange)="onReceivingQtyChanged(row)" min="0" />
+                    </td>
+                    <td class="col-insp-qty">
+                      <input type="number" class="form-control form-control-sm text-center text-success fw-bold wms-qty-input"
+                        [(ngModel)]="row.acceptedQty" min="0" />
+                    </td>
+                    <td class="col-insp-qty">
+                      <input type="number" class="form-control form-control-sm text-center text-danger fw-bold wms-qty-input"
+                        [(ngModel)]="row.damagedQty" (ngModelChange)="onDamagedQtyChanged(row)" min="0" />
+                    </td>
+                    <td class="col-insp-bin">
+                      <select class="form-select form-select-sm wms-compact-select" [(ngModel)]="row.destinationLocationId">
+                        <option value="">Select Bin</option>
+                        <option *ngFor="let loc of getWarehouseLocations(selectedOrderForReceive.warehouseId || '')" [value]="loc.id">
+                          {{ loc.barcode }}
+                        </option>
+                      </select>
+                    </td>
+                    <td class="col-insp-lot">
+                      <input type="text" class="form-control form-control-sm wms-compact-input" [(ngModel)]="row.lotBatchNumber" placeholder="Lot #" />
+                    </td>
+                    <td class="col-insp-exp">
+                      <input type="date" class="form-control form-control-sm wms-compact-input" [(ngModel)]="row.expiryDate" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Step 4: Notes -->
+          <div *ngIf="selectedOrderForReceive">
+            <label class="form-label small text-muted">Inspection Remarks & Receiving Notes</label>
+            <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="receiveNotes" placeholder="Enter remarks regarding carton conditions, seals, temperature, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer bg-light border-top">
+          <button type="button" class="btn btn-outline-light btn-sm" (click)="isCreateReceiveModalOpen = false" [disabled]="isSaving">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1"
+            [disabled]="isSaving || !selectedOrderForReceive" (click)="submitReceive()">
+            <i class="bi bi-check-circle" *ngIf="!isSaving"></i>
+            <span class="spinner-border spinner-border-sm" *ngIf="isSaving"></span>
+            <span>Confirm Receiving & Generate GRN</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Goods Receipt Note (GRN) Document View & Print -->
+  <div *ngIf="isViewGrnModalOpen && selectedReceiveForView" class="modal fade show d-block wms-modal-backdrop" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable wms-modal-grn-wide">
+      <div class="modal-content border-0 shadow">
+        <!-- Action Header (Hidden on Print) -->
+        <div class="modal-header bg-light border-bottom no-print">
+          <div class="d-flex align-items-center gap-2">
+            <span class="grn-badge">{{ selectedReceiveForView.receiveNumber }}</span>
+            <span class="text-muted small">Goods Receipt Note (GRN)</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" (click)="printGrn()">
+              <i class="bi bi-printer"></i>
+              <span>Print / PDF</span>
+            </button>
+            <button type="button" class="btn-close" (click)="isViewGrnModalOpen = false"></button>
+          </div>
+        </div>
+
+        <!-- Printable Document Area -->
+        <div class="modal-body p-4 grn-document" id="printable-grn">
+          <!-- Document Header -->
+          <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+            <div>
+              <h4 class="font-weight-bold text-dark mb-1">GOODS RECEIPT NOTE (GRN)</h4>
+              <div class="text-muted small">Warehouse Inward Inspection & Inventory Deposit Slip</div>
+              <div class="fw-semibold text-primary mt-1">Facility: {{ selectedReceiveForView.warehouseCode || selectedReceiveForView.warehouseName }}</div>
+            </div>
+            <div class="text-end">
+              <div class="font-weight-bold text-dark fs-5">{{ selectedReceiveForView.receiveNumber }}</div>
+              <div class="text-muted small">Date: {{ selectedReceiveForView.receivedDate | date:'mediumDate' }} {{ selectedReceiveForView.receivedDate | date:'shortTime' }}</div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">Status: VERIFIED & RECEIVED</span>
+            </div>
+          </div>
+
+          <!-- PO & Vendor Meta Box -->
+          <div class="row g-2 mb-3 p-3 bg-light rounded border" style="font-size: 0.85rem;">
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">PO NUMBER</span>
+              <strong class="text-dark">{{ selectedReceiveForView.orderNumber }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">SUPPLIER</span>
+              <strong class="text-dark">{{ selectedReceiveForView.supplierName }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">GATE PASS #</span>
+              <strong class="text-dark">{{ selectedReceiveForView.gatePassNumber || 'GP-AUTO' }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted d-block small">CARRIER & VEHICLE</span>
+              <strong class="text-dark">{{ selectedReceiveForView.carrierName }} ({{ selectedReceiveForView.vehicleNumber }})</strong>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive wms-modal-table-wrap mb-3">
+            <table class="table table-bordered align-middle wms-grn-slip-table mb-0" style="font-size: 0.82rem;">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 38px;" class="text-center">S#</th>
+                  <th>Item SKU & Description</th>
+                  <th class="text-center" style="width: 65px;">Ordered</th>
+                  <th class="text-center" style="width: 65px;">Received</th>
+                  <th class="text-center" style="width: 65px;">Accepted</th>
+                  <th class="text-center" style="width: 65px;">Damaged</th>
+                  <th style="width: 110px;">Putaway Bin</th>
+                  <th style="width: 110px;">Lot / Batch #</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of selectedReceiveForView.items; let i = index">
+                  <td class="text-center text-muted">{{ i + 1 }}</td>
+                  <td>
+                    <div class="fw-bold text-dark">{{ item.productSku || item.variantSku }}</div>
+                    <div class="text-muted small">{{ item.productName }}</div>
+                  </td>
+                  <td class="text-center">{{ item.quantityOrdered }}</td>
+                  <td class="text-center fw-bold">{{ item.quantityReceived }}</td>
+                  <td class="text-center text-success fw-bold">{{ item.quantityAccepted }}</td>
+                  <td class="text-center text-danger">{{ item.quantityDamaged }}</td>
+                  <td>
+                    <span class="badge bg-secondary-subtle text-dark border">{{ item.destinationLocationCode }}</span>
+                  </td>
+                  <td>{{ item.lotBatchNumber || 'N/A' }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td colspan="2" class="text-end">Total Count:</td>
+                  <td class="text-center">{{ selectedReceiveForView.totalOrderedQuantity }}</td>
+                  <td class="text-center">{{ selectedReceiveForView.totalReceivedQuantity }}</td>
+                  <td class="text-center text-success">{{ selectedReceiveForView.totalAcceptedQuantity }}</td>
+                  <td class="text-center text-danger">{{ selectedReceiveForView.totalDamagedQuantity }}</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Remarks & Inspection Sign-off -->
+          <div class="p-3 bg-light rounded border mb-4">
+            <span class="text-muted d-block small font-weight-bold text-uppercase">QC & Inspection Remarks:</span>
+            <p class="mb-0 text-dark small mt-1">
+              {{ selectedReceiveForView.notes || 'Goods physically verified and deposited in assigned bin locations. Zero shortage reported.' }}
+            </p>
+          </div>
+
+          <!-- Signatures Box -->
+          <div class="row pt-4 text-center mt-3" style="font-size: 0.85rem;">
+            <div class="col-6">
+              <div class="border-top pt-2 mx-auto" style="max-width: 200px;">
+                <div class="fw-bold text-dark">{{ selectedReceiveForView.inspectedBy || 'Dock Supervisor' }}</div>
+                <div class="text-muted small">Quality Inspected By</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border-top pt-2 mx-auto" style="max-width: 200px;">
+                <div class="fw-bold text-dark">Authorized Signatory</div>
+                <div class="text-muted small">Warehouse Inward In-charge</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 Connected Flow -->
+          <div class="mt-4 p-3 bg-blue-soft rounded border border-primary-subtle d-flex justify-content-between align-items-center no-print">
+            <div>
+              <span class="badge bg-success text-white me-2">Connected Flow</span>
+              <span class="text-dark small fw-medium">All items verified. Convert Accepted Goods into official Vendor Bill.</span>
+            </div>
+            <a [routerLink]="['/purchases/bills']" [queryParams]="{ grnId: selectedReceiveForView.id }" 
+               class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm" (click)="isViewGrnModalOpen = false">
+              <i class="bi bi-receipt"></i>
+              <span>Generate Vendor Bill</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer bg-light border-top no-print">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="isViewGrnModalOpen = false">Close</button>
+          <button type="button" class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="printGrn()">
+            <i class="bi bi-printer"></i>
+            <span>Print GRN Slip</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

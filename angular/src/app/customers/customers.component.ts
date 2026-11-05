@@ -91,6 +91,14 @@ export class CustomersComponent implements OnInit {
   // Form State
   formModel: CreateUpdateCustomerDto = this.getEmptyForm();
 
+  // Real-time unique checking states for Customer Code
+  isCodeDuplicate = false;
+  codeTouched = false;
+  isCheckingCode = false;
+  codeStatusMessage: string | null = null;
+  duplicateCustomerName = '';
+  private codeCheckTimer: any = null;
+
   ngOnInit(): void {
     this.loadData();
   }
@@ -230,6 +238,7 @@ export class CustomersComponent implements OnInit {
 
     // Auto-generate next candidate Code
     this.formModel.code = this.generateNextCode();
+    this.resetValidationState();
     this.isFormModalOpen = true;
   }
 
@@ -268,18 +277,93 @@ export class CustomersComponent implements OnInit {
       notes: customer.notes || '',
     };
 
+    this.resetValidationState();
     this.isFormModalOpen = true;
   }
 
+  private resetValidationState(): void {
+    if (this.codeCheckTimer) clearTimeout(this.codeCheckTimer);
+    this.isCodeDuplicate = false;
+    this.codeStatusMessage = null;
+    this.duplicateCustomerName = '';
+    this.codeTouched = false;
+    this.isCheckingCode = false;
+  }
+
   closeFormModal(): void {
+    this.resetValidationState();
     this.isFormModalOpen = false;
     this.isEditing = false;
     this.editingId = null;
   }
 
+  // Real-time animated verification for Customer Code
+  onCodeInput(): void {
+    this.codeTouched = true;
+    const code = (this.formModel.code || '').trim().toUpperCase();
+
+    if (this.codeCheckTimer) clearTimeout(this.codeCheckTimer);
+
+    if (!code) {
+      this.isCheckingCode = false;
+      this.isCodeDuplicate = false;
+      this.codeStatusMessage = null;
+      this.duplicateCustomerName = '';
+      return;
+    }
+
+    this.isCheckingCode = true;
+    this.codeCheckTimer = setTimeout(() => {
+      this.checkCodeUniqueness();
+      this.isCheckingCode = false;
+      this.cdr.detectChanges();
+    }, 320);
+  }
+
+  onCodeBlur(): void {
+    if (this.codeCheckTimer) clearTimeout(this.codeCheckTimer);
+    const code = (this.formModel.code || '').trim().toUpperCase();
+    if (code) {
+      this.checkCodeUniqueness();
+    }
+    this.isCheckingCode = false;
+  }
+
+  checkCodeUniqueness(): void {
+    this.codeTouched = true;
+    const code = (this.formModel.code || '').trim().toUpperCase();
+
+    if (!code) {
+      this.isCodeDuplicate = false;
+      this.codeStatusMessage = null;
+      this.duplicateCustomerName = '';
+      return;
+    }
+
+    const match = this.customers.find(
+      (c) => (c.code || '').trim().toUpperCase() === code && c.id !== this.editingId
+    );
+
+    if (match) {
+      this.isCodeDuplicate = true;
+      this.duplicateCustomerName = match.name;
+      this.codeStatusMessage = 'Already exists';
+    } else {
+      this.isCodeDuplicate = false;
+      this.duplicateCustomerName = '';
+      this.codeStatusMessage = 'Available';
+    }
+  }
+
   saveCustomer(): void {
     if (!this.formModel.code || !this.formModel.code.trim()) {
       this.toasterService.warn('Client Code is required.');
+      return;
+    }
+
+    this.checkCodeUniqueness();
+    if (this.isCodeDuplicate) {
+      this.toasterService.error(`Customer code '${this.formModel.code}' already exists.`);
       return;
     }
 

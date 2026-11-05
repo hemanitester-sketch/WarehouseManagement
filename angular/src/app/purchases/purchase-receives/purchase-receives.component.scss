@@ -1,0 +1,482 @@
+.purchase-receives-container {
+  padding: 0.5rem 0 1.5rem 0;
+}
+
+/* KPI Cards (Compact) - Matching Purchase Orders */
+.kpi-card-compact {
+  padding: 0.75rem 0.9rem;
+}
+
+.kpi-icon-compact {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.kpi-icon-indigo {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+  }
+  &.kpi-icon-blue {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+  &.kpi-icon-amber {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+  &.kpi-icon-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+  &.kpi-icon-red {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+}
+
+.kpi-value-compact {
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+
+.kpi-label-compact {
+  font-size: 0.65rem;
+}
+
+/* Inbound Table Card & Unified Grid */
+.inbound-table-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.wms-inbound-table-responsive {
+  overflow-x: auto;
+
+  /* Custom horizontal scrollbar */
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f8fafc;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.inbound-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th,
+  .table-light th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.64rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.85rem;
+    text-transform: uppercase;
+    white-space: nowrap !important;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.6rem 0.85rem;
+      vertical-align: middle;
+      font-size: 0.75rem !important;
+      font-weight: 500 !important;
+      color: #334155 !important;
+      white-space: nowrap !important;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+}
+
+/* Specific Column Widths & Typography for Receives Grid */
+.col-pr-grn {
+  width: 125px;
+  min-width: 115px;
+  white-space: nowrap;
+}
+
+.grn-code-text {
+  color: #2563eb;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.col-pr-po {
+  width: 125px;
+  min-width: 115px;
+  white-space: nowrap;
+
+  .inb-truncate-po {
+    display: inline-flex;
+    max-width: 115px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 0.76rem;
+  }
+}
+
+.col-pr-supplier {
+  width: 165px;
+  min-width: 140px;
+  max-width: 200px;
+  white-space: nowrap;
+
+  .inb-truncate-supplier {
+    display: inline-block;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 0.75rem;
+    color: #1e293b;
+  }
+}
+
+.col-pr-facility {
+  width: 130px;
+  min-width: 110px;
+  max-width: 160px;
+  white-space: nowrap;
+
+  .inb-truncate-facility {
+    display: inline-block;
+    max-width: 125px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 0.74rem;
+    color: #334155;
+  }
+}
+
+.col-pr-date {
+  width: 115px;
+  min-width: 105px;
+  white-space: nowrap;
+}
+
+.col-pr-qty {
+  width: 85px;
+  min-width: 75px;
+  white-space: nowrap;
+}
+
+.col-pr-status {
+  width: 105px;
+  min-width: 95px;
+  white-space: nowrap;
+}
+
+.col-pr-action {
+  width: 95px;
+  min-width: 85px;
+  white-space: nowrap;
+  position: sticky;
+  right: 0;
+  background-color: #ffffff !important;
+  z-index: 2;
+  box-shadow: -3px 0 6px rgba(15, 23, 42, 0.06);
+  border-left: 1px solid #e2e8f0 !important;
+}
+
+thead th.col-pr-action {
+  position: sticky;
+  right: 0;
+  background-color: #f8fafc !important;
+  z-index: 3;
+  box-shadow: -3px 0 6px rgba(15, 23, 42, 0.06);
+  border-left: 1px solid #e2e8f0 !important;
+}
+
+tbody tr td.col-pr-action {
+  position: sticky;
+  right: 0;
+  background-color: #ffffff !important;
+  z-index: 2;
+  box-shadow: -3px 0 6px rgba(15, 23, 42, 0.06);
+  border-left: 1px solid #e2e8f0 !important;
+}
+
+tbody tr:hover td.col-pr-action {
+  background-color: #f8fafc !important;
+}
+
+/* Action Buttons: Unified Icon-First Clean Buttons */
+.btn-table-action {
+  width: 28px;
+  height: 28px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+
+  &.btn-grn {
+    color: #2563eb;
+
+    &:hover {
+      background-color: #eff6ff !important;
+      background: #eff6ff !important;
+      border-color: #bfdbfe !important;
+      color: #1d4ed8 !important;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12);
+    }
+  }
+
+  &.btn-bill {
+    color: #059669;
+
+    &:hover {
+      background-color: #ecfdf5 !important;
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      color: #047857 !important;
+      box-shadow: 0 1px 3px rgba(5, 150, 105, 0.12);
+    }
+  }
+
+  &.btn-claim {
+    color: #dc2626;
+
+    &:hover {
+      background-color: #fef2f2 !important;
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      color: #b91c1c !important;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.12);
+    }
+  }
+}
+
+/* Status Pill Badges */
+.inbound-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+
+  &.wms-badge-success {
+    background-color: #ecfdf5 !important;
+    color: #059669 !important;
+    border: 1px solid #a7f3d0 !important;
+  }
+}
+
+.inbound-cell-text {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  line-height: 1.45;
+}
+
+.inbound-cell-subtext {
+  font-size: 0.68rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.wms-modal-backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.bg-blue-soft {
+  background-color: rgba(13, 110, 253, 0.06);
+}
+
+.spin {
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Wide Modals for Inspection and GRN Slip */
+.wms-modal-receive-wide {
+  max-width: 95vw !important;
+  width: 1280px !important;
+
+  @media (max-width: 768px) {
+    max-width: 98vw !important;
+    width: auto !important;
+    margin: 0.5rem auto;
+  }
+}
+
+.wms-modal-grn-wide {
+  max-width: 95vw !important;
+  width: 1000px !important;
+
+  @media (max-width: 768px) {
+    max-width: 98vw !important;
+    width: auto !important;
+    margin: 0.5rem auto;
+  }
+}
+
+/* Modal Table Wrapper & Smooth Scrolling without clipping */
+.wms-modal-table-wrap {
+  overflow-x: auto;
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+}
+
+/* Line Items Inspection Table in Modal 1 */
+.wms-inspection-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.03em;
+    padding: 0.5rem 0.55rem;
+    text-transform: uppercase;
+    white-space: nowrap !important;
+  }
+
+  tbody td {
+    padding: 0.4rem 0.45rem;
+    vertical-align: middle;
+    font-size: 0.78rem;
+  }
+}
+
+.col-insp-item {
+  min-width: 160px;
+}
+
+.col-insp-stat {
+  width: 65px;
+  min-width: 60px;
+}
+
+.col-insp-qty {
+  width: 76px;
+  min-width: 70px;
+
+  .wms-qty-input {
+    width: 100% !important;
+    padding: 0.22rem 0.3rem !important;
+    font-size: 0.8rem !important;
+    height: 30px;
+  }
+}
+
+.col-insp-bin {
+  width: 125px;
+  min-width: 115px;
+
+  .wms-compact-select {
+    width: 100% !important;
+    padding: 0.22rem 0.4rem !important;
+    font-size: 0.78rem !important;
+    height: 30px;
+  }
+}
+
+.col-insp-lot {
+  width: 110px;
+  min-width: 100px;
+
+  .wms-compact-input {
+    width: 100% !important;
+    padding: 0.22rem 0.4rem !important;
+    font-size: 0.78rem !important;
+    height: 30px;
+  }
+}
+
+.col-insp-exp {
+  width: 125px;
+  min-width: 115px;
+
+  .wms-compact-input {
+    width: 100% !important;
+    padding: 0.22rem 0.4rem !important;
+    font-size: 0.78rem !important;
+    height: 30px;
+  }
+}
+
+/* GRN Slip Table in Modal 2 */
+.wms-grn-slip-table {
+  width: 100% !important;
+  min-width: 680px;
+
+  thead th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.03em;
+    padding: 0.45rem 0.55rem;
+    text-transform: uppercase;
+    white-space: nowrap !important;
+  }
+
+  tbody td {
+    padding: 0.45rem 0.55rem;
+  }
+}
+

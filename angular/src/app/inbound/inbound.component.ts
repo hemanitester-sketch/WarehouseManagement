@@ -19,12 +19,13 @@ import { ProductVariantService } from '../proxy/products/product-variant.service
 import { BarcodeLookupService } from '../proxy/barcodes/barcode-lookup.service';
 import { SupplierService } from '../proxy/suppliers/supplier.service';
 import { SupplierLookupDto } from '../proxy/suppliers/models';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { PurchaseReceiveService } from '../purchases/services/purchase-receive.service';
 
 @Component({
   selector: 'app-inbound',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './inbound.component.html',
   styleUrls: ['./inbound.component.scss']
 })
@@ -36,6 +37,7 @@ export class InboundComponent implements OnInit {
   private productVariantService = inject(ProductVariantService);
   private barcodeLookupService = inject(BarcodeLookupService);
   private supplierService = inject(SupplierService);
+  private purchaseReceiveService = inject(PurchaseReceiveService);
   private toasterService = inject(ToasterService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
@@ -394,6 +396,49 @@ export class InboundComponent implements OnInit {
     this.isSaving = true;
     this.inboundService.receiveGoods(this.receiveModel).subscribe({
       next: () => {
+        // Also register in PurchaseReceiveService so Purchase Receives module is 100% synced
+        if (this.selectedOrder && this.selectedLineForReceive) {
+          const loc = this.locations.find(l => l.id === this.receiveModel.destinationLocationId);
+          this.purchaseReceiveService.recordReceive({
+            inboundOrderId: this.selectedOrder.id || '',
+            orderNumber: this.selectedOrder.orderNumber || 'PO-ORDER',
+            supplierName: this.selectedOrder.supplierName || 'Supplier',
+            warehouseId: this.selectedOrder.warehouseId || '',
+            warehouseName: this.selectedOrder.warehouseName || 'Warehouse Hub',
+            warehouseCode: this.selectedOrder.warehouseCode || 'WH',
+            supplierInvoiceNumber: this.selectedOrder.supplierInvoiceNumber || 'INV-REC',
+            carrierName: 'Dock Direct Delivery',
+            vehicleNumber: 'DL-01-REC',
+            gatePassNumber: `GP-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+            receivedDate: new Date().toISOString(),
+            status: 'Completed',
+            totalOrderedQuantity: this.selectedLineForReceive.expectedQuantity || 0,
+            totalReceivedQuantity: this.receiveModel.receivedQuantity || 0,
+            totalAcceptedQuantity: this.receiveModel.receivedQuantity || 0,
+            totalDamagedQuantity: 0,
+            notes: this.receiveModel.notes || 'Goods received and inspected at dock',
+            inspectedBy: 'Dock Supervisor',
+            items: [{
+              productId: this.selectedLineForReceive.productId || '',
+              productSku: this.selectedLineForReceive.productSku || 'SKU',
+              productName: this.selectedLineForReceive.productName || 'Product',
+              productVariantId: this.selectedLineForReceive.productVariantId,
+              variantSku: this.selectedLineForReceive.variantSku,
+              variantName: this.selectedLineForReceive.variantName,
+              quantityOrdered: this.selectedLineForReceive.expectedQuantity || 0,
+              quantityReceived: this.receiveModel.receivedQuantity || 0,
+              quantityAccepted: this.receiveModel.receivedQuantity || 0,
+              quantityDamaged: 0,
+              destinationLocationId: this.receiveModel.destinationLocationId || '',
+              destinationLocationCode: loc?.barcode || 'BIN-LOC',
+              lotBatchNumber: this.receiveModel.lotBatchNumber || undefined,
+              serialNumber: this.receiveModel.serialNumber || undefined,
+              expiryDate: this.receiveModel.expiryDate || undefined,
+              unitPrice: this.selectedLineForReceive.unitPrice || 0
+            }]
+          });
+        }
+
         this.isSaving = false;
         this.isReceiveModalOpen = false;
         this.toasterService.success('Goods received & stock deposited successfully into bin!', 'Put-away Confirmed');

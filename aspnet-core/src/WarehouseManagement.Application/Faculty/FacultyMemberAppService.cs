@@ -184,14 +184,27 @@ public class FacultyMemberAppService :
         var entity = await Repository.GetAsync(id);
         var dto = MapToGetOutputDto(entity);
 
+        Warehouse? wh = null;
         if (entity.AssignedWarehouseId.HasValue)
         {
-            var wh = await _warehouseRepository.FindAsync(entity.AssignedWarehouseId.Value);
+            wh = await _warehouseRepository.FindAsync(entity.AssignedWarehouseId.Value);
+        }
+        else
+        {
+            // Fallback: Check if this faculty is assigned as Manager to any warehouse
+            wh = await _warehouseRepository.FirstOrDefaultAsync(w => w.ManagerId == entity.Id);
             if (wh != null)
             {
-                dto.AssignedWarehouseName = wh.Name;
-                dto.AssignedWarehouseCode = wh.Code;
+                entity.AssignedWarehouseId = wh.Id;
+                await Repository.UpdateAsync(entity, autoSave: true);
             }
+        }
+
+        if (wh != null)
+        {
+            dto.AssignedWarehouseId = wh.Id;
+            dto.AssignedWarehouseName = wh.Name;
+            dto.AssignedWarehouseCode = wh.Code;
         }
 
         return dto;
@@ -216,6 +229,25 @@ public class FacultyMemberAppService :
 
         var whMap = warehouses.ToDictionary(w => w.Id);
 
+        // Also check if any unassigned faculty member is assigned as ManagerId in any warehouse
+        var unassignedFacultyIds = entities
+            .Where(f => !f.AssignedWarehouseId.HasValue)
+            .Select(f => f.Id)
+            .ToList();
+
+        var managedWarehouseMap = new Dictionary<Guid, Warehouse>();
+        if (unassignedFacultyIds.Count > 0)
+        {
+            var managedWarehouses = await _warehouseRepository.GetListAsync(w => w.ManagerId.HasValue && unassignedFacultyIds.Contains(w.ManagerId.Value));
+            foreach (var mw in managedWarehouses)
+            {
+                if (mw.ManagerId.HasValue && !managedWarehouseMap.ContainsKey(mw.ManagerId.Value))
+                {
+                    managedWarehouseMap[mw.ManagerId.Value] = mw;
+                }
+            }
+        }
+
         var dtos = entities.Select(f =>
         {
             var dto = MapToGetOutputDto(f);
@@ -223,6 +255,12 @@ public class FacultyMemberAppService :
             {
                 dto.AssignedWarehouseName = wh.Name;
                 dto.AssignedWarehouseCode = wh.Code;
+            }
+            else if (!f.AssignedWarehouseId.HasValue && managedWarehouseMap.TryGetValue(f.Id, out var mwh))
+            {
+                dto.AssignedWarehouseId = mwh.Id;
+                dto.AssignedWarehouseName = mwh.Name;
+                dto.AssignedWarehouseCode = mwh.Code;
             }
             return dto;
         }).ToList();

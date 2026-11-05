@@ -18,6 +18,8 @@ import type { ProductDto } from '../proxy/products/models';
 import type { InboundOrderDto } from '../proxy/inbound/models';
 import type { OutboundOrderDto } from '../proxy/outbound/models';
 import type { WarehouseDto } from '../proxy/warehouses/models';
+import { WarehouseReportService } from '../proxy/reports/warehouse-report.service';
+import type { SpaceUtilizationReportItemDto } from '../proxy/reports/models';
 
 export interface ActivityItem {
   type: string;
@@ -99,6 +101,7 @@ export class HomeComponent implements OnInit {
   private inboundService = inject(InboundOrderService);
   private outboundService = inject(OutboundOrderService);
   private warehouseService = inject(WarehouseService);
+  private reportService = inject(WarehouseReportService);
 
   get hasLoggedIn(): boolean {
     return this.authService.isAuthenticated;
@@ -108,39 +111,35 @@ export class HomeComponent implements OnInit {
   isRealDataConnected = true;
   currentDateFormatted = '';
   selectedMovementFilter = 'Last 7 Days';
-  totalDonutUnits = 157;
+  totalDonutUnits = 0;
 
   // Enterprise WMS Telemetry & Control
   selectedWarehouseFilter = 'All Facilities';
-  warehousesList: string[] = ['All Facilities', 'Bengaluru Central Hub', 'jodhpur', 'Bengaluru Central'];
-  inbound7DaysUnits = 120;
-  outbound7DaysUnits = 49;
-  netVelocityUnits = 71;
-  turnoverRatio = '4.8x';
+  warehousesList: string[] = ['All Facilities'];
+  inbound7DaysUnits = 0;
+  outbound7DaysUnits = 0;
+  netVelocityUnits = 0;
+  turnoverRatio = '0.0x';
 
   // 5-Stage Operational Fulfillment Pipeline
   pipelineStages: PipelineStage[] = [
-    { stage: 'Inbound POs', count: 5, label: 'POs Received', status: 'completed', icon: 'bi bi-box-arrow-in-down' },
-    { stage: 'Dock Putaway', count: 5, label: 'Quality & Stored', status: 'completed', icon: 'bi bi-clipboard2-check' },
-    { stage: 'Wave Allocation', count: 1, label: 'Reserved for SOs', status: 'active', icon: 'bi bi-layers' },
-    { stage: 'Pick & Pack', count: 1, label: 'Ready in Staging', status: 'pending', icon: 'bi bi-box-seam' },
-    { stage: 'Dispatched', count: 3, label: 'Shipped to Clients', status: 'shipped', icon: 'bi bi-truck' },
+    { stage: 'Inbound POs', count: 0, label: 'POs Received', status: 'normal', icon: 'bi bi-box-arrow-in-down' },
+    { stage: 'Dock Putaway', count: 0, label: 'Quality & Stored', status: 'normal', icon: 'bi bi-clipboard2-check' },
+    { stage: 'Wave Allocation', count: 0, label: 'Reserved for SOs', status: 'normal', icon: 'bi bi-layers' },
+    { stage: 'Pick & Pack', count: 0, label: 'Ready in Staging', status: 'normal', icon: 'bi bi-box-seam' },
+    { stage: 'Dispatched', count: 0, label: 'Shipped to Clients', status: 'normal', icon: 'bi bi-truck' },
   ];
 
   // Storage Capacity Utilization across Warehouse Zones
-  storageZones: StorageZone[] = [
-    { name: 'Pallet Racking (Bulk High-Bay)', usedPct: 74, totalBins: '180 Locations', type: 'Primary' },
-    { name: 'Mezzanine Bin Shelving (Piece Pick)', usedPct: 52, totalBins: '320 Bins', type: 'Picking' },
-    { name: 'Cold Chain / QA Quarantine', usedPct: 18, totalBins: '45 Locations', type: 'Controlled' },
-  ];
+  storageZones: StorageZone[] = [];
 
   // 4 Primary Enterprise Pulse KPI Cards (Clean, Spacious & Legible)
   kpis = [
     {
       title: 'Total Stock On-Hand',
-      value: '157',
+      value: '0',
       unit: 'Units',
-      trend: '3 Sites',
+      trend: '0 Sites',
       trendLabel: 'active nodes',
       isPositive: true,
       icon: 'bi bi-boxes',
@@ -149,9 +148,9 @@ export class HomeComponent implements OnInit {
     },
     {
       title: 'Available to Promise (ATP)',
-      value: '156',
+      value: '0',
       unit: 'Units',
-      trend: '99.4%',
+      trend: '0%',
       trendLabel: 'free to allocate',
       isPositive: true,
       icon: 'bi bi-check2-circle',
@@ -160,9 +159,9 @@ export class HomeComponent implements OnInit {
     },
     {
       title: 'Active Orders Pipeline',
-      value: '9',
+      value: '0',
       unit: 'Orders',
-      trend: '5 In · 4 Out',
+      trend: '0 In · 0 Out',
       trendLabel: 'on schedule',
       isPositive: true,
       icon: 'bi bi-arrow-down-up',
@@ -185,10 +184,10 @@ export class HomeComponent implements OnInit {
   // Dynamic Movement Chart
   movementDates: string[] = [];
   yAxisGrid: YGridLine[] = [
-    { label: '250', y: 30 },
-    { label: '188', y: 67.5 },
-    { label: '125', y: 105 },
-    { label: '63', y: 142.5 },
+    { label: '50', y: 30 },
+    { label: '38', y: 67.5 },
+    { label: '25', y: 105 },
+    { label: '13', y: 142.5 },
     { label: '0', y: 180 },
   ];
   blueLinePoints: ChartPoint[] = [];
@@ -198,92 +197,38 @@ export class HomeComponent implements OnInit {
   greenLinePath = '';
   greenAreaPath = '';
 
-  // Stock by Warehouse Donut Data (Exact breakdown from PostgreSQL)
-  warehouseStock: WarehouseStockSegment[] = [
-    { name: 'Bengaluru Central Hub', units: 115, percent: 73, color: '#2563eb' },
-    { name: 'jodhpur', units: 31, percent: 20, color: '#10b981' },
-    { name: 'Bengaluru Central', units: 11, percent: 7, color: '#38bdf8' },
-  ];
+  // Stock by Warehouse Donut Data
+  warehouseStock: WarehouseStockSegment[] = [];
 
   // Real Database Activities Timeline
-  activities: ActivityItem[] = [
-    {
-      type: 'outbound',
-      dotColor: '#f97316',
-      title: 'Stock Picked for Outbound',
-      description: '-49 units picked (Order: SO-2026-5795)',
-      time: '09:56 AM',
-      date: 'Today',
-      timestamp: Date.now() - 3600000,
-    },
-    {
-      type: 'inbound',
-      dotColor: '#10b981',
-      title: 'Goods Inward Received',
-      description: '+60 units received (Ref: PO-2026-8298)',
-      time: '06:45 PM',
-      date: 'Yesterday',
-      timestamp: Date.now() - 86400000,
-    },
-    {
-      type: 'outbound',
-      dotColor: '#2563eb',
-      title: 'Outbound SO: SO-2026-8904',
-      description: 'himanshi (Shipped)',
-      time: '06:33 PM',
-      date: 'Yesterday',
-      timestamp: Date.now() - 87000000,
-    },
-    {
-      type: 'inbound',
-      dotColor: '#10b981',
-      title: 'Inbound PO: PO-2026-6126',
-      description: 'Hetvi prajapati (Completed)',
-      time: '06:01 PM',
-      date: 'Yesterday',
-      timestamp: Date.now() - 88000000,
-    },
-    {
-      type: 'inbound',
-      dotColor: '#10b981',
-      title: 'Inbound PO: PO-2026-8905',
-      description: 'Micro Labs Limited (Completed)',
-      time: '05:15 PM',
-      date: 'Oct 26',
-      timestamp: Date.now() - 95000000,
-    },
-  ];
+  activities: ActivityItem[] = [];
 
   // Real Products Table
-  topProducts: TopProduct[] = [
-    { id: 1, name: 'Dolo 650mg Paracetamol Tablets', sku: 'MED-DOLO-650', onHand: 115, icon: 'fas fa-pills' },
-    { id: 2, name: 'Bottal', sku: 'BTL-BLUE-001', onHand: 42, icon: 'fas fa-wine-bottle' },
-    { id: 3, name: 'Dell Inspiron 15 3520 Laptop', sku: 'ELEC-LAP-DELL-15', onHand: 0, icon: 'fas fa-laptop' },
-  ];
+  topProducts: TopProduct[] = [];
 
   // Real Orders Overview List
   orderMetrics: OrderMetric[] = [
     {
       title: 'Inbound Orders',
-      count: 5,
-      trend: '5 Completed',
+      count: 0,
+      trend: '0 Completed',
       trendType: 'up',
       icon: 'fas fa-arrow-down',
       iconBg: '#eff6ff',
     },
     {
       title: 'Outbound Orders',
-      count: 4,
-      trend: '3 Shipped',
+      count: 0,
+      trend: '0 Shipped',
       trendType: 'up',
       icon: 'fas fa-box',
       iconBg: '#ecfdf5',
     },
     {
       title: 'Pending Pick & Pack',
-      count: 1,
-      trend: '1 In Progress',
-      trendType: 'up',
+      count: 0,
+      trend: '0 In Progress',
+      trendType: 'down',
       icon: 'fas fa-cubes',
       iconBg: '#fff7ed',
     },
@@ -331,8 +276,7 @@ export class HomeComponent implements OnInit {
     }
     this.movementDates = dates;
 
-    // Immediately plot initial real baseline (157 On Hand, 156 Available)
-    this.buildDynamicStockMovementChart(157, 156, []);
+    this.buildDynamicStockMovementChart(0, 0, []);
   }
 
   fetchRealDashboardData() {
@@ -340,12 +284,13 @@ export class HomeComponent implements OnInit {
     this.cdr.detectChanges();
 
     forkJoin({
-      inventory: this.inventoryService.getList({ skipCount: 0, maxResultCount: 200 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
-      products: this.productService.getList({ skipCount: 0, maxResultCount: 100 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
-      inbound: this.inboundService.getList({ skipCount: 0, maxResultCount: 50 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
-      outbound: this.outboundService.getList({ skipCount: 0, maxResultCount: 50 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
-      warehouses: this.warehouseService.getList({ skipCount: 0, maxResultCount: 50 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
-      transactions: this.inventoryService.getTransactions({ skipCount: 0, maxResultCount: 50 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      inventory: this.inventoryService.getList({ skipCount: 0, maxResultCount: 1000 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      products: this.productService.getList({ skipCount: 0, maxResultCount: 200 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      inbound: this.inboundService.getList({ skipCount: 0, maxResultCount: 200 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      outbound: this.outboundService.getList({ skipCount: 0, maxResultCount: 200 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      warehouses: this.warehouseService.getList({ skipCount: 0, maxResultCount: 100 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      transactions: this.inventoryService.getTransactions({ skipCount: 0, maxResultCount: 100 }).pipe(catchError(() => of({ items: [], totalCount: 0 }))),
+      spaceUtilization: this.reportService.getSpaceUtilizationReport({}).pipe(catchError(() => of([]))),
     })
       .pipe(
         finalize(() => {
@@ -356,12 +301,13 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.processRealData(
-            res.inventory.items || [],
-            res.products.items || [],
-            res.inbound.items || [],
-            res.outbound.items || [],
-            res.warehouses.items || [],
-            res.transactions.items || []
+            res.inventory?.items || [],
+            res.products?.items || [],
+            res.inbound?.items || [],
+            res.outbound?.items || [],
+            res.warehouses?.items || [],
+            res.transactions?.items || [],
+            res.spaceUtilization || []
           );
           this.cdr.detectChanges();
         },
@@ -373,18 +319,37 @@ export class HomeComponent implements OnInit {
   }
 
   processRealData(
-    inventoryItems: InventoryItemDto[],
+    allInventoryItems: InventoryItemDto[],
     productItems: ProductDto[],
-    inboundOrders: InboundOrderDto[],
-    outboundOrders: OutboundOrderDto[],
+    allInboundOrders: InboundOrderDto[],
+    allOutboundOrders: OutboundOrderDto[],
     warehouses: WarehouseDto[],
-    transactions: InventoryTransactionDto[]
+    allTransactions: InventoryTransactionDto[],
+    spaceUtilization: SpaceUtilizationReportItemDto[]
   ) {
     this.isRealDataConnected = true;
 
     // 0. Update Warehouses List if available
     if (warehouses && warehouses.length > 0) {
       this.warehousesList = ['All Facilities', ...Array.from(new Set(warehouses.map((w) => w.name || 'Warehouse')))];
+    } else {
+      this.warehousesList = ['All Facilities'];
+    }
+
+    // Filter by selected facility if not 'All Facilities'
+    let inventoryItems = allInventoryItems;
+    let inboundOrders = allInboundOrders;
+    let outboundOrders = allOutboundOrders;
+    let transactions = allTransactions;
+
+    if (this.selectedWarehouseFilter && this.selectedWarehouseFilter !== 'All Facilities') {
+      const selectedWh = warehouses.find((w) => w.name === this.selectedWarehouseFilter);
+      if (selectedWh) {
+        inventoryItems = allInventoryItems.filter((i) => i.warehouseId === selectedWh.id);
+        inboundOrders = allInboundOrders.filter((i) => i.warehouseId === selectedWh.id);
+        outboundOrders = allOutboundOrders.filter((i) => i.warehouseId === selectedWh.id);
+        transactions = allTransactions.filter((t) => t.warehouseId === selectedWh.id);
+      }
     }
 
     // 0.1 Calculate 7-Day Velocity from Transactions
@@ -398,107 +363,119 @@ export class HomeComponent implements OnInit {
         outQty += q;
       }
     });
-    this.inbound7DaysUnits = inQty > 0 ? inQty : 120;
-    this.outbound7DaysUnits = outQty > 0 ? outQty : 49;
+    this.inbound7DaysUnits = inQty;
+    this.outbound7DaysUnits = outQty;
     this.netVelocityUnits = this.inbound7DaysUnits - this.outbound7DaysUnits;
 
     // 1. Process Inventory KPIs (Total On-Hand, Available, Allocated)
-    if (inventoryItems.length > 0) {
-      const totalOnHand = inventoryItems.reduce((acc, curr) => acc + (curr.quantityOnHand || 0), 0);
-      const totalAllocated = inventoryItems.reduce((acc, curr) => acc + (curr.quantityAllocated || 0), 0);
-      const totalAvailable = inventoryItems.reduce((acc, curr) => acc + (curr.quantityAvailable || 0), 0);
+    const totalOnHand = inventoryItems.reduce((acc, curr) => acc + (curr.quantityOnHand || 0), 0);
+    const totalAllocated = inventoryItems.reduce((acc, curr) => acc + (curr.quantityAllocated || 0), 0);
+    const totalAvailable = inventoryItems.reduce((acc, curr) => acc + (curr.quantityAvailable || 0), 0);
 
-      this.kpis[0].value = totalOnHand.toLocaleString();
-      this.kpis[1].value = totalAvailable.toLocaleString();
-      this.kpis[2].value = totalAllocated.toLocaleString();
-      this.totalDonutUnits = totalOnHand;
+    this.kpis[0].value = totalOnHand.toLocaleString();
+    this.kpis[1].value = totalAvailable.toLocaleString();
+    this.totalDonutUnits = totalOnHand;
 
-      const activeWarehouseCount = new Set(inventoryItems.map((i) => i.warehouseId)).size;
-      this.kpis[0].trend = `${activeWarehouseCount} Sites`;
-      this.kpis[0].trendLabel = 'active nodes';
+    if (totalOnHand > 0 && outQty > 0) {
+      this.turnoverRatio = `${((outQty * 52) / totalOnHand).toFixed(1)}x`;
+    } else {
+      this.turnoverRatio = '0.0x';
+    }
 
-      if (totalOnHand > 0) {
-        const availPct = Math.round((totalAvailable / totalOnHand) * 100);
-        this.kpis[1].trend = `${availPct}%`;
-        this.kpis[1].trendLabel = 'free to sell';
+    const activeWarehouseCount = new Set(
+      inventoryItems.filter((i) => (i.quantityOnHand || 0) > 0).map((i) => i.warehouseId)
+    ).size;
+    this.kpis[0].trend = `${activeWarehouseCount} Sites`;
+    this.kpis[0].trendLabel = 'active nodes';
 
-        const allocPct = ((totalAllocated / totalOnHand) * 100).toFixed(1);
-        this.kpis[2].trend = `${allocPct}%`;
-        this.kpis[2].trendLabel = 'reserved buffer';
-      }
+    if (totalOnHand > 0) {
+      const availPct = Math.round((totalAvailable / totalOnHand) * 100);
+      this.kpis[1].trend = `${availPct}%`;
+      this.kpis[1].trendLabel = 'free to allocate';
+    } else {
+      this.kpis[1].trend = '0%';
+      this.kpis[1].trendLabel = 'free to allocate';
+    }
 
-      // Group by Warehouse for Donut chart
-      const whMap = new Map<string, number>();
-      inventoryItems.forEach((item) => {
-        const whName = item.warehouseName || 'Warehouse';
-        const qty = item.quantityOnHand || 0;
+    // Group by Warehouse for Donut chart
+    const whMap = new Map<string, number>();
+    inventoryItems.forEach((item) => {
+      const whName = item.warehouseName || 'Warehouse';
+      const qty = item.quantityOnHand || 0;
+      if (qty > 0) {
         whMap.set(whName, (whMap.get(whName) || 0) + qty);
+      }
+    });
+
+    if (whMap.size > 0 && totalOnHand > 0) {
+      const colors = ['#2563eb', '#10b981', '#38bdf8', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#94a3b8'];
+      const segments: WarehouseStockSegment[] = [];
+      let colorIdx = 0;
+
+      whMap.forEach((qty, name) => {
+        const pct = Math.round((qty / totalOnHand) * 100);
+        segments.push({
+          name,
+          units: qty,
+          percent: pct,
+          color: colors[colorIdx % colors.length],
+        });
+        colorIdx++;
       });
 
-      if (whMap.size > 0 && totalOnHand > 0) {
-        const colors = ['#2563eb', '#10b981', '#38bdf8', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#94a3b8'];
-        const segments: WarehouseStockSegment[] = [];
-        let colorIdx = 0;
-
-        whMap.forEach((qty, name) => {
-          const pct = Math.round((qty / totalOnHand) * 100);
-          segments.push({
-            name,
-            units: qty,
-            percent: pct,
-            color: colors[colorIdx % colors.length],
-          });
-          colorIdx++;
-        });
-
-        this.warehouseStock = segments;
-      }
-
-      // Dynamic Stock Movement Chart
-      this.buildDynamicStockMovementChart(totalOnHand, totalAvailable, transactions);
+      this.warehouseStock = segments;
+    } else {
+      this.warehouseStock = [];
     }
+
+    // Dynamic Stock Movement Chart
+    this.buildDynamicStockMovementChart(totalOnHand, totalAvailable, transactions);
 
     // 2. Process Inbound Orders & Pipeline
-    if (inboundOrders.length > 0) {
-      const completedInbound = inboundOrders.filter((o) => o.status === InboundOrderStatus.Completed);
-      this.orderMetrics[0].count = inboundOrders.length;
-      this.orderMetrics[0].trend = `${completedInbound.length} Completed`;
-      this.orderMetrics[0].trendType = 'up';
+    const completedInbound = inboundOrders.filter((o) => o.status === InboundOrderStatus.Completed);
+    this.orderMetrics[0].count = inboundOrders.length;
+    this.orderMetrics[0].trend = `${completedInbound.length} Completed`;
+    this.orderMetrics[0].trendType = completedInbound.length > 0 ? 'up' : 'down';
 
-      this.pipelineStages[0].count = inboundOrders.length;
-      this.pipelineStages[1].count = completedInbound.length || inboundOrders.length;
-    }
+    this.pipelineStages[0].count = inboundOrders.length;
+    this.pipelineStages[0].status = inboundOrders.length > 0 ? 'completed' : 'normal';
+
+    this.pipelineStages[1].count = completedInbound.length;
+    this.pipelineStages[1].status = completedInbound.length > 0 ? 'completed' : 'normal';
 
     // 3. Process Outbound Orders & Pipeline
-    if (outboundOrders.length > 0) {
-      const pickingOrders = outboundOrders.filter(
-        (o) => o.status === OutboundOrderStatus.Allocated || o.status === OutboundOrderStatus.Picking || o.status === OutboundOrderStatus.Picked
-      );
-      const packedOrders = outboundOrders.filter((o) => o.status === OutboundOrderStatus.Packed);
-      const shippedOrders = outboundOrders.filter((o) => o.status === OutboundOrderStatus.Shipped);
+    const pickingOrders = outboundOrders.filter(
+      (o) => o.status === OutboundOrderStatus.Allocated || o.status === OutboundOrderStatus.Picking || o.status === OutboundOrderStatus.Picked
+    );
+    const packedOrders = outboundOrders.filter((o) => o.status === OutboundOrderStatus.Packed);
+    const shippedOrders = outboundOrders.filter((o) => o.status === OutboundOrderStatus.Shipped);
 
-      this.orderMetrics[1].count = outboundOrders.length;
-      this.orderMetrics[1].trend = `${shippedOrders.length} Shipped`;
-      this.orderMetrics[1].trendType = 'up';
+    this.orderMetrics[1].count = outboundOrders.length;
+    this.orderMetrics[1].trend = `${shippedOrders.length} Shipped`;
+    this.orderMetrics[1].trendType = shippedOrders.length > 0 ? 'up' : 'down';
 
-      this.orderMetrics[2].count = pickingOrders.length;
-      this.orderMetrics[2].trend = `${pickingOrders.length} In Progress`;
-      this.orderMetrics[2].trendType = pickingOrders.length > 0 ? 'up' : 'down';
+    this.orderMetrics[2].count = pickingOrders.length;
+    this.orderMetrics[2].trend = `${pickingOrders.length} In Progress`;
+    this.orderMetrics[2].trendType = pickingOrders.length > 0 ? 'up' : 'down';
 
-      this.orderMetrics[3].count = packedOrders.length;
-      this.orderMetrics[3].trend = `${packedOrders.length} Ready`;
-      this.orderMetrics[3].trendType = packedOrders.length > 0 ? 'up' : 'down';
+    this.orderMetrics[3].count = packedOrders.length;
+    this.orderMetrics[3].trend = `${packedOrders.length} Ready`;
+    this.orderMetrics[3].trendType = packedOrders.length > 0 ? 'up' : 'down';
 
-      this.pipelineStages[2].count = pickingOrders.length || 1;
-      this.pipelineStages[3].count = packedOrders.length || 1;
-      this.pipelineStages[4].count = shippedOrders.length || 3;
-    }
+    this.pipelineStages[2].count = pickingOrders.length;
+    this.pipelineStages[2].status = pickingOrders.length > 0 ? 'active' : 'normal';
+
+    this.pipelineStages[3].count = packedOrders.length;
+    this.pipelineStages[3].status = packedOrders.length > 0 ? 'pending' : 'normal';
+
+    this.pipelineStages[4].count = shippedOrders.length;
+    this.pipelineStages[4].status = shippedOrders.length > 0 ? 'shipped' : 'normal';
 
     // Orders Pipeline Summary KPI[2]
     const totalOrdersCount = (inboundOrders?.length || 0) + (outboundOrders?.length || 0);
     this.kpis[2].value = totalOrdersCount.toLocaleString();
     this.kpis[2].trend = `${inboundOrders?.length || 0} In · ${outboundOrders?.length || 0} Out`;
-    this.kpis[2].trendLabel = 'on schedule';
+    this.kpis[2].trendLabel = totalOrdersCount > 0 ? 'on schedule' : 'no active orders';
 
     // 4. Process Top Products by Stock & Inventory Health KPI[3]
     if (productItems.length > 0) {
@@ -512,7 +489,7 @@ export class HomeComponent implements OnInit {
 
       const mappedProducts: TopProduct[] = productItems.map((prod, idx) => {
         const prodIdKey = (prod.id || '').toLowerCase();
-        const onHandQty = productStockMap.get(prodIdKey) ?? (prod.targetStockLevel || 0);
+        const onHandQty = productStockMap.get(prodIdKey) || 0;
         const reorder = prod.reorderLevel || 10;
         let statusText = 'Optimal';
         let statusClass = 'status-optimal';
@@ -556,6 +533,14 @@ export class HomeComponent implements OnInit {
         this.kpis[3].color = '#0d9488';
         this.kpis[3].bgColor = '#f0fdfa';
       }
+    } else {
+      this.topProducts = [];
+      this.kpis[3].value = '100%';
+      this.kpis[3].trend = '0 Alerts';
+      this.kpis[3].trendLabel = 'optimal levels';
+      this.kpis[3].isPositive = true;
+      this.kpis[3].color = '#0d9488';
+      this.kpis[3].bgColor = '#f0fdfa';
     }
 
     // 5. Build Chronological Live Activities Timeline
@@ -633,206 +618,224 @@ export class HomeComponent implements OnInit {
     if (realActivities.length > 0) {
       realActivities.sort((a, b) => b.timestamp - a.timestamp);
       this.activities = realActivities.slice(0, 5);
+    } else {
+      this.activities = [];
     }
+
+    // 6. Process Warehouse Zones Capacity
+    const zoneList: StorageZone[] = [];
+    if (spaceUtilization && spaceUtilization.length > 0) {
+      spaceUtilization.forEach((wh) => {
+        (wh.zoneBreakdown || []).forEach((zb) => {
+          zoneList.push({
+            name: `${wh.warehouseCode || wh.warehouseName || 'WH'} - ${zb.zoneName}`,
+            usedPct: Math.round(zb.utilizationPercentage || 0),
+            totalBins: `${zb.totalBins} Bins`,
+            type: zb.storageType || 'Standard',
+          });
+        });
+      });
+    }
+    this.storageZones = zoneList.slice(0, 4);
   }
 
   buildDynamicStockMovementChart(currentOnHand: number, currentAvailable: number, transactions: InventoryTransactionDto[]) {
-    const dates: string[] = [];
-    const dateKeys: string[] = [];
-    const now = new Date();
+  const dates: string[] = [];
+  const dateKeys: string[] = [];
+  const now = new Date();
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(now.getDate() - i);
-      dates.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-      dateKeys.push(d.toISOString().slice(0, 10));
-    }
-    this.movementDates = dates;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    dates.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    dateKeys.push(d.toISOString().slice(0, 10));
+  }
+  this.movementDates = dates;
 
-    // Calculate daily delta from transactions to reconstruct past 7 days stock curve
-    const dailyDelta = new Map<string, number>();
-    transactions.forEach((tx) => {
-      if (tx.transactionTime) {
-        const dayKey = tx.transactionTime.slice(0, 10);
-        let delta = 0;
-        const qty = tx.quantity || 0;
-        if (tx.transactionType === InventoryTransactionType.InboundReceipt) {
-          delta += qty;
-        } else if (tx.transactionType === InventoryTransactionType.OutboundPick) {
-          delta -= qty;
-        }
-        dailyDelta.set(dayKey, (dailyDelta.get(dayKey) || 0) + delta);
+  // Calculate daily delta from transactions to reconstruct past 7 days stock curve
+  const dailyDelta = new Map<string, number>();
+  transactions.forEach((tx) => {
+    if (tx.transactionTime) {
+      const dayKey = tx.transactionTime.slice(0, 10);
+      let delta = 0;
+      const qty = tx.quantity || 0;
+      if (tx.transactionType === InventoryTransactionType.InboundReceipt) {
+        delta += qty;
+      } else if (tx.transactionType === InventoryTransactionType.OutboundPick) {
+        delta -= qty;
       }
-    });
-
-    // Reconstruct backwards from day 6 to day 0
-    const onHandDaily: number[] = new Array(7);
-    const availDaily: number[] = new Array(7);
-    onHandDaily[6] = currentOnHand;
-    availDaily[6] = currentAvailable;
-
-    let rollingOnHand = currentOnHand;
-    let rollingAvail = currentAvailable;
-
-    for (let i = 5; i >= 0; i--) {
-      const dayKeyNext = dateKeys[i + 1];
-      const deltaNext = dailyDelta.get(dayKeyNext) || 0;
-      rollingOnHand = Math.max(0, rollingOnHand - deltaNext);
-      rollingAvail = Math.max(0, rollingAvail - deltaNext);
-      onHandDaily[i] = rollingOnHand;
-      availDaily[i] = rollingAvail;
+      dailyDelta.set(dayKey, (dailyDelta.get(dayKey) || 0) + delta);
     }
+  });
 
-    // Calculate dynamic nice max for Y-Axis
-    const maxVal = Math.max(...onHandDaily, ...availDaily, 10);
-    let niceMax = 100;
-    if (maxVal > 5000) niceMax = Math.ceil(maxVal / 2500) * 2500;
-    else if (maxVal > 1000) niceMax = Math.ceil(maxVal / 500) * 500;
-    else if (maxVal > 500) niceMax = 1000;
-    else if (maxVal > 250) niceMax = 500;
-    else if (maxVal > 100) niceMax = 250;
-    else if (maxVal > 50) niceMax = 100;
-    else niceMax = 50;
+  // Reconstruct backwards from day 6 to day 0
+  const onHandDaily: number[] = new Array(7);
+  const availDaily: number[] = new Array(7);
+  onHandDaily[6] = currentOnHand;
+  availDaily[6] = currentAvailable;
 
-    this.yAxisGrid = [
-      { label: niceMax.toLocaleString(), y: 30 },
-      { label: Math.round(niceMax * 0.75).toLocaleString(), y: 67.5 },
-      { label: Math.round(niceMax * 0.5).toLocaleString(), y: 105 },
-      { label: Math.round(niceMax * 0.25).toLocaleString(), y: 142.5 },
-      { label: '0', y: 180 },
-    ];
+  let rollingOnHand = currentOnHand;
+  let rollingAvail = currentAvailable;
 
-    // Compute coordinates: X range [60, 460] (step: 66.666), Y range [30, 180] (height: 150)
-    const stepX = 400 / 6;
-    this.blueLinePoints = onHandDaily.map((val, idx) => ({
-      x: 60 + idx * stepX,
-      y: Math.max(30, Math.min(180, 180 - (val / niceMax) * 150)),
-      value: val,
-      date: this.movementDates[idx],
-    }));
-
-    this.greenLinePoints = availDaily.map((val, idx) => ({
-      x: 60 + idx * stepX,
-      y: Math.max(30, Math.min(180, 180 - (val / niceMax) * 150)),
-      value: val,
-      date: this.movementDates[idx],
-    }));
-
-    this.blueLinePath = this.getSmoothBezierPath(this.blueLinePoints);
-    this.blueAreaPath = `${this.blueLinePath} L 460 180 L 60 180 Z`;
-
-    this.greenLinePath = this.getSmoothBezierPath(this.greenLinePoints);
-    this.greenAreaPath = `${this.greenLinePath} L 460 180 L 60 180 Z`;
+  for (let i = 5; i >= 0; i--) {
+    const dayKeyNext = dateKeys[i + 1];
+    const deltaNext = dailyDelta.get(dayKeyNext) || 0;
+    rollingOnHand = Math.max(0, rollingOnHand - deltaNext);
+    rollingAvail = Math.max(0, rollingAvail - deltaNext);
+    onHandDaily[i] = rollingOnHand;
+    availDaily[i] = rollingAvail;
   }
 
-  getSmoothBezierPath(points: ChartPoint[]): string {
-    if (points.length === 0) return '';
-    let path = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const midX = (p0.x + p1.x) / 2;
-      path += ` C ${midX.toFixed(1)} ${p0.y.toFixed(1)}, ${midX.toFixed(1)} ${p1.y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
-    }
-    return path;
-  }
+  // Calculate dynamic nice max for Y-Axis
+  const maxVal = Math.max(...onHandDaily, ...availDaily, 10);
+  let niceMax = 100;
+  if (maxVal > 5000) niceMax = Math.ceil(maxVal / 2500) * 2500;
+  else if (maxVal > 1000) niceMax = Math.ceil(maxVal / 500) * 500;
+  else if (maxVal > 500) niceMax = 1000;
+  else if (maxVal > 250) niceMax = 500;
+  else if (maxVal > 100) niceMax = 250;
+  else if (maxVal > 50) niceMax = 100;
+  else niceMax = 50;
 
-  formatTime(date: Date): string {
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  }
+  this.yAxisGrid = [
+    { label: niceMax.toLocaleString(), y: 30 },
+    { label: Math.round(niceMax * 0.75).toLocaleString(), y: 67.5 },
+    { label: Math.round(niceMax * 0.5).toLocaleString(), y: 105 },
+    { label: Math.round(niceMax * 0.25).toLocaleString(), y: 142.5 },
+    { label: '0', y: 180 },
+  ];
 
-  formatDate(date: Date): string {
-    const today = new Date();
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today';
-    }
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
-    }
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
+  // Compute coordinates: X range [60, 460] (step: 66.666), Y range [30, 180] (height: 150)
+  const stepX = 400 / 6;
+  this.blueLinePoints = onHandDaily.map((val, idx) => ({
+    x: 60 + idx * stepX,
+    y: Math.max(30, Math.min(180, 180 - (val / niceMax) * 150)),
+    value: val,
+    date: this.movementDates[idx],
+  }));
 
-  getInboundStatusText(status?: InboundOrderStatus): string {
-    switch (status) {
-      case InboundOrderStatus.Draft: return 'Draft';
-      case InboundOrderStatus.InTransit: return 'In Transit';
-      case InboundOrderStatus.Arrived: return 'Arrived';
-      case InboundOrderStatus.PartiallyReceived: return 'Partially Received';
-      case InboundOrderStatus.Completed: return 'Completed';
-      case InboundOrderStatus.Cancelled: return 'Cancelled';
-      default: return 'Active';
-    }
-  }
+  this.greenLinePoints = availDaily.map((val, idx) => ({
+    x: 60 + idx * stepX,
+    y: Math.max(30, Math.min(180, 180 - (val / niceMax) * 150)),
+    value: val,
+    date: this.movementDates[idx],
+  }));
 
-  getOutboundStatusText(status?: OutboundOrderStatus): string {
-    switch (status) {
-      case OutboundOrderStatus.Draft: return 'Draft';
-      case OutboundOrderStatus.Allocated: return 'Allocated';
-      case OutboundOrderStatus.Picking: return 'Picking';
-      case OutboundOrderStatus.Picked: return 'Picked';
-      case OutboundOrderStatus.Packed: return 'Packed';
-      case OutboundOrderStatus.Shipped: return 'Shipped';
-      case OutboundOrderStatus.Cancelled: return 'Cancelled';
-      default: return 'Active';
-    }
-  }
+  this.blueLinePath = this.getSmoothBezierPath(this.blueLinePoints);
+  this.blueAreaPath = `${this.blueLinePath} L 460 180 L 60 180 Z`;
 
-  getProductIcon(name: string): string {
-    const lower = name.toLowerCase();
-    if (lower.includes('laptop') || lower.includes('computer')) return 'fas fa-laptop';
-    if (lower.includes('mouse')) return 'fas fa-mouse';
-    if (lower.includes('keyboard')) return 'fas fa-keyboard';
-    if (lower.includes('monitor') || lower.includes('screen') || lower.includes('tv')) return 'fas fa-tv';
-    if (lower.includes('cable') || lower.includes('usb')) return 'fas fa-plug';
-    if (
-      lower.includes('pharma') ||
-      lower.includes('medicine') ||
-      lower.includes('injection') ||
-      lower.includes('dolo') ||
-      lower.includes('tablet') ||
-      lower.includes('capsule')
-    ) {
-      return 'fas fa-pills';
-    }
-    if (lower.includes('bottle') || lower.includes('bottal')) return 'fas fa-wine-bottle';
-    return 'fas fa-box';
-  }
+  this.greenLinePath = this.getSmoothBezierPath(this.greenLinePoints);
+  this.greenAreaPath = `${this.greenLinePath} L 460 180 L 60 180 Z`;
+}
 
-  getDonutDashArray(percent: number): string {
-    const circumference = 351.85;
-    const filled = (Math.max(1, percent) / 100) * circumference;
-    return `${filled.toFixed(1)} ${circumference.toFixed(1)}`;
+getSmoothBezierPath(points: ChartPoint[]): string {
+  if (points.length === 0) return '';
+  let path = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    const midX = (p0.x + p1.x) / 2;
+    path += ` C ${midX.toFixed(1)} ${p0.y.toFixed(1)}, ${midX.toFixed(1)} ${p1.y.toFixed(1)}, ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
   }
+  return path;
+}
 
-  getDonutDashOffset(index: number): number {
-    const circumference = 351.85;
-    let offset = 0;
-    for (let i = 0; i < index; i++) {
-      offset += (this.warehouseStock[i].percent / 100) * circumference;
-    }
-    return -offset;
-  }
+formatTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
 
-  updateFormattedDate() {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    };
-    this.currentDateFormatted = now.toLocaleString('en-US', options).replace(',', ' ·');
+formatDate(date: Date): string {
+  const today = new Date();
+  if (date.toDateString() === today.toDateString()) {
+    return 'Today';
   }
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return 'Yesterday';
+  }
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
 
-  login() {
-    this.authService.navigateToLogin();
+getInboundStatusText(status ?: InboundOrderStatus): string {
+  switch (status) {
+    case InboundOrderStatus.Draft: return 'Draft';
+    case InboundOrderStatus.InTransit: return 'In Transit';
+    case InboundOrderStatus.Arrived: return 'Arrived';
+    case InboundOrderStatus.PartiallyReceived: return 'Partially Received';
+    case InboundOrderStatus.Completed: return 'Completed';
+    case InboundOrderStatus.Cancelled: return 'Cancelled';
+    default: return 'Active';
   }
+}
 
-  navigateTo(route: string) {
-    this.router.navigate([route]);
+getOutboundStatusText(status ?: OutboundOrderStatus): string {
+  switch (status) {
+    case OutboundOrderStatus.Draft: return 'Draft';
+    case OutboundOrderStatus.Allocated: return 'Allocated';
+    case OutboundOrderStatus.Picking: return 'Picking';
+    case OutboundOrderStatus.Picked: return 'Picked';
+    case OutboundOrderStatus.Packed: return 'Packed';
+    case OutboundOrderStatus.Shipped: return 'Shipped';
+    case OutboundOrderStatus.Cancelled: return 'Cancelled';
+    default: return 'Active';
   }
+}
+
+getProductIcon(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes('laptop') || lower.includes('computer')) return 'fas fa-laptop';
+  if (lower.includes('mouse')) return 'fas fa-mouse';
+  if (lower.includes('keyboard')) return 'fas fa-keyboard';
+  if (lower.includes('monitor') || lower.includes('screen') || lower.includes('tv')) return 'fas fa-tv';
+  if (lower.includes('cable') || lower.includes('usb')) return 'fas fa-plug';
+  if (
+    lower.includes('pharma') ||
+    lower.includes('medicine') ||
+    lower.includes('injection') ||
+    lower.includes('dolo') ||
+    lower.includes('tablet') ||
+    lower.includes('capsule')
+  ) {
+    return 'fas fa-pills';
+  }
+  if (lower.includes('bottle') || lower.includes('bottal')) return 'fas fa-wine-bottle';
+  return 'fas fa-box';
+}
+
+getDonutDashArray(percent: number): string {
+  const circumference = 351.85;
+  const filled = (Math.max(1, percent) / 100) * circumference;
+  return `${filled.toFixed(1)} ${circumference.toFixed(1)}`;
+}
+
+getDonutDashOffset(index: number): number {
+  const circumference = 351.85;
+  let offset = 0;
+  for (let i = 0; i < index; i++) {
+    offset += (this.warehouseStock[i].percent / 100) * circumference;
+  }
+  return -offset;
+}
+
+updateFormattedDate() {
+  const now = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  this.currentDateFormatted = now.toLocaleString('en-US', options).replace(',', ' ·');
+}
+
+login() {
+  this.authService.navigateToLogin();
+}
+
+navigateTo(route: string) {
+  this.router.navigate([route]);
+}
 }

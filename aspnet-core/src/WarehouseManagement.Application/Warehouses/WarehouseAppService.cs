@@ -84,6 +84,17 @@ public class WarehouseAppService :
         // 5. Insert entity into database
         await Repository.InsertAsync(warehouse, autoSave: true);
 
+        // 5b. If a manager faculty member is assigned, ensure their AssignedWarehouseId is linked
+        if (warehouse.ManagerId.HasValue)
+        {
+            var manager = await _facultyRepository.FindAsync(warehouse.ManagerId.Value);
+            if (manager != null && manager.AssignedWarehouseId != warehouse.Id)
+            {
+                manager.AssignedWarehouseId = warehouse.Id;
+                await _facultyRepository.UpdateAsync(manager, autoSave: true);
+            }
+        }
+
         // 6. Map and return the output DTO
         return await GetAsync(warehouse.Id);
     }
@@ -115,6 +126,8 @@ public class WarehouseAppService :
             throw new UserFriendlyException($"A warehouse with name '{input.Name}' already exists. Please choose a different warehouse name.");
         }
 
+        var oldManagerId = warehouse.ManagerId;
+
         // 5. Update entity properties
         warehouse.SetCode(input.Code);
         warehouse.SetName(input.Name);
@@ -134,8 +147,45 @@ public class WarehouseAppService :
         // 6. Save updates to database
         await Repository.UpdateAsync(warehouse, autoSave: true);
 
+        // 6b. Sync Manager Faculty Member
+        if (oldManagerId.HasValue && oldManagerId != input.ManagerId)
+        {
+            var oldManager = await _facultyRepository.FindAsync(oldManagerId.Value);
+            if (oldManager != null && oldManager.AssignedWarehouseId == warehouse.Id)
+            {
+                oldManager.AssignedWarehouseId = null;
+                await _facultyRepository.UpdateAsync(oldManager, autoSave: true);
+            }
+        }
+
+        if (warehouse.ManagerId.HasValue)
+        {
+            var newManager = await _facultyRepository.FindAsync(warehouse.ManagerId.Value);
+            if (newManager != null && newManager.AssignedWarehouseId != warehouse.Id)
+            {
+                newManager.AssignedWarehouseId = warehouse.Id;
+                await _facultyRepository.UpdateAsync(newManager, autoSave: true);
+            }
+        }
+
         // 7. Map and return updated DTO
         return await GetAsync(warehouse.Id);
+    }
+
+    public override async Task DeleteAsync(Guid id)
+    {
+        var warehouse = await Repository.FindAsync(id);
+        if (warehouse != null && warehouse.ManagerId.HasValue)
+        {
+            var manager = await _facultyRepository.FindAsync(warehouse.ManagerId.Value);
+            if (manager != null && manager.AssignedWarehouseId == warehouse.Id)
+            {
+                manager.AssignedWarehouseId = null;
+                await _facultyRepository.UpdateAsync(manager, autoSave: true);
+            }
+        }
+
+        await base.DeleteAsync(id);
     }
 
     private static void ValidateWarehouseInput(CreateUpdateWarehouseDto input)

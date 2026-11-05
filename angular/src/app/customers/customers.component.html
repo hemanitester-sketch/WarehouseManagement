@@ -5,7 +5,7 @@
       <div class="d-flex align-items-center gap-2 mb-1">
         <h4 class="fw-bold text-dark mb-0 font-size-18">Customers & B2B Clients</h4>
         <span
-          class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-size-11 px-2.5 py-1">
+          class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-size-11 px-2 py-1">
           <i class="bi bi-people-fill me-1"></i>Client Directory
         </span>
       </div>
@@ -15,19 +15,19 @@
     </div>
 
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center gap-1.5"
+      <button class="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center gap-1"
         (click)="exportToCsv()">
         <i class="bi bi-file-earmark-spreadsheet"></i>
         <span>Export CSV</span>
       </button>
 
-      <button class="btn btn-outline-primary btn-sm rounded-2 d-flex align-items-center gap-1.5" (click)="loadData()"
+      <button class="btn btn-outline-primary btn-sm rounded-2 d-flex align-items-center gap-1" (click)="loadData()"
         [disabled]="isLoading">
         <i class="bi bi-arrow-clockwise" [class.donut-spin]="isLoading"></i>
         <span>Refresh</span>
       </button>
 
-      <button class="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1.5 shadow-sm"
+      <button class="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1 shadow-sm"
         (click)="openCreateModal()">
         <i class="bi bi-plus-lg"></i>
         <span>Add Customer</span>
@@ -47,7 +47,7 @@
           <div class="metric-value">{{ metrics.totalClientsCount }}</div>
           <div class="metric-label">Total Registered Accounts</div>
           <div class="font-size-11 text-success mt-1">
-            <i class="bi bi-check-circle me-0.5"></i>{{ metrics.activeClientsCount }} Active Accounts
+            <i class="bi bi-check-circle me-1"></i>{{ metrics.activeClientsCount }} Active Accounts
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
           <div class="metric-label">Total Credit Limit Granted</div>
           <div class="font-size-11 text-muted mt-1">
             <span
-              class="badge bg-success-subtle text-success border border-success-subtle px-1.5 py-0.5 font-size-10">Authorized</span>
+              class="badge bg-success-subtle text-success border border-success-subtle px-1 py-1 font-size-10">Authorized</span>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
           <div class="metric-value">₹{{ metrics.totalCurrentOutstanding | number:'1.0-0' }}</div>
           <div class="metric-label">Current Outstanding Balance</div>
           <div class="font-size-11 text-warning mt-1">
-            <i class="bi bi-speedometer me-0.5"></i>{{ metrics.averageCreditUtilizationPercent }}% Net Utilization
+            <i class="bi bi-speedometer me-1"></i>{{ metrics.averageCreditUtilizationPercent }}% Net Utilization
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@
 
   <!-- Search & Filter Controls -->
   <div class="card wms-card border-0 mb-3 shadow-xs">
-    <div class="card-body p-2.5">
+    <div class="card-body p-2">
       <div class="row g-2 align-items-center">
         <!-- Search Input -->
         <div class="col-lg-3 col-md-6">
@@ -275,7 +275,7 @@
               <div class="fw-semibold text-dark font-size-12">
                 {{ customer.contactPerson || 'Not Assigned' }}
               </div>
-              <div class="text-muted font-size-11 d-flex flex-column gap-0.5 mt-0.5">
+              <div class="text-muted font-size-11 d-flex flex-column gap-1 mt-1">
                 @if (customer.phoneNumber) {
                 <a href="tel:{{ customer.phoneNumber }}"
                   class="text-muted text-decoration-none d-flex align-items-center gap-1 hover-primary">
@@ -295,7 +295,7 @@
             <!-- Hub Location -->
             <td>
               <div class="fw-semibold text-dark">
-                <i class="bi bi-geo-alt text-primary font-size-11 me-0.5"></i>
+                <i class="bi bi-geo-alt text-primary font-size-11 me-1"></i>
                 {{ customer.city || '—' }}
               </div>
               <div class="text-muted font-size-11">
@@ -330,7 +330,7 @@
             <!-- Price Tier & Rating -->
             <td>
               <span class="tier-pill">{{ customer.priceTier || 'Standard B2B' }}</span>
-              <div class="text-warning font-size-10 mt-1 d-flex gap-0.5">
+              <div class="text-warning font-size-10 mt-1 d-flex gap-1">
                 @for (s of getStarArray(customer.rating); track $index) {
                 <i class="bi bi-star-fill"></i>
                 }
@@ -450,10 +450,39 @@
         </div>
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="form-label fw-semibold font-size-11">Customer Code <span class="text-danger">*</span></label>
-            <input type="text" class="form-control form-control-sm text-uppercase" [(ngModel)]="formModel.code"
-              placeholder="e.g. CUST-1001" [disabled]="isEditing" />
+            <label class="form-label fw-semibold font-size-11">
+              Customer Code <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-sm">
+              <!-- Leading Box -->
+              <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+
+              <!-- Middle Input -->
+              <input type="text" class="form-control form-control-sm text-uppercase"
+                [class.has-trailing]="isCheckingCode || (codeTouched && !!formModel.code?.trim())"
+                placeholder="e.g. CUST-1001" maxlength="32" [(ngModel)]="formModel.code" (input)="onCodeInput()"
+                (blur)="onCodeBlur()" [disabled]="isEditing" />
+
+              <!-- Trailing Box: Only rendered when there is input or checking -->
+              @if (isCheckingCode || (codeTouched && formModel.code?.trim())) {
+              <span class="input-group-text input-group-trailing">
+                @if (isCheckingCode) {
+                <span class="spinner-border spinner-border-sm status-spinner" role="status"></span>
+                } @else if (codeTouched && isCodeDuplicate) {
+                <i class="fas fa-times-circle status-anim-icon text-danger"></i>
+                } @else if (codeTouched && !isCodeDuplicate && formModel.code?.trim()) {
+                <i class="fas fa-check-circle status-anim-icon text-success"></i>
+                }
+              </span>
+              }
+            </div>
+
+            <!-- Clean Short Text Below: Only on duplicate/wrong -->
+            @if (!isCheckingCode && codeTouched && isCodeDuplicate) {
+            <div class="short-feedback-msg text-danger">Already exists</div>
+            } @else if (!codeTouched || !formModel.code?.trim()) {
             <div class="form-text font-size-10">Unique client account identifier in WMS.</div>
+            }
           </div>
 
           <div class="col-md-8">
@@ -664,8 +693,9 @@
         <button type="button" class="btn btn-category-cancel btn-sm" (click)="closeFormModal()" [disabled]="isSaving">
           Cancel
         </button>
-        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1.5" (click)="saveCustomer()"
-          [disabled]="isSaving">
+        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-1" (click)="saveCustomer()"
+          [disabled]="isSaving || isCodeDuplicate || isCheckingCode || !formModel.code?.trim() || !formModel.name?.trim()"
+          [title]="isCodeDuplicate ? 'Cannot save: Customer code is already taken' : (isEditing ? 'Save Changes' : 'Register Client Account')">
           @if (isSaving) {
           <span class="spinner-border spinner-border-sm" role="status"></span>
           }
@@ -682,7 +712,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content shadow-lg border-0 rounded-3">
         <!-- Header -->
-        <div class="modal-header bg-light py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
+        <div class="modal-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center gap-2">
             <span class="customer-code-pill fs-6">{{ selectedCustomer.code }}</span>
             <div>
@@ -705,27 +735,27 @@
             <div class="col-sm-3 col-6">
               <div class="p-2 border rounded bg-light text-center">
                 <div class="text-muted font-size-10 text-uppercase fw-semibold">Classification</div>
-                <div class="fw-bold text-dark font-size-12 mt-0.5">{{ selectedCustomer.customerTypeName }}</div>
+                <div class="fw-bold text-dark font-size-12 mt-1">{{ selectedCustomer.customerTypeName }}</div>
               </div>
             </div>
             <div class="col-sm-3 col-6">
               <div class="p-2 border rounded bg-light text-center">
                 <div class="text-muted font-size-10 text-uppercase fw-semibold">Credit Limit</div>
-                <div class="fw-bold text-success font-size-12 mt-0.5">₹{{ selectedCustomer.creditLimit | number:'1.0-0'
+                <div class="fw-bold text-success font-size-12 mt-1">₹{{ selectedCustomer.creditLimit | number:'1.0-0'
                   }}</div>
               </div>
             </div>
             <div class="col-sm-3 col-6">
               <div class="p-2 border rounded bg-light text-center">
                 <div class="text-muted font-size-10 text-uppercase fw-semibold">Outstanding</div>
-                <div class="fw-bold text-warning font-size-12 mt-0.5">₹{{ selectedCustomer.currentOutstanding |
+                <div class="fw-bold text-warning font-size-12 mt-1">₹{{ selectedCustomer.currentOutstanding |
                   number:'1.0-0' }}</div>
               </div>
             </div>
             <div class="col-sm-3 col-6">
               <div class="p-2 border rounded bg-light text-center">
                 <div class="text-muted font-size-10 text-uppercase fw-semibold">Total Revenue</div>
-                <div class="fw-bold text-primary font-size-12 mt-0.5">₹{{ selectedCustomer.totalRevenue | number:'1.0-0'
+                <div class="fw-bold text-primary font-size-12 mt-1">₹{{ selectedCustomer.totalRevenue | number:'1.0-0'
                   }}</div>
               </div>
             </div>
@@ -734,27 +764,27 @@
           <div class="row g-3">
             <!-- Contact Card -->
             <div class="col-md-6">
-              <div class="card border rounded-2 h-100 p-2.5">
-                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+              <div class="card border rounded-2 h-100 p-2">
+                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1 mb-2">
                   <i class="bi bi-person-badge me-1"></i>Key Contact Personnel
                 </h6>
-                <div class="mb-1.5">
+                <div class="mb-1">
                   <strong class="text-dark">{{ selectedCustomer.contactPerson || 'None specified' }}</strong>
                 </div>
                 @if (selectedCustomer.phoneNumber) {
-                <div class="text-muted mb-1 d-flex align-items-center gap-1.5">
+                <div class="text-muted mb-1 d-flex align-items-center gap-1">
                   <i class="bi bi-telephone text-primary"></i>
                   <span>{{ selectedCustomer.phoneNumber }}</span>
                 </div>
                 }
                 @if (selectedCustomer.alternativePhone) {
-                <div class="text-muted mb-1 d-flex align-items-center gap-1.5">
+                <div class="text-muted mb-1 d-flex align-items-center gap-1">
                   <i class="bi bi-telephone-plus text-muted"></i>
                   <span>{{ selectedCustomer.alternativePhone }} (Dispatch Desk)</span>
                 </div>
                 }
                 @if (selectedCustomer.email) {
-                <div class="text-muted d-flex align-items-center gap-1.5">
+                <div class="text-muted d-flex align-items-center gap-1">
                   <i class="bi bi-envelope text-primary"></i>
                   <span>{{ selectedCustomer.email }}</span>
                 </div>
@@ -764,8 +794,8 @@
 
             <!-- Statutory & Billing -->
             <div class="col-md-6">
-              <div class="card border rounded-2 h-100 p-2.5">
-                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+              <div class="card border rounded-2 h-100 p-2">
+                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1 mb-2">
                   <i class="bi bi-file-earmark-text me-1"></i>Tax & Billing Info
                 </h6>
                 <div class="mb-1">
@@ -784,15 +814,15 @@
                 </div>
                 <div class="mt-1">
                   <span class="text-muted">Billing Address: </span>
-                  <div class="text-dark mt-0.5">{{ selectedCustomer.billingAddress || 'Same as shipping' }}</div>
+                  <div class="text-dark mt-1">{{ selectedCustomer.billingAddress || 'Same as shipping' }}</div>
                 </div>
               </div>
             </div>
 
             <!-- Shipping Dock Specs -->
             <div class="col-12">
-              <div class="card border rounded-2 p-2.5 bg-light">
-                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1.5 mb-2">
+              <div class="card border rounded-2 p-2 bg-light">
+                <h6 class="fw-bold font-size-12 text-primary border-bottom pb-1 mb-2">
                   <i class="bi bi-truck me-1"></i>Delivery Hub & Dock Unloading Specs
                 </h6>
                 <div class="row g-2">
@@ -818,7 +848,7 @@
 
             @if (selectedCustomer.notes) {
             <div class="col-12">
-              <div class="card border rounded-2 p-2.5">
+              <div class="card border rounded-2 p-2">
                 <span class="text-muted fw-semibold mb-1 d-block font-size-11">Internal Logistics Remarks:</span>
                 <div class="text-dark">{{ selectedCustomer.notes }}</div>
               </div>

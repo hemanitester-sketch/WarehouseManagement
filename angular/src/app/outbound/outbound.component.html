@@ -101,7 +101,7 @@
           <tr>
             <th class="ps-3" style="width: 135px; min-width: 120px; white-space: nowrap;">Order #</th>
             <th style="width: 170px; min-width: 160px; white-space: nowrap;">Facility</th>
-            <th>Customer & Destination</th>
+            <th style="width: 170px; min-width: 160px;">Customer & Destination</th>
             <th class="text-center" style="width: 100px;">Priority</th>
             <th class="text-center" style="width: 70px;">Lines</th>
             <th class="text-end" style="width: 95px;">Ordered</th>
@@ -122,7 +122,7 @@
               </span>
               <small class="outbound-cell-subtext text-nowrap" *ngIf="ord.warehouseName">{{ ord.warehouseName }}</small>
             </td>
-            <td>
+            <td style="width: 170px; min-width: 160px;">
               <span class="outbound-cell-text d-block">{{ ord.customerName }}</span>
               <small class="outbound-cell-subtext">{{ ord.city }} &bull; {{ ord.shippingAddress }}</small>
             </td>
@@ -492,14 +492,10 @@
     <div class="modal-dialog outbound-drawer-dialog">
       <div class="modal-content outbound-drawer-content">
         <!-- Header: Clean Royal Blue Theme matching Warehouse & Faculty Drawers -->
-        <div class="modal-header outbound-drawer-header text-white d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <div class="outbound-drawer-icon-box bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
-              <i class="fas fa-cart-arrow-down"></i>
-            </div>
+        <div class="modal-header wms-modal-header text-white d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">             
             <div>
-              <h5 class="modal-title font-weight-bold mb-0 text-white">Create Customer Sales Order</h5>
-              <p class="small text-white-50 mb-0">Record outbound customer demand for FEFO stock allocation and dispatch</p>
+              <h5 class="modal-title font-weight-bold mb-0 text-white">Create Customer Sales Order</h5>            
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="isCreateOrderModalOpen = false"></button>
@@ -511,34 +507,25 @@
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="wms-compact-label">Order Number *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-hashtag input-icon"></i>
-                <input type="text" class="form-control font-monospace font-weight-bold" [(ngModel)]="newOrder.orderNumber" placeholder="SO-2026-XXXX" />
-              </div>
+              <input type="text" class="form-control font-monospace font-weight-bold" [(ngModel)]="newOrder.orderNumber" placeholder="SO-2026-XXXX" />
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">Fulfillment Facility *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-warehouse input-icon"></i>
-                <select class="form-select" [(ngModel)]="newOrder.warehouseId">
-                  <option value="" disabled>-- Select Facility --</option>
-                  <option *ngFor="let w of warehouses" [value]="w.id">{{ w.code }} - {{ w.name }}</option>
-                </select>
-              </div>
+              <select class="form-select" [(ngModel)]="newOrder.warehouseId">
+                <option value="" disabled>-- Select Facility --</option>
+                <option *ngFor="let w of warehouses" [value]="w.id">{{ w.code }} - {{ w.name }}</option>
+              </select>
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">Customer / Client Account *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-building input-icon"></i>
-                <select class="form-select" [(ngModel)]="selectedCustomerId" (ngModelChange)="onCustomerSelected()">
-                  <option value="" disabled>-- Select Registered Customer --</option>
-                  <option *ngFor="let c of customers" [value]="c.id">
-                    [{{ c.code }}] {{ c.name }}
-                  </option>
-                </select>
-              </div>
+              <select class="form-select" [(ngModel)]="selectedCustomerId" (ngModelChange)="onCustomerSelected()">
+                <option value="" disabled>-- Select Registered Customer --</option>
+                <option *ngFor="let c of customers" [value]="c.id">
+                  [{{ c.code }}] {{ c.name }}
+                </option>
+              </select>
               <div *ngIf="selectedCustomer" class="text-muted font-size-11 mt-1 d-flex align-items-center gap-2">
                 <span class="badge bg-light text-primary border"><i class="fas fa-tag me-1"></i>{{ selectedCustomer.industry || 'B2B' }}</span>
                 <span>Terms: <strong>{{ selectedCustomer.paymentTerms || 'Net 30' }}</strong></span>
@@ -548,52 +535,34 @@
 
             <div class="col-6">
               <label class="wms-compact-label">Required Delivery Date *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-calendar-alt input-icon"></i>
-                <input type="date" class="form-control" [(ngModel)]="deliveryDateStr" />
-              </div>
+              <input type="date" class="form-control" [(ngModel)]="deliveryDateStr" />
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">Order Priority</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-flag input-icon"></i>
-                <select class="form-select" [(ngModel)]="newOrder.priority">
-                  <option *ngFor="let p of priorityOptions" [value]="p.value">{{ p.key }}</option>
-                </select>
-              </div>
+              <select class="form-select" [(ngModel)]="newOrder.priority">
+                <option *ngFor="let p of priorityOptions" [value]="p.value">{{ p.key }}</option>
+              </select>
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">City</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-city input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Mumbai" [(ngModel)]="newOrder.city" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Mumbai" [(ngModel)]="newOrder.city" />
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">State</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-map input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Maharashtra" [(ngModel)]="newOrder.state" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Maharashtra" [(ngModel)]="newOrder.state" />
             </div>
 
             <div class="col-6">
               <label class="wms-compact-label">Shipping Address</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-map-marker-alt input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Sector 18, Commercial Zone" [(ngModel)]="newOrder.shippingAddress" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Sector 18, Commercial Zone" [(ngModel)]="newOrder.shippingAddress" />
             </div>
 
             <div class="col-12">
               <label class="wms-compact-label">Order Notes / Instructions</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-sticky-note input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Fragile hospital delivery" [(ngModel)]="newOrder.notes" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Fragile hospital delivery" [(ngModel)]="newOrder.notes" />
             </div>
           </div>
 
@@ -603,31 +572,22 @@
             <div class="row g-2 align-items-end">
               <div class="col-5">
                 <label class="wms-compact-label">Select SKU / Product *</label>
-                <div class="wms-input-icon-group">
-                  <i class="fas fa-box input-icon"></i>
-                  <select class="form-select" [(ngModel)]="selectedProductForLine" (ngModelChange)="onProductSelected()">
-                    <option value="" disabled>-- Select Product --</option>
-                    <option *ngFor="let p of products" [value]="p.id">
-                      {{ p.sku }} - {{ p.name }}
-                    </option>
-                  </select>
-                </div>
+                <select class="form-select" [(ngModel)]="selectedProductForLine" (ngModelChange)="onProductSelected()">
+                  <option value="" disabled>-- Select Product --</option>
+                  <option *ngFor="let p of products" [value]="p.id">
+                    {{ p.sku }} - {{ p.name }}
+                  </option>
+                </select>
               </div>
 
               <div class="col-2">
                 <label class="wms-compact-label">Quantity *</label>
-                <div class="wms-input-icon-group">
-                  <i class="fas fa-calculator input-icon"></i>
-                  <input type="number" class="form-control text-center" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
-                </div>
+                <input type="number" class="form-control text-center" [(ngModel)]="quantityForLine" min="1" placeholder="Qty" />
               </div>
 
               <div class="col-3">
                 <label class="wms-compact-label">Unit Price (₹)</label>
-                <div class="wms-input-icon-group">
-                  <i class="fas fa-rupee-sign input-icon"></i>
-                  <input type="number" class="form-control" [(ngModel)]="priceForLine" min="0" placeholder="Price" />
-                </div>
+                <input type="number" class="form-control" [(ngModel)]="priceForLine" min="0" placeholder="Price" />
               </div>
 
               <div class="col-2">

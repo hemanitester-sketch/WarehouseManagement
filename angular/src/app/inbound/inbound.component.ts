@@ -550,6 +550,26 @@ export class InboundComponent implements OnInit {
     }
   }
 
+  getVariantOptionLabel(v: ProductVariantDto): string {
+    if (!v) return '';
+    const prod = this.products.find(p => p.id === this.selectedProductForLine);
+    let cleanName = (v.variantName || '').trim();
+
+    if (prod && prod.name) {
+      const pName = prod.name.trim();
+      if (cleanName.toLowerCase().startsWith(pName.toLowerCase())) {
+        cleanName = cleanName.substring(pName.length).trim();
+        cleanName = cleanName.replace(/^[-–—:\s()]+/, '').replace(/[-–—:\s()]+$/, '').trim();
+      }
+    }
+
+    const label = cleanName || v.sku || 'Default';
+    const price = (v.purchasePrice != null && v.purchasePrice > 0) ? v.purchasePrice : v.sellingPrice;
+    const priceStr = price != null && price > 0 ? ` (₹${price.toLocaleString('en-IN')})` : '';
+
+    return `${label}${priceStr}`;
+  }
+
   addLineToOrder(): void {
     if (!this.selectedProductForLine) {
       this.toasterService.warn('Please select a product.');

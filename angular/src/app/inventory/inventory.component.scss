@@ -1,4 +1,4 @@
-/* Live Stock Inventory Styles */
+﻿/* Live Stock Inventory Styles */
 
 .inventory-container {
   padding: 0.5rem 0 1.5rem 0;
@@ -232,14 +232,14 @@
 }
 
 .col-inv-name {
-  min-width: 220px;
-  max-width: 280px;
+  min-width: 240px;
+  max-width: 320px;
   white-space: nowrap;
 }
 
 .inv-truncate-name {
   display: inline-block;
-  max-width: 260px;
+  max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -578,3 +578,51 @@
   }
 }
 
+
+
+/* Warehouse Filter Select & Active Option Styling (Royal Blue Theme) */
+:host ::ng-deep .form-select,
+:host ::ng-deep select,
+.form-select,
+select {
+  accent-color: #2563eb !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18) !important;
+  }
+
+  &.filter-active {
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+    font-weight: 600 !important;
+    background-color: #eff6ff !important;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1) !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected] {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      font-weight: 600 !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(0deg, #2563eb 0%, #2563eb 100%) !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      font-weight: 600 !important;
+    }
+  }
+}

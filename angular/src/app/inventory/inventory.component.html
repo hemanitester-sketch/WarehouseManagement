@@ -1,4 +1,4 @@
-<div class="container-fluid inventory-container">
+﻿<div class="container-fluid inventory-container">
   <!-- Header -->
   <div class="inventory-header-row mb-3">
     <div class="header-text-block">
@@ -113,6 +113,7 @@
       <div class="col-12 col-md-4 col-lg-3">
         <select 
           class="form-select form-select-sm" 
+          [class.filter-active]="!!selectedWarehouseFilter"
           [(ngModel)]="selectedWarehouseFilter" 
           (ngModelChange)="loadInventory()"
         >
@@ -163,14 +164,9 @@
               </span>
             </td>
             <td class="col-inv-name">
-              <div class="d-flex align-items-center gap-1.5 flex-nowrap">
-                <span class="inv-truncate-name fw-semibold text-dark" [title]="item.productName">
-                  {{ item.productName }}
-                </span>
-                <span *ngIf="item.variantName" class="variant-pill-badge flex-shrink-0" [title]="'Variant: ' + item.variantName">
-                  <i class="fas fa-tag me-1"></i>{{ item.variantName }}
-                </span>
-              </div>
+              <span class="inv-truncate-name fw-semibold text-dark" [title]="item.variantName || item.productName">
+                {{ item.variantName || item.productName }}
+              </span>
             </td>
             <td class="col-inv-facility">
               <span class="inv-truncate-facility fw-medium text-dark" [title]="(item.warehouseCode || 'WH-01') + (item.warehouseName ? ' - ' + item.warehouseName : '')">
@@ -346,13 +342,13 @@
       <div class="modal-content border-0 shadow-lg overflow-hidden wms-modal-content">
         
         <!-- Header (Purple / Indigo Gradient - NO BLACK) -->
-        <div class="wms-modal-header d-flex justify-content-between align-items-center wms-modal-header-adjust">
+        <div class="wms-modal-header d-flex justify-content-between align-items-center wms-modal-header-adjust border-bottom-1">
           <div class="d-flex align-items-center gap-3">
             <div class="wms-modal-icon-badge">
               <i class="fas fa-sliders-h text-white"></i>
             </div>
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0">Audit Stock Adjustment</h5>
+              <h5 class=" font-weight-bold text-white mb-0">Audit Stock Adjustment</h5>
               <p class="small text-white-50 mb-0 mt-0.5">Record cycle count discrepancy, breakage, or manual balance adjustment</p>
             </div>
           </div>
@@ -462,7 +458,7 @@
               <i class="fas fa-exchange-alt text-white"></i>
             </div>
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0">Bin-to-Bin Stock Transfer</h5>
+              <h5 class="font-weight-bold text-white mb-0">Bin-to-Bin Stock Transfer</h5>
               <p class="small text-white-50 mb-0 mt-0.5">Relocate inventory between warehouse storage locations and picking shelves</p>
             </div>
           </div>

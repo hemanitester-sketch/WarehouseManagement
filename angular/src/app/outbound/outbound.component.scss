@@ -1,4 +1,4 @@
-/* Outbound Fulfillment & Sales Orders Styles */
+﻿/* Outbound Fulfillment & Sales Orders Styles */
 
 .outbound-container {
   padding: 0.5rem 0 1.5rem 0;
@@ -428,6 +428,65 @@
   overflow-y: auto !important;
   padding: 1.25rem 1.4rem !important;
   max-height: none !important;
+
+  .wms-compact-label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+  }
+
+  .form-control {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+  }
+
+  .form-select {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 2.25rem 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+    text-overflow: ellipsis;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+  }
+
+  .btn-add-line {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 0.75rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 6px;
+  }
 }
 
 .outbound-drawer-footer {
@@ -512,6 +571,13 @@ select,
     outline: none !important;
   }
 
+  &.select-active {
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+    font-weight: 600 !important;
+    background-color: #eff6ff !important;
+  }
+
   option {
     background-color: #ffffff;
     color: #1e293b;
@@ -521,7 +587,7 @@ select,
     &[selected],
     &:active,
     &.active {
-      background: #eff6ff !important;
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
       background-color: #eff6ff !important;
       color: #1d4ed8 !important;
       font-weight: 600 !important;
@@ -530,7 +596,7 @@ select,
 
     &:hover,
     &:focus {
-      background: #eff6ff !important;
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
       background-color: #eff6ff !important;
       color: #1d4ed8 !important;
       font-weight: 600 !important;

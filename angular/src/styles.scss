@@ -76,6 +76,80 @@ input[type="radio"],
   }
 }
 
+/* ==========================================================================
+   Global Form Switch / Toggle Styling - WMS Signature Royal Blue (#2563eb)
+   Overrides ABP LeptonX / Bootstrap Pink (#f72585) Everywhere in App
+   ========================================================================== */
+.form-switch,
+.form-check.form-switch,
+.custom-switch {
+  cursor: pointer;
+
+  .form-check-input,
+  input[type="checkbox"][role="switch"],
+  input[type="checkbox"].form-check-input {
+    cursor: pointer;
+    background-color: #cbd5e1;
+    border-color: #94a3b8;
+    transition: background-position 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+
+    &:hover {
+      border-color: #2563eb !important;
+    }
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25) !important;
+      outline: none !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+    }
+
+    &:checked {
+      background-color: #2563eb !important;
+      border-color: #2563eb !important;
+      background-position: right center !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15) !important;
+
+      &:focus {
+        border-color: #1d4ed8 !important;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.3) !important;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.55 !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .form-check-label {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+
+/* Specific Direct Override for form-check-input with role="switch" or inside .form-switch */
+.form-check-input[role="switch"],
+.form-switch .form-check-input,
+.form-switch input[type="checkbox"],
+input[type="checkbox"].form-check-input.category-switch {
+  accent-color: #2563eb !important;
+
+  &:checked {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    background-position: right center !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  }
+
+  &:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25) !important;
+  }
+}
+
 /* Global Select & Dropdown Option Styling - Modern Soft Blue Hover & Active */
 select,
 .form-select {
@@ -107,7 +181,7 @@ select,
     &[selected],
     &:active,
     &.active {
-      background: #eff6ff !important;
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
       background-color: #eff6ff !important;
       color: #1d4ed8 !important;
       font-weight: 600 !important;
@@ -116,7 +190,7 @@ select,
 
     &:hover,
     &:focus {
-      background: #eff6ff !important;
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
       background-color: #eff6ff !important;
       color: #1d4ed8 !important;
       font-weight: 600 !important;
@@ -124,6 +198,7 @@ select,
     }
   }
 
+  &.select-active,
   &.filter-active {
     border-color: #2563eb !important;
     color: #1d4ed8 !important;
@@ -1137,7 +1212,7 @@ body {
   background:white;
   color: #595959 !important;
   padding: 0.9rem 1.4rem !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-bottom: 1px solid #cbd5e1 !important;
 
   &.wms-header-zone {
     background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;

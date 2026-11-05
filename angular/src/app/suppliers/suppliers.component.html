@@ -11,10 +11,11 @@
       </p>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" style="height: 32px; width: 34px;" (click)="loadSuppliers()" title="Refresh List">
+      <button class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+        style="height: 32px; width: 34px;" (click)="loadSuppliers()" title="Refresh List">
         <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
       </button>
-      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateDrawer()">
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openCreateDrawer()">
         <i class="fas fa-plus pe-1"></i>
         <span>Register New Supplier</span>
       </button>
@@ -28,7 +29,7 @@
         <i class="bi bi-shop"></i>
       </div>
       <div class="kpi-details">
-        <div class="font-weight-bold text-dark kpi-value-compact">{{ totalSuppliersCount }}</div>        
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ totalSuppliersCount }}</div>
         <span class="kpi-label">Total Suppliers</span>
         <span class="kpi-subtext">Registered in WMS</span>
       </div>
@@ -39,8 +40,8 @@
         <i class="bi bi-check-circle"></i>
       </div>
       <div class="kpi-details">
-         <div class="font-weight-bold text-dark kpi-value-compact">{{ activeSuppliersCount }}</div>   
-        
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ activeSuppliersCount }}</div>
+
         <span class="kpi-label">Active Vendors</span>
         <span class="kpi-subtext">Ready for Inbound POs</span>
       </div>
@@ -51,7 +52,7 @@
         <i class="bi bi-file-earmark-check"></i>
       </div>
       <div class="kpi-details">
-          <div class="font-weight-bold text-dark kpi-value-compact">{{ gstRegisteredCount }}</div> 
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ gstRegisteredCount }}</div>
         <span class="kpi-label">GST / Tax Compliant</span>
         <span class="kpi-subtext">Verified GSTIN registered</span>
       </div>
@@ -61,8 +62,8 @@
       <div class="kpi-icon-wrap bg-orange-soft text-warning">
         <i class="bi bi-pause-circle"></i>
       </div>
-      <div class="kpi-details">        
-          <div class="font-weight-bold text-dark kpi-value-compact">{{ inactiveSuppliersCount }}</div> 
+      <div class="kpi-details">
+        <div class="font-weight-bold text-dark kpi-value-compact">{{ inactiveSuppliersCount }}</div>
         <span class="kpi-label">Inactive / On Hold</span>
         <span class="kpi-subtext">Temporarily suspended</span>
       </div>
@@ -79,24 +80,16 @@
             <span class="input-group-text bg-white border-end-0">
               <i class="fas fa-search text-muted"></i>
             </span>
-            <input
-              type="text"
-              class="form-control border-start-0 ps-0"
-              placeholder="Search by code, supplier, contact, phone, GSTIN, city..."
-              [(ngModel)]="searchQuery"
-              (ngModelChange)="applyFilters()"
-            />
+            <input type="text" class="form-control border-start-0 ps-0"
+              placeholder="Search by code, supplier, contact, phone, GSTIN, city..." [(ngModel)]="searchQuery"
+              (ngModelChange)="applyFilters()" />
           </div>
         </div>
 
         <!-- Status Filter -->
         <div class="col-6 col-md-2">
-          <select
-            class="form-select form-select-sm"
-            [class.filter-active]="selectedStatusFilter !== 'all'"
-            [(ngModel)]="selectedStatusFilter"
-            (ngModelChange)="applyFilters()"
-          >
+          <select class="form-select form-select-sm" [class.filter-active]="selectedStatusFilter !== 'all'"
+            [(ngModel)]="selectedStatusFilter" (ngModelChange)="applyFilters()">
             <option value="all">All Statuses</option>
             <option value="active">Active Only</option>
             <option value="inactive">Inactive Only</option>
@@ -105,12 +98,8 @@
 
         <!-- City Filter -->
         <div class="col-6 col-md-2" *ngIf="availableCities.length > 0">
-          <select
-            class="form-select form-select-sm"
-            [class.filter-active]="selectedCityFilter !== 'all'"
-            [(ngModel)]="selectedCityFilter"
-            (ngModelChange)="applyFilters()"
-          >
+          <select class="form-select form-select-sm" [class.filter-active]="selectedCityFilter !== 'all'"
+            [(ngModel)]="selectedCityFilter" (ngModelChange)="applyFilters()">
             <option value="all">All Cities</option>
             <option *ngFor="let city of availableCities" [value]="city">{{ city }}</option>
           </select>
@@ -118,12 +107,8 @@
 
         <!-- Payment Terms Filter -->
         <div class="col-6 col-md-3">
-          <select
-            class="form-select form-select-sm"
-            [class.filter-active]="selectedPaymentTermsFilter !== 'all'"
-            [(ngModel)]="selectedPaymentTermsFilter"
-            (ngModelChange)="applyFilters()"
-          >
+          <select class="form-select form-select-sm" [class.filter-active]="selectedPaymentTermsFilter !== 'all'"
+            [(ngModel)]="selectedPaymentTermsFilter" (ngModelChange)="applyFilters()">
             <option value="all">All Payment Terms</option>
             <option *ngFor="let terms of paymentTermsPresets" [value]="terms">{{ terms }}</option>
           </select>
@@ -132,7 +117,7 @@
         <!-- Reset Button -->
         <div class="col-6 col-md-1 text-md-end ms-auto">
           <button class="btn btn-outline-secondary btn-sm " (click)="resetFilters()" title="Reset all filters">
-            <i class="fas fa-undo-alt me-1"></i> 
+            <i class="fas fa-undo-alt me-1"></i>
           </button>
         </div>
       </div>
@@ -146,7 +131,7 @@
         <thead class="table-light">
           <tr>
             <th class="ps-3" style="width: 300px;">Code</th>
-            <th>Supplier</th>          
+            <th>Supplier</th>
             <th style="width: 190px;">Contact & Location</th>
             <th style="width: 120px;">Payment Terms</th>
             <th style="width: 80px;">Rating</th>
@@ -156,102 +141,108 @@
         </thead>
         <tbody>
           @if (isLoading) {
-            <tr>
-              <td colspan="8" class="text-center py-5">
-                <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
-                <span class="text-muted">Loading suppliers directory...</span>
-              </td>
-            </tr>
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+              <span class="text-muted">Loading suppliers directory...</span>
+            </td>
+          </tr>
           } @else if (filteredSuppliers.length === 0) {
-            <tr>
-              <td colspan="8" class="text-center py-5">
-                <div class="d-flex flex-column align-items-center justify-content-center text-center py-4">
-                  <div class="text-muted mb-2">
-                    <i class="fas fa-truck-loading fs-1 text-secondary opacity-50"></i>
-                  </div>
-                  <h6 class="mb-1 fw-bold text-dark">No suppliers found</h6>
-                  <p class="text-muted small mb-3">
-                    {{ searchQuery || selectedStatusFilter !== 'all' || selectedCityFilter !== 'all' || selectedPaymentTermsFilter !== 'all' ? 'Try adjusting your search filters.' : 'Get started by registering your first supplier.' }}
-                  </p>
-                  <button *ngIf="!searchQuery" class="btn btn-sm btn-wms-primary px-3" (click)="openCreateDrawer()">
-                    <i class="fas fa-plus me-1"></i> Register New Supplier
-                  </button>
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="d-flex flex-column align-items-center justify-content-center text-center py-4">
+                <div class="text-muted mb-2">
+                  <i class="fas fa-truck-loading fs-1 text-secondary opacity-50"></i>
                 </div>
-              </td>
-            </tr>
+                <h6 class="mb-1 fw-bold text-dark">No suppliers found</h6>
+                <p class="text-muted small mb-3">
+                  {{ searchQuery || selectedStatusFilter !== 'all' || selectedCityFilter !== 'all' ||
+                  selectedPaymentTermsFilter !== 'all' ? 'Try adjusting your search filters.' : 'Get started by
+                  registering your first supplier.' }}
+                </p>
+                <button *ngIf="!searchQuery" class="btn btn-sm btn-wms-primary px-3" (click)="openCreateDrawer()">
+                  <i class="fas fa-plus me-1"></i> Register New Supplier
+                </button>
+              </div>
+            </td>
+          </tr>
           } @else {
-            @for (supplier of paginatedSuppliers; track supplier.id) {
-              <tr>
-                <td class="ps-3">
-                  <span class="cat-code-text">{{ supplier.code }}</span>
-                </td>
-                <td>
-                  <span class="cat-name-text d-block text-truncate" [title]="supplier.name">{{ supplier.name }}</span>
-                  @if (supplier.taxNumber) {
-                    <span class="cat-desc-text text-muted text-truncate d-block" [title]="'GSTIN: ' + supplier.taxNumber" style="font-size: 0.68rem;">
-                      <i class="fas fa-shield-alt text-primary me-1" style="font-size: 0.65rem;"></i>GSTIN: {{ supplier.taxNumber }}
-                    </span>
-                  } @else {
-                    <span class="cat-desc-text text-muted text-truncate d-block" style="font-size: 0.68rem;">
-                      GSTIN: Not provided
-                    </span>
-                  }
-                </td>
-              
-                <td>
-                  <span class="cat-code-text d-block text-truncate" [title]="(supplier.phoneNumber ? supplier.phoneNumber + ' ' : '') + (supplier.email ? '| ' + supplier.email : '')">
-                    <i class="fas fa-phone-alt text-success me-1" style="font-size: 0.65rem;"></i>{{ supplier.phoneNumber || '—' }}
-                    <span *ngIf="supplier.email" class="text-muted ms-1" style="font-size: 0.68rem;">({{ supplier.email }})</span>
-                  </span>
-                  <span class="cat-desc-text text-muted d-block text-truncate" [title]="(supplier.city || '') + (supplier.state ? ', ' + supplier.state : '') + (supplier.postalCode ? ' - ' + supplier.postalCode : '')" style="font-size: 0.68rem;">
-                    <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 0.65rem;"></i>{{ supplier.city }}<span *ngIf="supplier.city && supplier.state">, </span>{{ supplier.state }}<span *ngIf="supplier.postalCode"> ({{ supplier.postalCode }})</span><span *ngIf="!supplier.city && !supplier.state">—</span>
-                  </span>
-                </td>
-                <td>
-                  <span class="cat-tier-main d-block text-truncate" [title]="supplier.paymentTerms || 'Net 30'">
-                    <i class="fas fa-credit-card text-muted me-1" style="font-size: 0.65rem;"></i>{{ supplier.paymentTerms || 'Net 30' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center gap-0.5" [title]="(supplier.rating || 5) + ' / 5 Stars'">
-                    @for (isFilled of getRatingArray(supplier.rating); track $index) {
-                      <i class="fas fa-star" [class.text-warning]="isFilled" [class.text-muted]="!isFilled" style="font-size: 0.65rem; opacity: 0.85;"></i>
-                    }
-                  </div>
-                </td>
-                <td>
-                  @if (supplier.isActive) {
-                    <span class="cat-status-badge active">
-                       Active
-                    </span>
-                  } @else {
-                    <span class="cat-status-badge inactive">
-                       Inactive
-                    </span>
-                  }
-                </td>
-                <td class="text-end pe-3">
-                  <div class="d-inline-flex align-items-center gap-1 justify-content-end">
-                    <button
-                      type="button"
-                      class="btn btn-table-action btn-edit"
-                      title="Edit Supplier"
-                      (click)="openEditDrawer(supplier)"
-                    >
-                      <i class="fas fa-pen"></i>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-table-action btn-delete"
-                      title="Delete Supplier"
-                      (click)="deleteSupplier(supplier)"
-                    >
-                      <i class="fas fa-trash-alt"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
+          @for (supplier of paginatedSuppliers; track supplier.id) {
+          <tr>
+            <td class="ps-3">
+              <span class="cat-code-text">{{ supplier.code }}</span>
+            </td>
+            <td>
+              <span class="cat-name-text d-block text-truncate" [title]="supplier.name">{{ supplier.name }}</span>
+              @if (supplier.taxNumber) {
+              <span class="cat-desc-text text-muted text-truncate d-block" [title]="'GSTIN: ' + supplier.taxNumber"
+                style="font-size: 0.68rem;">
+                <i class="fas fa-shield-alt text-primary me-1" style="font-size: 0.65rem;"></i>GSTIN: {{
+                supplier.taxNumber }}
+              </span>
+              } @else {
+              <span class="cat-desc-text text-muted text-truncate d-block" style="font-size: 0.68rem;">
+                GSTIN: Not provided
+              </span>
+              }
+            </td>
+
+            <td>
+              <span class="cat-code-text d-block text-truncate"
+                [title]="(supplier.phoneNumber ? supplier.phoneNumber + ' ' : '') + (supplier.email ? '| ' + supplier.email : '')">
+                <i class="fas fa-phone-alt text-success me-1" style="font-size: 0.65rem;"></i>{{ supplier.phoneNumber ||
+                '—' }}
+                <span *ngIf="supplier.email" class="text-muted ms-1" style="font-size: 0.68rem;">({{ supplier.email
+                  }})</span>
+              </span>
+              <span class="cat-desc-text text-muted d-block text-truncate"
+                [title]="(supplier.city || '') + (supplier.state ? ', ' + supplier.state : '') + (supplier.postalCode ? ' - ' + supplier.postalCode : '')"
+                style="font-size: 0.68rem;">
+                <i class="fas fa-map-marker-alt text-danger me-1" style="font-size: 0.65rem;"></i>{{ supplier.city
+                }}<span *ngIf="supplier.city && supplier.state">, </span>{{ supplier.state }}<span
+                  *ngIf="supplier.postalCode"> ({{ supplier.postalCode }})</span><span
+                  *ngIf="!supplier.city && !supplier.state">—</span>
+              </span>
+            </td>
+            <td>
+              <span class="cat-tier-main d-block text-truncate" [title]="supplier.paymentTerms || 'Net 30'">
+                <i class="fas fa-credit-card text-muted me-1" style="font-size: 0.65rem;"></i>{{ supplier.paymentTerms
+                || 'Net 30' }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-0.5" [title]="(supplier.rating || 5) + ' / 5 Stars'">
+                @for (isFilled of getRatingArray(supplier.rating); track $index) {
+                <i class="fas fa-star" [class.text-warning]="isFilled" [class.text-muted]="!isFilled"
+                  style="font-size: 0.65rem; opacity: 0.85;"></i>
+                }
+              </div>
+            </td>
+            <td>
+              @if (supplier.isActive) {
+              <span class="cat-status-badge active">
+                Active
+              </span>
+              } @else {
+              <span class="cat-status-badge inactive">
+                Inactive
+              </span>
+              }
+            </td>
+            <td class="text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                <button type="button" class="btn btn-table-action btn-edit" title="Edit Supplier"
+                  (click)="openEditDrawer(supplier)">
+                  <i class="fas fa-pen"></i>
+                </button>
+                <button type="button" class="btn btn-table-action btn-delete" title="Delete Supplier"
+                  (click)="deleteSupplier(supplier)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
           }
         </tbody>
       </table>
@@ -261,13 +252,14 @@
     <div class="wms-table-pagination d-flex flex-wrap justify-content-between align-items-center">
       <div class="d-flex align-items-center gap-2">
         <span class="pagination-info">
-          Showing <strong>{{ paginationStart }}</strong> - 
-          <strong>{{ paginationEnd }}</strong> 
+          Showing <strong>{{ paginationStart }}</strong> -
+          <strong>{{ paginationEnd }}</strong>
           of <strong>{{ filteredSuppliers.length }}</strong> suppliers
         </span>
         <div class="d-flex align-items-center gap-1 ms-2">
           <span class="pagination-info">Per page:</span>
-          <select class="form-select form-select-sm pagination-size-select" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+          <select class="form-select form-select-sm pagination-size-select" [ngModel]="pageSize"
+            (ngModelChange)="onPageSizeChange($event)">
             <option [value]="10">10</option>
             <option [value]="25">25</option>
             <option [value]="50">50</option>
@@ -296,16 +288,14 @@
 
   <div class="supplier-drawer-panel" [class.open]="isDrawerOpen">
     <!-- Drawer Header -->
-    <div class="drawer-header">
-      <div class="drawer-header-info">        
-        <h4 class="drawer-title">{{ drawerTitle }}</h4>
-        <p class="drawer-subtitle">
-          Configure verified business credentials, GST details, payment schedules & logistics contacts
-        </p>
+
+    <div class="modal-header wms-modal-header border-bottom py-3 px-4 border-bottom-1">
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          <h5 class="modal-title font-weight-bold mb-0 ">{{ drawerTitle }}</h5>
+        </div>
       </div>
-      <button class="btn-drawer-close" (click)="closeDrawer()" title="Close Drawer">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button type="button" class="btn-close" (click)="closeDrawer()" aria-label="Close"></button>
     </div>
 
     <!-- Drawer Body -->
@@ -321,12 +311,7 @@
             <label class="drawer-form-label">Supplier Code <span class="text-danger">*</span></label>
             <div class="input-icon-group">
               <i class="bi bi-upc-scan input-icon"></i>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="e.g. SUP-CIPLA-01"
-                [(ngModel)]="formModel.code"
-              />
+              <input type="text" class="form-control" placeholder="e.g. SUP-CIPLA-01" [(ngModel)]="formModel.code" />
             </div>
             <small class="form-hint">Unique alphanumeric vendor identifier</small>
           </div>
@@ -335,12 +320,8 @@
             <label class="drawer-form-label">Supplier / Company Name <span class="text-danger">*</span></label>
             <div class="input-icon-group">
               <i class="bi bi-buildings input-icon"></i>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="e.g. Cipla Pharma Ltd"
-                [(ngModel)]="formModel.name"
-              />
+              <input type="text" class="form-control" placeholder="e.g. Cipla Pharma Ltd"
+                [(ngModel)]="formModel.name" />
             </div>
             <small class="form-hint">Registered business entity name</small>
           </div>
@@ -349,12 +330,8 @@
             <label class="drawer-form-label">GSTIN / Tax Identification No.</label>
             <div class="input-icon-group">
               <i class="bi bi-file-earmark-ruled input-icon"></i>
-              <input
-                type="text"
-                class="form-control text-uppercase"
-                placeholder="e.g. 29AABCC1234F1Z5"
-                [(ngModel)]="formModel.taxNumber"
-              />
+              <input type="text" class="form-control text-uppercase" placeholder="e.g. 29AABCC1234F1Z5"
+                [(ngModel)]="formModel.taxNumber" />
             </div>
             <small class="form-hint">15-digit GSTIN or PAN / Tax identifier</small>
           </div>
@@ -387,12 +364,8 @@
             <label class="drawer-form-label">Key Contact Person</label>
             <div class="input-icon-group">
               <i class="bi bi-person input-icon"></i>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="e.g. Rajesh Kumar (Regional Sales Head)"
-                [(ngModel)]="formModel.contactPerson"
-              />
+              <input type="text" class="form-control" placeholder="e.g. Rajesh Kumar (Regional Sales Head)"
+                [(ngModel)]="formModel.contactPerson" />
             </div>
           </div>
 
@@ -400,12 +373,8 @@
             <label class="drawer-form-label">Contact Phone / Mobile</label>
             <div class="input-icon-group">
               <i class="bi bi-telephone input-icon"></i>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="e.g. +91 98765 43210"
-                [(ngModel)]="formModel.phoneNumber"
-              />
+              <input type="text" class="form-control" placeholder="e.g. +91 98765 43210"
+                [(ngModel)]="formModel.phoneNumber" />
             </div>
           </div>
 
@@ -413,12 +382,8 @@
             <label class="drawer-form-label">Email Address</label>
             <div class="input-icon-group">
               <i class="bi bi-envelope input-icon"></i>
-              <input
-                type="email"
-                class="form-control"
-                placeholder="e.g. orders@ciplapharma.com"
-                [(ngModel)]="formModel.email"
-              />
+              <input type="email" class="form-control" placeholder="e.g. orders@ciplapharma.com"
+                [(ngModel)]="formModel.email" />
             </div>
           </div>
         </div>
@@ -435,43 +400,24 @@
             <label class="drawer-form-label">Street Address / Facility Unit</label>
             <div class="input-icon-group">
               <i class="bi bi-signpost-2 input-icon"></i>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="e.g. Plot No. 45, Phase 2, Peenya Industrial Area"
-                [(ngModel)]="formModel.address"
-              />
+              <input type="text" class="form-control" placeholder="e.g. Plot No. 45, Phase 2, Peenya Industrial Area"
+                [(ngModel)]="formModel.address" />
             </div>
           </div>
 
           <div class="col-md-4">
             <label class="drawer-form-label">City</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g. Bengaluru"
-              [(ngModel)]="formModel.city"
-            />
+            <input type="text" class="form-control" placeholder="e.g. Bengaluru" [(ngModel)]="formModel.city" />
           </div>
 
           <div class="col-md-4">
             <label class="drawer-form-label">State</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g. Karnataka"
-              [(ngModel)]="formModel.state"
-            />
+            <input type="text" class="form-control" placeholder="e.g. Karnataka" [(ngModel)]="formModel.state" />
           </div>
 
           <div class="col-md-4">
             <label class="drawer-form-label">PIN / Postal Code</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g. 560058"
-              [(ngModel)]="formModel.postalCode"
-            />
+            <input type="text" class="form-control" placeholder="e.g. 560058" [(ngModel)]="formModel.postalCode" />
           </div>
         </div>
       </div>
@@ -494,12 +440,8 @@
             <label class="drawer-form-label">Supplier Status</label>
             <div class="status-toggle-wrapper">
               <div class="form-check form-switch custom-switch">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="supplierActiveSwitch"
-                  [(ngModel)]="formModel.isActive"
-                />
+                <input class="form-check-input" type="checkbox" id="supplierActiveSwitch"
+                  [(ngModel)]="formModel.isActive" />
                 <label class="form-check-label ms-2" for="supplierActiveSwitch">
                   <strong>{{ formModel.isActive ? 'Active Vendor' : 'Inactive / Suspended' }}</strong>
                   <span class="d-block text-muted small">
@@ -512,12 +454,9 @@
 
           <div class="col-md-12">
             <label class="drawer-form-label">Internal Procurement Notes</label>
-            <textarea
-              class="form-control"
-              rows="3"
+            <textarea class="form-control" rows="3"
               placeholder="Add vendor notes, preferred shipping terms, dock delivery instructions, or banking remarks..."
-              [(ngModel)]="formModel.notes"
-            ></textarea>
+              [(ngModel)]="formModel.notes"></textarea>
           </div>
         </div>
       </div>
@@ -536,4 +475,3 @@
     </div>
   </div>
 </div>
-

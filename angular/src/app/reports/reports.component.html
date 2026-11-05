@@ -86,7 +86,7 @@
       <!-- Export CSV Button -->
       <button
         type="button"
-        class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5 shadow-xs"
+        class="btn btn-outline-success btn-sm d-flex align-items-center gap-1 shadow-xs"
         (click)="exportToCsv()"
         title="Download CSV for Current View"
       >
@@ -97,7 +97,7 @@
       <!-- Print Report Button -->
       <button
         type="button"
-        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 shadow-xs"
+        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-xs"
         (click)="printReport()"
         title="Print or Save as PDF"
       >
@@ -108,7 +108,7 @@
       <!-- Refresh Button -->
       <button
         type="button"
-        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5"
+        class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
         (click)="loadActiveTabData()"
         [disabled]="isLoading"
         title="Refresh Data"
@@ -178,7 +178,7 @@
 
   <!-- Navigation Tab Bar Card (Matching Status Tabs Style) -->
   <div class="card border-0 shadow-sm rounded-3 mb-3 d-print-none">
-    <div class="card-body p-2.5">
+    <div class="card-body p-2">
       <div class="nav-tabs-wrapper d-flex align-items-center gap-1">
         <button
           type="button"
@@ -186,7 +186,7 @@
           [class.active]="activeTab === 'executive'"
           (click)="setTab('executive')"
         >
-          <i class="bi bi-speedometer2 me-1.5 text-primary"></i>Executive Overview
+          <i class="bi bi-speedometer2 me-1 text-primary"></i>Executive Overview
         </button>
         <button
           type="button"
@@ -194,7 +194,7 @@
           [class.active]="activeTab === 'aging'"
           (click)="setTab('aging')"
         >
-          <i class="bi bi-hourglass-split me-1.5 text-warning"></i>Stock Aging & FSN
+          <i class="bi bi-hourglass-split me-1 text-warning"></i>Stock Aging & FSN
         </button>
         <button
           type="button"
@@ -202,7 +202,7 @@
           [class.active]="activeTab === 'space'"
           (click)="setTab('space')"
         >
-          <i class="bi bi-building me-1.5 text-info"></i>Space & Utilization
+          <i class="bi bi-building me-1 text-info"></i>Space & Utilization
         </button>
         <button
           type="button"
@@ -210,7 +210,7 @@
           [class.active]="activeTab === 'inbound'"
           (click)="setTab('inbound')"
         >
-          <i class="bi bi-box-arrow-in-down me-1.5 text-success"></i>Inbound & Supplier SLA
+          <i class="bi bi-box-arrow-in-down me-1 text-success"></i>Inbound & Supplier SLA
         </button>
         <button
           type="button"
@@ -218,7 +218,7 @@
           [class.active]="activeTab === 'outbound'"
           (click)="setTab('outbound')"
         >
-          <i class="bi bi-send-check me-1.5 text-primary"></i>Outbound Fulfillment
+          <i class="bi bi-send-check me-1 text-primary"></i>Outbound Fulfillment
         </button>
         <button
           type="button"
@@ -226,7 +226,7 @@
           [class.active]="activeTab === 'quality'"
           (click)="setTab('quality')"
         >
-          <i class="bi bi-shield-shaded me-1.5 text-purple"></i>Audits & Reverse Logistics
+          <i class="bi bi-shield-shaded me-1 text-purple"></i>Audits & Reverse Logistics
         </button>
       </div>
     </div>
@@ -252,7 +252,7 @@
           <div class="card border-0 shadow-sm rounded-3 h-100">
             <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
               <h6 class="fw-bold mb-0 text-dark font-size-13">
-                <i class="bi bi-clock-history text-primary me-1.5"></i>Stock Aging Breakdown
+                <i class="bi bi-clock-history text-primary me-1"></i>Stock Aging Breakdown
               </h6>
               <span class="font-size-11 text-muted">Aging vs Inventory Value</span>
             </div>
@@ -343,7 +343,7 @@
           <div class="card border-0 shadow-sm rounded-3 h-100">
             <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
               <h6 class="fw-bold mb-0 text-dark font-size-13">
-                <i class="bi bi-speedometer text-purple me-1.5"></i>FSN Velocity & Queue Status
+                <i class="bi bi-speedometer text-purple me-1"></i>FSN Velocity & Queue Status
               </h6>
               <span class="font-size-11 text-muted">Movement Efficiency</span>
             </div>
@@ -373,8 +373,8 @@
               </div>
 
               <!-- Operational Queues -->
-              <span class="font-size-11 text-uppercase text-muted fw-bold d-block mb-1.5">Live Operational Queues</span>
-              <div class="d-flex flex-column gap-1.5 font-size-12">
+              <span class="font-size-11 text-uppercase text-muted fw-bold d-block mb-1">Live Operational Queues</span>
+              <div class="d-flex flex-column gap-1 font-size-12">
                 <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
                   <span><i class="bi bi-truck text-primary me-2"></i>Pending Inbound Receipts</span>
                   <span class="badge bg-primary font-size-10">{{ kpis.pendingInboundOrders }} Orders</span>
@@ -397,7 +397,7 @@
       <div class="card reports-table-card products-table-card overflow-hidden mb-3">
         <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
           <h6 class="fw-bold mb-0 text-dark font-size-13">
-            <i class="bi bi-star text-warning me-1.5"></i>Top High-Value Inventory Holdings
+            <i class="bi bi-star text-warning me-1"></i>Top High-Value Inventory Holdings
           </h6>
           <button type="button" class="btn btn-link btn-sm text-primary p-0 font-size-12" (click)="setTab('aging')">
             View Complete Aging Report <i class="bi bi-arrow-right"></i>
@@ -468,7 +468,7 @@
     <div *ngIf="activeTab === 'aging'">
       <div class="card reports-table-card products-table-card overflow-hidden mb-3">
         <!-- Filter Toolbar -->
-        <div class="card-header bg-white border-bottom p-2.5">
+        <div class="card-header bg-white border-bottom p-2">
           <div class="row g-2 align-items-center">
             <div class="col-12 col-md-5">
               <div class="input-group input-group-sm">
@@ -573,7 +573,7 @@
           <div class="card border-0 shadow-sm rounded-3 h-100">
             <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
               <div>
-                <span class="badge bg-primary font-size-10 me-1.5">{{ wh.warehouseCode }}</span>
+                <span class="badge bg-primary font-size-10 me-1">{{ wh.warehouseCode }}</span>
                 <h6 class="fw-bold text-dark d-inline mb-0 font-size-13">{{ wh.warehouseName }}</h6>
                 <span *ngIf="wh.city" class="text-muted font-size-11 ms-2"><i class="bi bi-geo-alt"></i> {{ wh.city }}</span>
               </div>
@@ -624,8 +624,8 @@
 
               <!-- Zone Breakdown List -->
               <div *ngIf="wh.zoneBreakdown.length > 0">
-                <span class="font-size-11 text-uppercase text-muted fw-bold d-block mb-1.5">Zone-Level Occupancy</span>
-                <div class="d-flex flex-column gap-1.5">
+                <span class="font-size-11 text-uppercase text-muted fw-bold d-block mb-1">Zone-Level Occupancy</span>
+                <div class="d-flex flex-column gap-1">
                   <div *ngFor="let z of wh.zoneBreakdown" class="p-2 border rounded bg-white font-size-11 d-flex justify-content-between align-items-center">
                     <div>
                       <strong class="text-dark">{{ z.zoneName }}</strong>
@@ -651,7 +651,7 @@
     <!-- ========================================== -->
     <div *ngIf="activeTab === 'inbound'">
       <div class="card reports-table-card products-table-card overflow-hidden mb-3">
-        <div class="card-header bg-white border-bottom p-2.5">
+        <div class="card-header bg-white border-bottom p-2">
           <div class="row g-2 align-items-center">
             <div class="col-12 col-md-5">
               <div class="input-group input-group-sm">
@@ -760,7 +760,7 @@
       <div class="card reports-table-card products-table-card overflow-hidden mb-3">
         <div class="card-header bg-white border-bottom p-3">
           <h6 class="fw-bold mb-0 text-dark font-size-13">
-            <i class="bi bi-people text-primary me-1.5"></i>Top B2B Customer Fulfillment Volume
+            <i class="bi bi-people text-primary me-1"></i>Top B2B Customer Fulfillment Volume
           </h6>
         </div>
         <div class="table-responsive">
@@ -802,7 +802,7 @@
           <div class="card border-0 shadow-sm rounded-3 h-100">
             <div class="card-header bg-white border-bottom p-3">
               <h6 class="fw-bold mb-0 text-dark font-size-13">
-                <i class="bi bi-clipboard-check text-success me-1.5"></i>Cycle Count & Stock Audit Accuracy
+                <i class="bi bi-clipboard-check text-success me-1"></i>Cycle Count & Stock Audit Accuracy
               </h6>
             </div>
             <div class="card-body p-3">
@@ -833,7 +833,7 @@
                   {{ qualityReport.netVarianceUnits }} Units
                 </span>
               </div>
-              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1.5">
+              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1">
                 <span>Net Cost Impact:</span>
                 <span class="fw-bold" [class.text-danger]="qualityReport.netVarianceCostValue < 0" [class.text-success]="qualityReport.netVarianceCostValue >= 0">
                   ₹{{ qualityReport.netVarianceCostValue | number: '1.2-2' }}
@@ -848,7 +848,7 @@
           <div class="card border-0 shadow-sm rounded-3 h-100">
             <div class="card-header bg-white border-bottom p-3">
               <h6 class="fw-bold mb-0 text-dark font-size-13">
-                <i class="bi bi-arrow-return-left text-primary me-1.5"></i>Reverse Logistics (RMA) & Restock Rate
+                <i class="bi bi-arrow-return-left text-primary me-1"></i>Reverse Logistics (RMA) & Restock Rate
               </h6>
             </div>
             <div class="card-body p-3">
@@ -877,11 +877,11 @@
                 <span>Refund / Credit Issued:</span>
                 <span class="fw-bold text-dark">₹{{ qualityReport.totalRefundValue | number: '1.2-2' }}</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1.5">
+              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1">
                 <span>Restocked to Shelves:</span>
                 <span class="fw-bold text-success">{{ qualityReport.totalRestockedUnits }} Units</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1.5">
+              <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded font-size-12 mt-1">
                 <span>Scrapped & Written-off:</span>
                 <span class="fw-bold text-danger">{{ qualityReport.totalScrappedUnits }} Units</span>
               </div>
@@ -894,7 +894,7 @@
       <div class="card reports-table-card products-table-card overflow-hidden mb-3">
         <div class="card-header bg-white border-bottom p-3">
           <h6 class="fw-bold mb-0 text-dark font-size-13">
-            <i class="bi bi-pie-chart text-warning me-1.5"></i>Return Reason & Defect Analysis
+            <i class="bi bi-pie-chart text-warning me-1"></i>Return Reason & Defect Analysis
           </h6>
         </div>
         <div class="table-responsive">

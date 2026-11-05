@@ -12,12 +12,12 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" (click)="fetchAudits(); fetchMetrics()" title="Refresh live audit data">
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="fetchAudits(); fetchMetrics()" title="Refresh live audit data">
         <i class="bi bi-arrow-clockwise" [class.spin]="isLoading"></i>
         <span>Refresh</span>
       </button>
 
-      <button class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1.5" (click)="openCreateModal()">
+      <button class="btn btn-sm btn-wms-primary d-flex align-items-center gap-1" (click)="openCreateModal()">
         <i class="bi bi-plus-circle"></i>
         <span>Plan Cycle Count</span>
       </button>
@@ -83,9 +83,9 @@
 
   <!-- 2. Controls & Status Tabs Card -->
   <div class="card border-0 shadow-sm rounded-3 mb-3">
-    <div class="card-body p-2.5">
+    <div class="card-body p-2">
       <!-- Status Tabs Row -->
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom pb-2 mb-2.5">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom pb-2 mb-2">
         <div class="nav-tabs-wrapper d-flex align-items-center gap-1">
           <button class="status-tab-btn" [class.active]="selectedStatusTab === 'ALL'" (click)="setTab('ALL')">
             All Audits <span class="tab-badge">{{ metrics.totalAudits }}</span>
@@ -355,7 +355,7 @@
       <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content shadow-lg border-0 rounded-3">
           <!-- Header -->
-          <div class="modal-header wms-modal-header bg-primary text-white py-2.5 px-3">
+          <div class="modal-header wms-modal-header bg-primary text-white py-2 px-3">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-clipboard-check fs-5 text-white" style="color: #ffffff !important;"></i>
               <div>
@@ -370,7 +370,7 @@
           <div class="modal-body p-3">
             <!-- Facility, Method & Date Section -->
             <div class="transfer-section-box p-3 mb-3">
-              <div class="section-audit-badge mb-2.5">
+              <div class="section-audit-badge mb-2">
                 <i class="bi bi-building-gear me-1"></i> AUDIT SCOPE & SCHEDULING
               </div>
               <div class="row g-2">
@@ -452,7 +452,7 @@
 
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5"
+                  class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
                   (click)="loadLiveSnapshotPreview()"
                   [disabled]="isLoadingSnapshot || !newAuditModel.warehouseId"
                 >
@@ -461,14 +461,14 @@
                 </button>
               </div>
 
-              <div class="mt-2.5">
+              <div class="mt-2">
                 <label class="form-label font-size-11 text-muted mb-0.5">Audit Instructions / Reference Notes</label>
                 <input type="text" class="form-control form-control-sm" placeholder="e.g. End of Month Q3 Physical Verification, High-Value Electronics focus" [(ngModel)]="newAuditModel.notes" />
               </div>
             </div>
 
             <!-- Snapshot Items Preview Table -->
-            <div class="d-flex justify-content-between align-items-center mb-1.5">
+            <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="fw-bold text-dark font-size-12">
                 <i class="bi bi-list-check me-1 text-primary"></i>INVENTORY SNAPSHOT LINES ({{ previewSnapshotItems.length }} lines ready for counting)
               </span>
@@ -560,7 +560,7 @@
           <!-- Body -->
           <div class="modal-body p-3 bg-light">
             <!-- Search & Filter Ribbon -->
-            <div class="card p-2.5 mb-2.5 border-0 shadow-sm">
+            <div class="card p-2 mb-2 border-0 shadow-sm">
               <div class="row g-2 align-items-center">
                 <div class="col-12 col-md-5">
                   <div class="input-group input-group-sm">
@@ -726,7 +726,7 @@
       <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content shadow-lg border-0 rounded-3">
           <!-- Header -->
-          <div class="modal-header wms-modal-header bg-warning text-dark py-2.5 px-3">
+          <div class="modal-header wms-modal-header bg-warning text-dark py-2 px-3 border-bottom-1">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-shield-check fs-5"></i>
               <div>

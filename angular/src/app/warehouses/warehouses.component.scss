@@ -1,4 +1,4 @@
-/* Right Slide-Out Drawer Modal (Full Height, Matching Faculty Module) */
+﻿/* Right Slide-Out Drawer Modal (Full Height, Matching Faculty Module) */
 .wh-drawer-modal {
   background: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(3px) !important;
@@ -66,6 +66,43 @@
   overflow-y: auto !important;
   padding: 1.2rem 1.35rem !important;
   max-height: none !important;
+
+  .form-control {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+  }
+
+  .form-select {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 2.25rem 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+    text-overflow: ellipsis;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+  }
 }
 
 .wh-drawer-footer {

@@ -1,4 +1,4 @@
-<div class="container-fluid products-container">
+﻿<div class="container-fluid products-container">
   <!-- Page Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
@@ -11,7 +11,7 @@
       </p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1.5" (click)="openCreateWarehouseModal()">
+      <button class="btn btn-wms-primary btn-sm d-flex align-items-center gap-1" (click)="openCreateWarehouseModal()">
         <i class="fas fa-plus pe-1"></i>
         <span>Add Warehouse</span>
       </button>
@@ -75,7 +75,7 @@
   </div>
 
   <!-- Quick Filter Pills / Status Tabs -->
-  <div class="d-flex align-items-center gap-1 mb-2.5 overflow-x-auto pb-1 flex-nowrap">
+  <div class="d-flex align-items-center gap-1 mb-2 overflow-x-auto pb-1 flex-nowrap">
     <button type="button" class="wh-filter-tab" [class.active]="selectedStatusTab === 'all'"
       (click)="selectedStatusTab = 'all'; applyFilter()">
       All Facilities ({{ warehouses.length }})
@@ -220,7 +220,7 @@
         </div>
 
         <!-- Estimated Storage Capacity Meter -->
-        <div class="wh-capacity-section mb-2.5">
+        <div class="wh-capacity-section mb-2">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="wh-cap-label">
               <i class="fas fa-chart-pie me-1 text-primary"></i>Estimated Storage Utilization
@@ -236,11 +236,11 @@
         <!-- Specs Row: Floor Area on Left, Facility Manager on Right -->
         <div class="wh-card-bottom-row pt-2 mb-2 border-0">
           <div class="wh-specs-group">
-            <div class="wh-stat-box py-1.5 px-2">
+            <div class="wh-stat-box py-1 px-2">
               <span class="stat-label">Total Floor Area</span>
               <div class="stat-val" style="font-size: 0.8rem;">{{ wh.totalAreaSqFt | number }} sq.ft</div>
             </div>
-            <div class="wh-stat-box py-1.5 px-2">
+            <div class="wh-stat-box py-1 px-2">
               <span class="stat-label">Facility Manager</span>
               <div class="stat-val" [title]="wh.managerName || wh.contactPerson || 'Facility Head'"
                 style="font-size: 0.8rem;">
@@ -455,19 +455,19 @@
           <ul class="nav nav-pills wms-modal-tabs">
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'zones'" (click)="activeDetailTab = 'zones'">
-                <i class="fas fa-th-large me-1.5"></i>Storage Zones
-                <span class="badge ms-1.5">{{ selectedWarehouseZones.length }}</span>
+                <i class="fas fa-th-large me-1"></i>Storage Zones
+                <span class="badge ms-1">{{ selectedWarehouseZones.length }}</span>
               </button>
             </li>
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'bins'" (click)="activeDetailTab = 'bins'">
-                <i class="fas fa-barcode me-1.5"></i>Barcode Bins & Shelves
-                <span class="badge ms-1.5">{{ selectedWarehouseLocations.length }}</span>
+                <i class="fas fa-barcode me-1"></i>Barcode Bins & Shelves
+                <span class="badge ms-1">{{ selectedWarehouseLocations.length }}</span>
               </button>
             </li>
             <li class="nav-item">
               <button class="nav-link" [class.active]="activeDetailTab === 'guide'" (click)="activeDetailTab = 'guide'">
-                <i class="fas fa-sitemap me-1.5"></i>Facility Hierarchy Guide
+                <i class="fas fa-sitemap me-1"></i>Facility Hierarchy Guide
               </button>
             </li>
           </ul>
@@ -686,7 +686,7 @@
                     <tbody>
                       <tr *ngFor="let loc of paginatedLocations">
                         <td class="ps-3">
-                          <div class="d-flex align-items-center gap-1.5">
+                          <div class="d-flex align-items-center gap-1">
                             <span class="font-monospace text-primary fw-bold" style="font-size: 0.75rem;">
                               <i class="fas fa-barcode me-1 text-secondary"></i>{{ loc.barcode }}
                             </span>
@@ -719,7 +719,7 @@
                           <span *ngIf="!loc.isPickFace" class="text-muted small">Reserve</span>
                         </td>
                         <td class="text-end pe-3">
-                          <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1.5"
+                          <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1"
                             (click)="deleteLocation(loc)" title="Delete Bin" style="font-size: 0.7rem; height: 26px;">
                             <i class="fas fa-trash-alt"></i>
                           </button>
@@ -863,20 +863,12 @@
       <div class="modal-content wh-drawer-content">
 
         <!-- Header -->
-        <div class="modal-header wh-drawer-header text-white d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <div
-              class="wh-drawer-icon-box bg-white text-primary rounded-circle d-flex align-items-center justify-content-center">
-              <i class="fas fa-warehouse"></i>
-            </div>
+        <div class="modal-header wms-modal-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">            
             <div>
-              <h5 class="modal-title font-weight-bold text-white mb-0" style="font-size: 0.95rem;">
+              <h5 class="modal-title font-weight-bold  mb-0" style="font-size: 0.95rem;">
                 {{ editingWarehouseId ? 'Edit Warehouse Facility' : 'Register New Warehouse' }}
-              </h5>
-              <p class="small text-white-50 mb-0" style="font-size: 0.7rem;">
-                {{ editingWarehouseId ? 'Update facility parameters, floor capacity & manager' : 'Configure warehouse
-                identity, floor area & regional address' }}
-              </p>
+              </h5>              
             </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="isCreateWarehouseModalOpen = false"></button>
@@ -884,88 +876,55 @@
 
         <div class="modal-body wh-drawer-body" style="background-color: #ffffff;">
           <!-- Section 1: Identification & Classification -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-id-card text-primary"></i>
-            <span>Warehouse Identification</span>
-          </div>
+        
           <div class="row g-2 mb-2">
             <div class="col-md-4">
               <label class="wms-compact-label">Warehouse Code *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-barcode input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. WH-BLR-02" [(ngModel)]="newWarehouse.code" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. WH-BLR-02" [(ngModel)]="newWarehouse.code" />
             </div>
             <div class="col-md-8">
               <label class="wms-compact-label">Warehouse Name *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-building input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Bengaluru East Fulfillment Center"
-                  [(ngModel)]="newWarehouse.name" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Bengaluru East Fulfillment Center"
+                [(ngModel)]="newWarehouse.name" />
             </div>
             <div class="col-md-6">
               <label class="wms-compact-label">Warehouse Type</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-cubes input-icon"></i>
-                <select class="form-select" [(ngModel)]="newWarehouse.type">
-                  <option *ngFor="let t of warehouseTypes" [ngValue]="t.value">{{ t.key }}</option>
-                </select>
-              </div>
+              <select class="form-select" [(ngModel)]="newWarehouse.type">
+                <option *ngFor="let t of warehouseTypes" [ngValue]="t.value">{{ t.key }}</option>
+              </select>
             </div>
             <div class="col-md-6">
               <label class="wms-compact-label">Total Floor Area (Sq. Ft) *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-ruler-combined input-icon"></i>
-                <input type="number" class="form-control" placeholder="50000"
-                  [(ngModel)]="newWarehouse.totalAreaSqFt" />
-              </div>
+              <input type="number" class="form-control" placeholder="50000"
+                [(ngModel)]="newWarehouse.totalAreaSqFt" />
             </div>
           </div>
 
           <!-- Section 2: Physical Address -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-map-marker-alt text-danger"></i>
-            <span>Geographic Location</span>
-          </div>
+          
           <div class="row g-2 mb-2">
             <div class="col-12">
               <label class="wms-compact-label">Street Address *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-road input-icon"></i>
-                <input type="text" class="form-control" placeholder="Plot / Sector / Road / Industrial Area"
-                  [(ngModel)]="newWarehouse.address" />
-              </div>
+              <input type="text" class="form-control" placeholder="Plot / Sector / Road / Industrial Area"
+                [(ngModel)]="newWarehouse.address" />
             </div>
             <div class="col-md-4">
               <label class="wms-compact-label">City *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-city input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Bengaluru" [(ngModel)]="newWarehouse.city" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Bengaluru" [(ngModel)]="newWarehouse.city" />
             </div>
             <div class="col-md-4">
               <label class="wms-compact-label">State *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-map input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. Karnataka" [(ngModel)]="newWarehouse.state" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. Karnataka" [(ngModel)]="newWarehouse.state" />
             </div>
             <div class="col-md-4">
               <label class="wms-compact-label">Postal Code *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-mail-bulk input-icon"></i>
-                <input type="text" class="form-control" placeholder="e.g. 560001"
-                  [(ngModel)]="newWarehouse.postalCode" />
-              </div>
+              <input type="text" class="form-control" placeholder="e.g. 560001"
+                [(ngModel)]="newWarehouse.postalCode" />
             </div>
           </div>
 
           <!-- Section 3: Operations & Contact -->
-          <div class="wms-form-section-title">
-            <i class="fas fa-user-tie text-success"></i>
-            <span>Operations & Contact Person</span>
-          </div>
+        
           <div class="row g-2">
             <!-- Full Width Facility Manager Dropdown -->
             <div class="col-12">
@@ -976,16 +935,13 @@
                   <i class="fas fa-external-link-alt me-1"></i>+ Manage Faculty
                 </a>
               </div>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-user-tie input-icon"></i>
-                <select class="form-select manager-select" [(ngModel)]="newWarehouse.managerId"
-                  (ngModelChange)="onManagerSelected($event)">
-                  <option [ngValue]="null">-- Select Facility Manager --</option>
-                  <option *ngFor="let fac of facultyLookups" [ngValue]="fac.id">
-                    {{ fac.fullName }} ({{ fac.designation }})
-                  </option>
-                </select>
-              </div>
+              <select class="form-select manager-select" [(ngModel)]="newWarehouse.managerId"
+                (ngModelChange)="onManagerSelected($event)">
+                <option [ngValue]="null">-- Select Facility Manager --</option>
+                <option *ngFor="let fac of facultyLookups" [ngValue]="fac.id">
+                  {{ fac.fullName }} ({{ fac.designation }})
+                </option>
+              </select>
               <div class="mt-1" *ngIf="!newWarehouse.managerId">
                 <input type="text" class="form-control form-control-sm"
                   placeholder="Or enter name manually if not in staff directory (e.g. Rahul Sharma)" [(ngModel)]="newWarehouse.contactPerson" />
@@ -1004,30 +960,24 @@
             <!-- Phone and Email side by side -->
             <div class="col-md-6">
               <label class="wms-compact-label">Contact Phone *</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-phone-alt input-icon"></i>
-                <input type="text" class="form-control" placeholder="+91 98765 43210"
-                  [(ngModel)]="newWarehouse.contactPhone" />
-              </div>
+              <input type="text" class="form-control" placeholder="+91 98765 43210"
+                [(ngModel)]="newWarehouse.contactPhone" />
             </div>
 
             <div class="col-md-6">
               <label class="wms-compact-label">Contact Email</label>
-              <div class="wms-input-icon-group">
-                <i class="fas fa-envelope input-icon"></i>
-                <input type="email" class="form-control" placeholder="operations@wareflow.io"
-                  [(ngModel)]="newWarehouse.contactEmail" />
-              </div>
+              <input type="email" class="form-control" placeholder="operations@wareflow.io"
+                [(ngModel)]="newWarehouse.contactEmail" />
             </div>
           </div>
         </div>
 
         <!-- Drawer Footer -->
-        <div class="modal-footer wh-drawer-footer d-flex justify-content-between align-items-center px-4 py-2.5">
+        <div class="modal-footer wh-drawer-footer d-flex justify-content-between align-items-center px-4 py-2">
           <button type="button" class="btn btn-category-cancel" (click)="isCreateWarehouseModalOpen = false">
             Cancel
           </button>
-          <button type="button" class="btn btn-category-save d-flex align-items-center gap-1.5"
+          <button type="button" class="btn btn-category-save d-flex align-items-center gap-1"
             [disabled]="!newWarehouse.code || !newWarehouse.name || !newWarehouse.address || !newWarehouse.city || !newWarehouse.state || !newWarehouse.postalCode || (newWarehouse.totalAreaSqFt || 0) <= 0"
             (click)="saveWarehouse()">
 
@@ -1045,7 +995,7 @@
       <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
 
         <!-- Header (Sky Blue Gradient - NO BLACK) -->
-        <div class="wms-modal-header wms-header-zone d-flex justify-content-between align-items-center">
+        <div class="wms-modal-header wms-header-zone d-flex justify-content-between align-items-center border-bottom-1">
           <div class="d-flex align-items-center gap-3">
             <div class="wms-modal-icon-badge">
               <i class="fas fa-th-large text-white"></i>

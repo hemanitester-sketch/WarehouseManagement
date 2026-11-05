@@ -1516,3 +1516,145 @@
     transform: translateY(0);
   }
 }
+
+/* Bulk Price Tool Input Group - Normal Border, 0 Radius on number input */
+.bulk-price-group {
+  .input-group-text {
+    border-top-left-radius: 4px !important;
+    border-bottom-left-radius: 4px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: none !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .form-control {
+    border-radius: 0 !important;
+    border: 1px solid #cbd5e1 !important;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: none !important;
+      z-index: 2;
+    }
+  }
+
+  .btn {
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+}
+
+/* Barcode Modals (Lookup & Print Center) - Enterprise WMS Theme */
+.barcode-lookup-modal,
+.label-print-modal {
+  .modal-content {
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2) !important;
+  }
+}
+
+.barcode-modal-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+  border-bottom: none !important;
+
+  .modal-title {
+    color: #ffffff !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+  }
+
+  .barcode-header-icon-box {
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+}
+
+.barcode-entity-summary-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.barcode-detail-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  padding: 14px;
+}
+
+.barcode-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid #bfdbfe;
+}
+
+.barcode-mono-box {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.barcode-sku-box {
+  display: inline-block;
+  color: #1d4ed8;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: #f0f7ff;
+  border: 1px solid #dbeafe;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.barcode-variant-box {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.barcode-modal-btn-close {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+  }
+}
+

@@ -1,4 +1,4 @@
-/* Inbound Orders & PO Management Styles */
+﻿/* Inbound Orders & PO Management Styles */
 
 .inbound-container {
   padding: 0.5rem 0 1.5rem 0;
@@ -486,6 +486,109 @@
   overflow-y: auto !important;
   padding: 1.25rem 1.4rem !important;
   max-height: none !important;
+
+  .wms-compact-label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+  }
+
+  .form-control {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+
+    &:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    }
+  }
+
+  .form-select {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    padding: 0.35rem 2.25rem 0.35rem 0.65rem !important;
+    line-height: 1.4 !important;
+    background-color: #ffffff !important;
+    text-overflow: ellipsis;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+      border-color: #2563eb !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+    }
+
+    &:focus,
+    &:active,
+    &.active {
+      border-color: #2563eb !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14) !important;
+      outline: none !important;
+    }
+
+    &.select-active {
+      border-color: #2563eb !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      background-color: #eff6ff !important;
+    }
+
+    option {
+      background-color: #ffffff;
+      color: #1e293b;
+      padding: 6px 12px;
+
+      &:checked,
+      &[selected],
+      &:active,
+      &.active {
+        background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 600 !important;
+        -webkit-text-fill-color: #1d4ed8 !important;
+      }
+
+      &:hover,
+      &:focus {
+        background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        font-weight: 600 !important;
+        -webkit-text-fill-color: #1d4ed8 !important;
+      }
+    }
+  }
+
+  .input-group-trailing {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+  }
+
+  .btn-add-line {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 0.75rem !important;
+  }
 }
 
 .inbound-drawer-footer {
@@ -548,27 +651,11 @@
   }
 }
 
-/* PO Number Uniqueness Real-time Validation (Category Form Design) */
+/* PO Number Uniqueness Real-time Validation */
 .inbound-drawer-content {
   .input-group {
-    /* Leading Addon Box */
-    .input-group-text:first-child {
-      border-top-left-radius: 6px !important;
-      border-bottom-left-radius: 6px !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-      border-right: none !important;
-      background-color: #f8fafc !important;
-      border: 1px solid #cbd5e1 !important;
-      color: #2563eb !important;
-      font-size: 0.82rem;
-    }
-
     .form-control {
-      border-top-left-radius: 0 !important;
-      border-bottom-left-radius: 0 !important;
-      border-top-right-radius: 6px !important;
-      border-bottom-right-radius: 6px !important;
+      border-radius: 6px !important;
       background-color: #ffffff !important;
       color: #0f172a !important;
       border: 1px solid #cbd5e1 !important;
@@ -765,5 +852,133 @@
   white-space: normal !important;
 }
 
+/* Dedicated PO Drawer Lines Table (Compact & Proportional for 660px Drawer) */
+.po-drawer-lines-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em;
+    padding: 0.55rem 0.65rem !important;
+    text-transform: uppercase;
+    white-space: nowrap !important;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+
+    td {
+      border-bottom: 1px solid #edf2f7 !important;
+      padding: 0.55rem 0.65rem !important;
+      vertical-align: middle;
+      font-size: 0.76rem !important;
+      color: #334155 !important;
+      white-space: nowrap;
+    }
+
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  }
+
+  .col-drawer-line-product {
+    width: 42%;
+    white-space: normal;
+  }
+
+  .col-drawer-line-qty {
+    width: 14%;
+    text-align: right;
+  }
+
+  .col-drawer-line-price {
+    width: 18%;
+    text-align: right;
+  }
+
+  .col-drawer-line-subtotal {
+    width: 20%;
+    text-align: right;
+  }
+
+  .col-drawer-line-action {
+    width: 6%;
+    min-width: 36px;
+    text-align: center;
+  }
+}
 
 
+
+
+
+
+/* Scoped Dropdown Select & Option Active/Hover Styling (Matching WMS Theme) */
+:host ::ng-deep select,
+:host ::ng-deep .form-select,
+select,
+.form-select {
+  accent-color: #2563eb !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+  }
+
+  &:focus,
+  &:active,
+  &.active {
+    border-color: #2563eb !important;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.18) !important;
+    outline: none !important;
+  }
+
+  &.select-active {
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+    font-weight: 600 !important;
+    background-color: #eff6ff !important;
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 6px 12px;
+
+    &:checked,
+    &[selected],
+    &:active,
+    &.active {
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(0deg, #eff6ff 0%, #eff6ff 100%) !important;
+      background-color: #eff6ff !important;
+      color: #1d4ed8 !important;
+      font-weight: 600 !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+    }
+  }
+}

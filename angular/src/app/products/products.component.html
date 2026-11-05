@@ -1,4 +1,4 @@
-<div class="container-fluid products-container" appBarcodeScanner (barcodeScanned)="onBarcodeScanned($event)">
+﻿<div class="container-fluid products-container" appBarcodeScanner (barcodeScanned)="onBarcodeScanned($event)">
   <!-- Header -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
     <div>
@@ -898,22 +898,40 @@
               </div>
 
               <!-- Quick Bulk Price Bar -->
-              <div class="p-2 mb-2 bg-light rounded border d-flex align-items-center gap-2 flex-wrap">
-                <span class="small fw-semibold text-muted" style="font-size: 0.75rem;">
-                  <i class="fas fa-magic text-primary me-1"></i>Bulk Price Tool:
-                </span>
-                <div class="input-group input-group-sm" style="max-width: 190px;">
-                  <span class="input-group-text" style="font-size: 0.72rem;">Sell ₹</span>
-                  <input type="number" class="form-control" [(ngModel)]="bulkPriceInput" placeholder="Price" style="font-size: 0.74rem;" />
-                  <button class="btn btn-outline-primary" type="button" (click)="applyBulkPriceToPreview()" title="Set same price for all variants (e.g. T-shirts with same price for all colors)">Apply All</button>
+              <div class="py-1 px-3 mb-2 bg-light rounded-2 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                  <div class="d-flex align-items-center gap-1 text-secondary fw-semibold" style="font-size: 0.74rem;">
+                    <i class="fas fa-sliders-h text-primary"></i>
+                    <span class="text-primary">Bulk Price:</span>
+                  </div>
+
+                  <!-- Selling Price -->
+                  <div class="d-flex align-items-center gap-1">
+                    <span class="text-muted" style="font-size: 0.72rem;">Sell:</span>
+                    <div class="input-group input-group-sm bulk-price-group" style="width: 175px;">
+                      <span class="input-group-text bg-white px-1 text-muted" style="font-size: 0.72rem; height: 26px;">₹</span>
+                      <input type="number" class="form-control px-2 font-monospace" [(ngModel)]="bulkPriceInput" placeholder="Price" style="height: 26px; font-size: 0.74rem; border-radius: 0!important;" />
+                      <button class="btn btn-primary px-2" type="button" (click)="applyBulkPriceToPreview()" title="Set this selling price for all variants" style="height: 26px; font-size: 0.7rem; line-height: 1;">
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Cost Price -->
+                  <div class="d-flex align-items-center gap-1">
+                    <span class="text-muted" style="font-size: 0.72rem;">Cost:</span>
+                    <div class="input-group input-group-sm bulk-price-group" style="width: 175px;">
+                      <span class="input-group-text bg-white px-1 text-muted" style="font-size: 0.72rem; height: 26px;">₹</span>
+                      <input type="number" class="form-control px-2 font-monospace" [(ngModel)]="bulkCostInput" placeholder="Cost" style="height: 26px; font-size: 0.74rem; border-radius: 0!important;" />
+                      <button class="btn btn-primary px-2" type="button" (click)="applyBulkCostToPreview()" title="Set this purchase cost for all variants" style="height: 26px; font-size: 0.7rem; line-height: 1;">
+                        Apply
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div class="input-group input-group-sm" style="max-width: 190px;">
-                  <span class="input-group-text" style="font-size: 0.72rem;">Cost ₹</span>
-                  <input type="number" class="form-control" [(ngModel)]="bulkCostInput" placeholder="Cost" style="font-size: 0.74rem;" />
-                  <button class="btn btn-outline-secondary" type="button" (click)="applyBulkCostToPreview()" title="Set purchase cost for all variants">Apply All</button>
-                </div>
-                <small class="text-muted ms-auto fst-italic" style="font-size: 0.7rem;">
-                  Tip: Change individual prices in the table below for perfumes/sizes
+
+                <small class="text-muted fst-italic ms-auto" style="font-size: 0.7rem;">
+                  Tip: Edit individual variant prices directly in the table below.
                 </small>
               </div>
 
@@ -964,7 +982,7 @@
                           type="number" 
                           class="form-control form-control-sm font-monospace text-end" 
                           [(ngModel)]="pv.purchasePrice" 
-                          style="font-size: 0.74rem; height: 26px;" 
+                          style="font-size: 0.74rem; height: 26px;"  
                           placeholder="0.00"
                           title="Purchase Cost for this variant"
                         />
@@ -1286,83 +1304,95 @@
 
   <!-- Barcode Quick Lookup Result Modal -->
   <div *ngIf="isLookupModalOpen" class="modal fade show d-block barcode-lookup-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closeLookupModal()">
-    <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;" (click)="$event.stopPropagation()">
       <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-dark text-white py-2 px-3">
+        <div class="modal-header barcode-modal-header d-flex justify-content-between align-items-center py-2 px-3">
           <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-barcode text-success"></i>
-            <h6 class="modal-title mb-0 fw-bold">Barcode Lookup & Verification</h6>
+            <div class="barcode-header-icon-box">
+              <i class="fas fa-barcode"></i>
+            </div>
+            <div>
+              <h6 class="modal-title mb-0 fw-bold text-white">Barcode Lookup & Verification</h6>
+              <span class="text-white-50 small" style="font-size: 0.72rem;">Entity scan resolution & verified master data</span>
+            </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="closeLookupModal()"></button>
         </div>
-        <div class="modal-body p-4">
+        <div class="modal-body p-3">
           <div *ngIf="isResolvingBarcode" class="text-center py-4">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="text-muted small mt-2 mb-0">Resolving barcode identity across warehouse entities...</p>
           </div>
 
           <div *ngIf="!isResolvingBarcode && lookupResult">
-            <div *ngIf="!lookupResult.isFound" class="text-center py-3">
-              <i class="fas fa-exclamation-triangle text-warning fa-3x mb-2"></i>
-              <h6 class="fw-bold text-dark">Barcode Not Found</h6>
-              <p class="text-muted small">
+            <div *ngIf="!lookupResult.isFound" class="text-center py-4">
+              <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning-subtle text-warning p-3 mb-2">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+              </div>
+              <h6 class="fw-bold mt-2 mb-1">Barcode Not Found</h6>
+              <p class="text-muted small mb-2">
                 No active Product, Variant, LPN, Location, or Lot matches scanned value:
-                <br/><strong class="font-monospace text-dark">{{ lookupResult.scannedValue }}</strong>
               </p>
+              <span class="barcode-mono-box text-danger">{{ lookupResult.scannedValue }}</span>
             </div>
 
             <div *ngIf="lookupResult.isFound">
-              <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mb-3">
+              <div class="barcode-entity-summary-card d-flex align-items-center justify-content-between mb-3">
                 <div>
-                  <span class="text-muted small d-block">Target Entity Type</span>
-                  <span class="badge bg-primary fs-6">{{ getBarcodeTargetTypeName(lookupResult.targetType) }}</span>
+                  <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Target Entity Type</span>
+                  <span class="barcode-type-pill">
+                    <i class="fas fa-check-circle text-primary"></i>
+                    {{ getBarcodeTargetTypeName(lookupResult.targetType) }}
+                  </span>
                 </div>
                 <div class="text-end">
-                  <span class="text-muted small d-block">Normalized Barcode</span>
-                  <span class="font-monospace fw-bold text-dark">{{ lookupResult.normalizedValue }}</span>
+                  <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Normalized Barcode</span>
+                  <span class="barcode-mono-box">{{ lookupResult.normalizedValue }}</span>
                 </div>
               </div>
 
               <!-- Product / Variant Match Details -->
-              <div *ngIf="lookupResult.sku" class="p-3 rounded border mb-2 bg-white">
-                <div class="row g-2">
+              <div *ngIf="lookupResult.sku" class="barcode-detail-card mb-2">
+                <div class="row g-3">
                   <div class="col-6">
-                    <span class="text-muted small d-block">SKU</span>
-                    <strong class="font-monospace text-primary fs-6">{{ lookupResult.sku }}</strong>
+                    <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">SKU</span>
+                    <span class="barcode-sku-box">{{ lookupResult.sku }}</span>
                   </div>
                   <div class="col-6">
-                    <span class="text-muted small d-block">Product Name</span>
-                    <strong class="text-dark">{{ lookupResult.productName }}</strong>
+                    <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">Product Name</span>
+                    <strong class=" d-block text-truncate" [title]="lookupResult.productName">{{ lookupResult.productName }}</strong>
                   </div>
                   <div class="col-12" *ngIf="lookupResult.variantName">
-                    <span class="text-muted small d-block">Variant Combination</span>
-                    <span class="badge bg-info text-dark">{{ lookupResult.variantName }}</span>
+                    <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">Variant Combination</span>
+                    <span class="barcode-variant-box">
+                      <i class="fas fa-layer-group me-1 text-success"></i>{{ lookupResult.variantName }}
+                    </span>
                   </div>
                   <div class="col-12" *ngIf="lookupResult.isSupplierBarcode">
-                    <div class="p-2 rounded bg-light border mt-2 small">
+                    <div class="p-2 rounded bg-light border small text-muted">
                       <i class="fas fa-truck text-secondary me-1"></i>
-                      <span>Supplier Mapped: <strong>{{ lookupResult.supplierName }}</strong> (Code: {{ lookupResult.supplierProductCode || 'N/A' }})</span>
+                      <span>Supplier Mapped: <strong class=" ">{{ lookupResult.supplierName }}</strong> (Code: {{ lookupResult.supplierProductCode || 'N/A' }})</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <!-- Location Match Details -->
-              <div *ngIf="lookupResult.locationDisplayName" class="p-3 rounded border mb-2 bg-white">
-                <span class="text-muted small d-block">Warehouse Location</span>
+              <div *ngIf="lookupResult.locationDisplayName" class="barcode-detail-card mb-2">
+                <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">Warehouse Location</span>
                 <strong class="text-success fs-6"><i class="fas fa-map-marker-alt me-1"></i>{{ lookupResult.locationDisplayName }}</strong>
               </div>
 
               <!-- LPN Match Details -->
-              <div *ngIf="lookupResult.licensePlateNumber" class="p-3 rounded border mb-2 bg-white">
-                <span class="text-muted small d-block">License Plate Number (LPN)</span>
-                <strong class="font-monospace text-dark fs-6">{{ lookupResult.licensePlateNumber }}</strong>
+              <div *ngIf="lookupResult.licensePlateNumber" class="barcode-detail-card mb-2">
+                <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">License Plate Number (LPN)</span>
+                <span class="barcode-mono-box">{{ lookupResult.licensePlateNumber }}</span>
               </div>
 
               <!-- Lot Match Details -->
-              <div *ngIf="lookupResult.lotBatchNumber" class="p-3 rounded border mb-2 bg-white">
-                <span class="text-muted small d-block">Lot / Batch Number</span>
-                <strong class="font-monospace text-warning fs-6">{{ lookupResult.lotBatchNumber }}</strong>
+              <div *ngIf="lookupResult.lotBatchNumber" class="barcode-detail-card mb-2">
+                <span class="text-muted small d-block mb-1" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 600;">Lot / Batch Number</span>
+                <span class="barcode-mono-box text-warning">{{ lookupResult.lotBatchNumber }}</span>
                 <span *ngIf="lookupResult.expirationDate" class="text-muted small ms-2">
                   (Exp: {{ lookupResult.expirationDate | date:'mediumDate' }})
                 </span>
@@ -1370,8 +1400,10 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer bg-light py-2 px-3">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="closeLookupModal()">Close</button>
+        <div class="modal-footer bg-light py-2 px-3 border-top d-flex justify-content-end">
+          <button type="button" class="btn btn-sm barcode-modal-btn-close px-3" (click)="closeLookupModal()">
+            <i class="fas fa-times me-1"></i> Close
+          </button>
         </div>
       </div>
     </div>
@@ -1379,16 +1411,21 @@
 
   <!-- Barcode Label Print Modal -->
   <div *ngIf="isPrintModalOpen" class="modal fade show d-block label-print-modal" tabindex="-1" role="dialog" aria-modal="true" (click)="closePrintModal()">
-    <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px;" (click)="$event.stopPropagation()">
       <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-dark text-white py-2 px-3 no-print">
-          <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-print text-primary"></i>
-            <h6 class="modal-title mb-0 fw-bold">Barcode Label Print Center</h6>
+        <div class="modal-header barcode-modal-header d-flex justify-content-between align-items-center py-2.5 px-3 no-print">
+          <div class="d-flex align-items-center gap-2.5">
+            <div class="barcode-header-icon-box">
+              <i class="fas fa-print"></i>
+            </div>
+            <div>
+              <h6 class="modal-title mb-0 fw-bold text-white">Barcode Label Print Center</h6>
+              <span class="text-white-50 small" style="font-size: 0.72rem;">Direct thermal & warehouse label generator</span>
+            </div>
           </div>
           <button type="button" class="btn-close btn-close-white" (click)="closePrintModal()"></button>
         </div>
-        <div class="modal-body p-4">
+        <div class="modal-body p-3.5">
           <!-- Print Configuration Controls (Hidden during print) -->
           <div class="no-print mb-3 p-3 bg-light rounded border">
             <div class="row g-2 align-items-center">
@@ -1424,9 +1461,9 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer bg-light py-2 px-3 no-print">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="closePrintModal()">Cancel</button>
-          <button type="button" class="btn btn-sm btn-primary" (click)="executePrint()">
+        <div class="modal-footer bg-light py-2 px-3 no-print border-top d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-sm barcode-modal-btn-close px-3" (click)="closePrintModal()">Cancel</button>
+          <button type="button" class="btn btn-sm btn-primary px-3" (click)="executePrint()">
             <i class="fas fa-print me-1"></i> Print Label
           </button>
         </div>
